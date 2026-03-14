@@ -295,4 +295,86 @@ if(!error)msg('mAdmin','Data terkirim!','mg-ok');else msg('mAdmin','Gagal: '+err
 async function hapusData(){
 if(!confirm('Yakin hapus SEMUA data? Tidak bisa dikembalikan!'))return;
 const{error}=await db.from('sensor_data').delete().neq('id',0);
-if(!error){allData=[];updateDashboard();msg('mAdmin','Semua data 
+if(!error){allData=[];updateDashboard();msg('mAdmin','Semua data dihapus','mg-ok');}
+else msg('mAdmin','Gagal: '+error.message,'mg-er');}
+
+function toggleMode(){
+presMode=!presMode;document.querySelectorAll('.pres-hide').forEach(e=>e.style.display=presMode?'none':'block');
+document.getElementById('modeBtn').textContent=presMode?'👁️ Mode Admin':'🎬 Mode Presentasi';}
+
+document.addEventListener('DOMContentLoaded',()=>{
+document.getElementById('iOrg')?.addEventListener('keypress',e=>{if(e.key==='Enter')setOrang();});
+document.getElementById('iAC')?.addEventListener('keypress',e=>{if(e.key==='Enter')setAC();});
+document.getElementById('iCat')?.addEventListener('keypress',e=>{if(e.key==='Enter')setCatatan();});});
+
+function updateDashboard(){
+if(allData.length===0){el('totalRec','0');return;}
+const L=allData[allData.length-1];
+el('suhu',L.suhu?.toFixed(1));el('lem',L.kelembaban?.toFixed(1));el('hi',L.heat_index?.toFixed(1));
+el('ac',L.setting_ac);el('ci',L.comfort_index?.toFixed(0));el('lastUpdate',L.waktu||'--');
+el('orgInfo',L.jumlah_orang??adminOrang);
+const st=document.getElementById('sts');st.textContent=L.status;st.className='sb '+L.status;
+const dv=document.getElementById('dev');const d=L.deviasi||0;
+dv.textContent=(d>=0?'+':'')+d.toFixed(1);dv.className=Math.abs(d)<=1?'dev-ok':d>0?'dev-pos':'dev-neg';
+const ci=L.comfort_index||0;const bar=document.getElementById('ciBar');
+bar.style.width=ci+'%';bar.className='ci-fill '+(ci>=70?'ci-good':ci>=40?'ci-mid':'ci-bad');
+const sc=document.getElementById('suhuCard'),cc=document.getElementById('ciCard');
+if(ci<40){sc.classList.add('alert-card');cc.classList.add('alert-card');}
+else{sc.classList.remove('alert-card');cc.classList.remove('alert-card');}
+if(ci>=80)el('reko','Kondisi ruangan memenuhi standar kenyamanan SNI 03-6572-2001 (24-27°C, 55-65% RH).');
+else if(ci>=60)el('reko','Kondisi cukup nyaman. Pertimbangkan menurunkan AC 1-2 derajat untuk efisiensi energi.');
+else if(ci>=40)el('reko','Ruangan kurang nyaman. Disarankan menurunkan setting AC atau mengurangi jumlah penghuni.');
+else el('reko','TIDAK NYAMAN! AC tidak mampu mengkompensasi beban panas. Perlu penambahan unit AC.');
+updateStats();updateGroupStats();updateLogTable();updateCharts();updateSummary();}
+
+function updateStats(){
+const sa=allData.map(d=>d.suhu).filter(v=>v!=null);
+const la=allData.map(d=>d.kelembaban).filter(v=>v!=null);
+const da=allData.map(d=>d.deviasi).filter(v=>v!=null);
+if(!sa.length)return;const av=a=>a.reduce((x,y)=>x+y,0)/a.length;
+el('sMin',Math.min(...sa).toFixed(1));el('sMax',Math.max(...sa).toFixed(1));el('sAvg',av(sa).toFixed(1));
+const dA=da.length?av(da):0;el('dAvg',(dA>=0?'+':'')+dA.toFixed(1));
+el('lMin',Math.min(...la).toFixed(1));el('lMax',Math.max(...la).toFixed(1));el('cnt',allData.length);
+const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null)return;if(!gr[o])gr[o]=[];gr[o].push(d.suhu);});
+const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
+if(ks.length>=2){const mn=ks[0],mx=ks[ks.length-1],am=av(gr[mn]),ax=av(gr[mx]);
+if(mx>mn){const dt=(ax-am)/(mx-mn);el('deltaT',(dt>=0?'+':'')+dt.toFixed(3));}}}
+
+function updateGroupStats(){
+const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null)return;
+if(!gr[o])gr[o]={s:[],l:[],d:[],c:[]};gr[o].s.push(d.suhu);gr[o].l.push(d.kelembaban);gr[o].d.push(d.deviasi);gr[o].c.push(d.comfort_index);});
+const av=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):0;
+const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);let h='';
+ks.forEach(o=>{const g=gr[o],ad=av(g.d);
+h+='<tr><td>'+o+'</td><td>'+av(g.s).toFixed(1)+'°C</td><td>'+av(g.l).toFixed(1)+'%</td><td>'+(ad>=0?'+':'')+ad.toFixed(1)+'°C</td><td>'+av(g.c).toFixed(0)+'%</td><td>'+g.s.length+'</td></tr>';});
+document.getElementById('grpTable').innerHTML=h||'<tr><td colspan="6" style="opacity:.4">Belum ada data</td></tr>';}
+
+function updateLogTable(){
+const rc=allData.slice(-20).reverse();let h='';
+rc.forEach(d=>{const dv=d.deviasi||0;
+h+='<tr><td>'+(d.waktu||'-')+'</td><td>'+(d.suhu?.toFixed(1)||'-')+'</td><td>'+(d.kelembaban?.toFixed(1)||'-')+'</td><td>'+(d.heat_index?.toFixed(1)||'-')+'</td><td>'+(d.jumlah_orang??'-')+'</td><td>'+(d.setting_ac??'-')+'</td><td>'+(dv>=0?'+':'')+dv.toFixed(1)+'</td><td>'+(d.comfort_index?.toFixed(0)||'-')+'%</td><td><span class="sb '+d.status+'" style="font-size:9px;padding:2px 8px">'+(d.status||'-')+'</span></td></tr>';});
+document.getElementById('logTable').innerHTML=h||'<tr><td colspan="9" style="opacity:.4">Belum ada data</td></tr>';}
+
+function setChart(f,b){currentField=f;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));b.classList.add('act');updateCharts();}
+
+function updateCharts(){
+const l30=allData.slice(-30),lb=l30.map(d=>d.waktu||''),vl=l30.map(d=>d[currentField]||0);
+const cl={suhu:'#6c5ce7',kelembaban:'#00b894',heat_index:'#e17055',comfort_index:'#fdcb6e'},cr=cl[currentField]||'#6c5ce7';
+if(mainChart)mainChart.destroy();
+mainChart=new Chart(document.getElementById('mainChart'),{type:'line',data:{labels:lb,datasets:[{data:vl,borderColor:cr,backgroundColor:cr+'22',fill:true,tension:.4,pointRadius:2,pointBackgroundColor:cr,borderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#fff4',font:{size:8},maxTicksLimit:8},grid:{color:'#fff1'}},y:{ticks:{color:'#fff4',font:{size:9}},grid:{color:'#fff1'}}}}});
+const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null||d.suhu==null)return;if(!gr[o])gr[o]=[];gr[o].push(d.suhu);});
+const av=a=>a.reduce((x,y)=>x+y,0)/a.length,ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
+if(corrChart)corrChart.destroy();
+corrChart=new Chart(document.getElementById('corrChart'),{type:'scatter',data:{datasets:[{data:ks.map(k=>({x:k,y:av(gr[k])})),backgroundColor:'#6c5ce7',pointRadius:6,pointHoverRadius:8}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x+' orang: '+c.parsed.y.toFixed(1)+'°C'}}},scales:{x:{title:{display:true,text:'Jumlah Orang',color:'#fff8'},ticks:{color:'#fff4'},grid:{color:'#fff1'}},y:{title:{display:true,text:'Suhu (°C)',color:'#fff8'},ticks:{color:'#fff4'},grid:{color:'#fff1'}}}}});}
+
+function updateSummary(){
+if(!allData.length)return;const f=allData[0],l=allData[allData.length-1];
+const sa=allData.map(d=>d.suhu).filter(v=>v!=null),av=a=>a.reduce((x,y)=>x+y,0)/a.length;
+document.getElementById('sumContent').innerHTML='Tanggal: '+(f.tanggal||'-')+'<br>Durasi: '+(f.waktu||'-')+' s/d '+(l.waktu||'-')+'<br>Setting AC: '+(l.setting_ac||'-')+'°C<br>────────────<br>Suhu Min/Max/Avg: '+Math.min(...sa).toFixed(1)+' / '+Math.max(...sa).toFixed(1)+' / '+av(sa).toFixed(1)+' °C<br>Total Data: '+allData.length+' record';}
+
+function updateClock(){const n=new Date();el('clk',String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0')+' WIB');}
+function el(id,v){const e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;}
+init();
+</script>
+</body>
+</html>
