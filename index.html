@@ -98,7 +98,7 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 <div class="clk" id="clk">Menghubungkan ke database...</div>
 
 <!-- ADMIN PANEL -->
-<div class="admin-card pres-hide">
+<div class="admin-card pres-hide" style="display:none">
 <div class="admin-title">⚙️ Admin Panel — Kontrol Ruangan</div>
 <div class="admin-grid">
 
@@ -225,7 +225,7 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 
 <!-- MODE PRESENTASI -->
 <div style="text-align:center;margin-bottom:10px">
-<button class="mode-btn" id="modeBtn" onclick="toggleMode()">🎬 Mode Presentasi</button>
+<button class="mode-btn" id="modeBtn" onclick="toggleMode()">👁️ Mode Normal</button></button>
 </div>
 
 <!-- INFO -->
@@ -250,7 +250,7 @@ const SUPA_KEY='sb_publishable_6iKYw5qRwfEsF7g2XUZDEQ_et9RV8LS';
 const db=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 let allData=[],mainChart=null,corrChart=null,currentField='suhu';
 let adminOrang=0,adminAC=24,adminKondisi='AC Menyala',adminCatatan='-';
-let presMode=false;
+let presMode=true;
 
 async function init(){await loadData();await loadConfig();setupRealtime();setInterval(updateClock,1000);}
 
