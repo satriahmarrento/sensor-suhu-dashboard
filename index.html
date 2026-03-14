@@ -81,11 +81,8 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 .admin-value{font-size:24px;font-weight:700;margin-bottom:8px}
 .mode-btn{padding:10px 20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;font-size:12px;cursor:pointer;margin-top:10px}
 .mode-btn:hover{background:rgba(255,255,255,.15)}
-.pres-hide{}
 .brst{padding:8px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);border-radius:8px;font-size:10px;cursor:pointer;margin-top:8px}
 .brst:hover{background:rgba(255,255,255,.15)}
-.del-btn{padding:6px 12px;background:rgba(231,76,60,.2);border:1px solid rgba(231,76,60,.3);color:#e74c3c;border-radius:6px;font-size:10px;cursor:pointer;margin-left:8px}
-.del-btn:hover{background:rgba(231,76,60,.4)}
 </style>
 </head>
 <body>
@@ -97,11 +94,10 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 </div>
 <div class="clk" id="clk">Menghubungkan ke database...</div>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN PANEL (Default: Hidden) -->
 <div class="admin-card pres-hide" style="display:none">
 <div class="admin-title">⚙️ Admin Panel — Kontrol Ruangan</div>
 <div class="admin-grid">
-
 <div class="admin-item">
 <div class="admin-label">Jumlah Orang</div>
 <div class="admin-value"><span id="orgDisplay">0</span> <span style="font-size:12px;opacity:.5">orang</span></div>
@@ -109,7 +105,6 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 <button class="bs" onclick="setOrang()">SET</button></div>
 <div class="mg" id="mOrg"></div>
 </div>
-
 <div class="admin-item">
 <div class="admin-label">Setting AC</div>
 <div class="admin-value"><span id="acDisplay">24</span> <span style="font-size:12px;opacity:.5">°C</span></div>
@@ -117,7 +112,6 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 <button class="bs" onclick="setAC()">SET</button></div>
 <div class="mg" id="mAC"></div>
 </div>
-
 <div class="admin-item">
 <div class="admin-label">Kondisi Ruangan</div>
 <div class="ir" style="margin:0"><select id="sKon" class="sf" onchange="setKondisi()">
@@ -129,16 +123,13 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 </select></div>
 <div class="mg" id="mKon"></div>
 </div>
-
 <div class="admin-item">
 <div class="admin-label">Catatan</div>
 <div class="ir" style="margin:0"><input type="text" id="iCat" class="it" placeholder="Catatan (opsional)">
 <button class="bs" onclick="setCatatan()">OK</button></div>
 <div class="mg" id="mCat"></div>
 </div>
-
 </div>
-
 <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
 <button class="bsn" style="flex:1" onclick="kirimManual()">📤 Kirim Data Sekarang</button>
 <button class="brst" onclick="hapusData()">🗑️ Hapus Semua Data</button>
@@ -223,9 +214,9 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 <div id="sumContent">Menunggu data...</div>
 </div>
 
-<!-- MODE PRESENTASI -->
+<!-- MODE TOGGLE -->
 <div style="text-align:center;margin-bottom:10px">
-<button class="mode-btn" id="modeBtn" onclick="toggleMode()">👁️ Mode Normal</button></button>
+<button class="mode-btn" id="modeBtn" onclick="toggleMode()">👁️ Mode Admin</button>
 </div>
 
 <!-- INFO -->
@@ -243,8 +234,8 @@ Total record: <span id="totalRec">0</span> &bull; Update terakhir: <span id="las
 // ╔════════════════════════════════════════════╗
 // ║  GANTI 2 BARIS INI DENGAN PUNYAMU         ║
 // ╚════════════════════════════════════════════╝
-const SUPA_URL='https://sjvrugtlhvyvqkebjmka.supabase.co';
-const SUPA_KEY='sb_publishable_6iKYw5qRwfEsF7g2XUZDEQ_et9RV8LS';
+const SUPA_URL='https://XXXXX.supabase.co';
+const SUPA_KEY='eyJhbGci_ANON_KEY_KAMU';
 // ═════════════════════════════════════════════
 
 const db=window.supabase.createClient(SUPA_URL,SUPA_KEY);
@@ -254,7 +245,6 @@ let presMode=true;
 
 async function init(){await loadData();await loadConfig();setupRealtime();setInterval(updateClock,1000);}
 
-// === CONFIG TABLE (untuk admin) ===
 async function loadConfig(){
 const{data}=await db.from('admin_config').select('*').eq('id',1).single();
 if(data){adminOrang=data.jumlah_orang||0;adminAC=data.setting_ac||24;adminKondisi=data.kondisi||'AC Menyala';adminCatatan=data.catatan||'-';
@@ -263,13 +253,11 @@ el('orgDisplay',adminOrang);el('acDisplay',adminAC);el('orgInfo',adminOrang);}}
 async function saveConfig(){
 await db.from('admin_config').upsert({id:1,jumlah_orang:adminOrang,setting_ac:adminAC,kondisi:adminKondisi,catatan:adminCatatan});}
 
-// === LOAD DATA ===
 async function loadData(){
 const{data,error}=await db.from('sensor_data').select('*').order('created_at',{ascending:true});
 if(error){el('dbStatus','Gagal: '+error.message);document.getElementById('dot').className='dt dt-er';return;}
 allData=data||[];el('dbStatus','Terhubung');document.getElementById('dot').className='dt dt-ok';el('totalRec',allData.length);updateDashboard();}
 
-// === REALTIME ===
 function setupRealtime(){
 db.channel('sensor_changes').on('postgres_changes',{event:'INSERT',schema:'public',table:'sensor_data'},(p)=>{
 allData.push(p.new);el('totalRec',allData.length);updateDashboard();}).subscribe();
@@ -277,7 +265,6 @@ db.channel('config_changes').on('postgres_changes',{event:'*',schema:'public',ta
 const d=p.new;if(d){adminOrang=d.jumlah_orang||0;adminAC=d.setting_ac||24;adminKondisi=d.kondisi||'AC Menyala';adminCatatan=d.catatan||'-';
 el('orgDisplay',adminOrang);el('acDisplay',adminAC);el('orgInfo',adminOrang);}}).subscribe();}
 
-// === ADMIN FUNCTIONS ===
 function msg(id,t,c){const m=document.getElementById(id);m.textContent=t;m.className='mg sh '+c;setTimeout(()=>m.className='mg',3000);}
 
 async function setOrang(){
@@ -292,11 +279,9 @@ if(isNaN(v)){msg('mAC','Masukkan angka!','mg-er');return;}
 adminAC=Math.min(30,Math.max(16,v));document.getElementById('iAC').value=adminAC;
 await saveConfig();el('acDisplay',adminAC);msg('mAC','AC: '+adminAC+'°C','mg-ok');}
 
-async function setKondisi(){
-adminKondisi=document.getElementById('sKon').value;await saveConfig();msg('mKon',adminKondisi,'mg-ok');}
+async function setKondisi(){adminKondisi=document.getElementById('sKon').value;await saveConfig();msg('mKon',adminKondisi,'mg-ok');}
 
-async function setCatatan(){
-adminCatatan=document.getElementById('iCat').value||'-';await saveConfig();msg('mCat','Catatan OK','mg-ok');}
+async function setCatatan(){adminCatatan=document.getElementById('iCat').value||'-';await saveConfig();msg('mCat','Catatan OK','mg-ok');}
 
 async function kirimManual(){
 const latest=allData.length>0?allData[allData.length-1]:null;
@@ -310,88 +295,4 @@ if(!error)msg('mAdmin','Data terkirim!','mg-ok');else msg('mAdmin','Gagal: '+err
 async function hapusData(){
 if(!confirm('Yakin hapus SEMUA data? Tidak bisa dikembalikan!'))return;
 const{error}=await db.from('sensor_data').delete().neq('id',0);
-if(!error){allData=[];updateDashboard();msg('mAdmin','Semua data dihapus','mg-ok');}
-else msg('mAdmin','Gagal: '+error.message,'mg-er');}
-
-function toggleMode(){
-presMode=!presMode;document.querySelectorAll('.pres-hide').forEach(e=>e.style.display=presMode?'none':'block');
-document.getElementById('modeBtn').textContent=presMode?'👁️ Mode Normal':'🎬 Mode Presentasi';}
-
-// === ENTER KEY ===
-document.addEventListener('DOMContentLoaded',()=>{
-document.getElementById('iOrg')?.addEventListener('keypress',e=>{if(e.key==='Enter')setOrang();});
-document.getElementById('iAC')?.addEventListener('keypress',e=>{if(e.key==='Enter')setAC();});
-document.getElementById('iCat')?.addEventListener('keypress',e=>{if(e.key==='Enter')setCatatan();});});
-
-// === UPDATE DASHBOARD ===
-function updateDashboard(){
-if(allData.length===0){el('totalRec','0');return;}
-const L=allData[allData.length-1];
-el('suhu',L.suhu?.toFixed(1));el('lem',L.kelembaban?.toFixed(1));el('hi',L.heat_index?.toFixed(1));
-el('ac',L.setting_ac);el('ci',L.comfort_index?.toFixed(0));el('lastUpdate',L.waktu||'--');
-el('orgInfo',L.jumlah_orang??adminOrang);
-const st=document.getElementById('sts');st.textContent=L.status;st.className='sb '+L.status;
-const dv=document.getElementById('dev');const d=L.deviasi||0;
-dv.textContent=(d>=0?'+':'')+d.toFixed(1);dv.className=Math.abs(d)<=1?'dev-ok':d>0?'dev-pos':'dev-neg';
-const ci=L.comfort_index||0;const bar=document.getElementById('ciBar');
-bar.style.width=ci+'%';bar.className='ci-fill '+(ci>=70?'ci-good':ci>=40?'ci-mid':'ci-bad');
-const sc=document.getElementById('suhuCard'),cc=document.getElementById('ciCard');
-if(ci<40){sc.classList.add('alert-card');cc.classList.add('alert-card');}
-else{sc.classList.remove('alert-card');cc.classList.remove('alert-card');}
-if(ci>=80)el('reko','Kondisi ruangan memenuhi standar kenyamanan SNI 03-6572-2001 (24-27°C, 55-65% RH).');
-else if(ci>=60)el('reko','Kondisi cukup nyaman. Pertimbangkan menurunkan AC 1-2 derajat untuk efisiensi energi.');
-else if(ci>=40)el('reko','Ruangan kurang nyaman. Disarankan menurunkan setting AC atau mengurangi jumlah penghuni.');
-else el('reko','TIDAK NYAMAN! AC tidak mampu mengkompensasi beban panas. Perlu penambahan unit AC.');
-updateStats();updateGroupStats();updateLogTable();updateCharts();updateSummary();}
-
-function updateStats(){
-const sa=allData.map(d=>d.suhu).filter(v=>v!=null);
-const la=allData.map(d=>d.kelembaban).filter(v=>v!=null);
-const da=allData.map(d=>d.deviasi).filter(v=>v!=null);
-if(!sa.length)return;const av=a=>a.reduce((x,y)=>x+y,0)/a.length;
-el('sMin',Math.min(...sa).toFixed(1));el('sMax',Math.max(...sa).toFixed(1));el('sAvg',av(sa).toFixed(1));
-const dA=da.length?av(da):0;el('dAvg',(dA>=0?'+':'')+dA.toFixed(1));
-el('lMin',Math.min(...la).toFixed(1));el('lMax',Math.max(...la).toFixed(1));el('cnt',allData.length);
-const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null)return;if(!gr[o])gr[o]=[];gr[o].push(d.suhu);});
-const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
-if(ks.length>=2){const mn=ks[0],mx=ks[ks.length-1],am=av(gr[mn]),ax=av(gr[mx]);
-if(mx>mn){const dt=(ax-am)/(mx-mn);el('deltaT',(dt>=0?'+':'')+dt.toFixed(3));}}}
-
-function updateGroupStats(){
-const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null)return;
-if(!gr[o])gr[o]={s:[],l:[],d:[],c:[]};gr[o].s.push(d.suhu);gr[o].l.push(d.kelembaban);gr[o].d.push(d.deviasi);gr[o].c.push(d.comfort_index);});
-const av=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):0;
-const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);let h='';
-ks.forEach(o=>{const g=gr[o],ad=av(g.d);
-h+='<tr><td>'+o+'</td><td>'+av(g.s).toFixed(1)+'°C</td><td>'+av(g.l).toFixed(1)+'%</td><td>'+(ad>=0?'+':'')+ad.toFixed(1)+'°C</td><td>'+av(g.c).toFixed(0)+'%</td><td>'+g.s.length+'</td></tr>';});
-document.getElementById('grpTable').innerHTML=h||'<tr><td colspan="6" style="opacity:.4">Belum ada data</td></tr>';}
-
-function updateLogTable(){
-const rc=allData.slice(-20).reverse();let h='';
-rc.forEach(d=>{const dv=d.deviasi||0;
-h+='<tr><td>'+(d.waktu||'-')+'</td><td>'+(d.suhu?.toFixed(1)||'-')+'</td><td>'+(d.kelembaban?.toFixed(1)||'-')+'</td><td>'+(d.heat_index?.toFixed(1)||'-')+'</td><td>'+(d.jumlah_orang??'-')+'</td><td>'+(d.setting_ac??'-')+'</td><td>'+(dv>=0?'+':'')+dv.toFixed(1)+'</td><td>'+(d.comfort_index?.toFixed(0)||'-')+'%</td><td><span class="sb '+d.status+'" style="font-size:9px;padding:2px 8px">'+(d.status||'-')+'</span></td></tr>';});
-document.getElementById('logTable').innerHTML=h||'<tr><td colspan="9" style="opacity:.4">Belum ada data</td></tr>';}
-
-function setChart(f,b){currentField=f;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));b.classList.add('act');updateCharts();}
-
-function updateCharts(){
-const l30=allData.slice(-30),lb=l30.map(d=>d.waktu||''),vl=l30.map(d=>d[currentField]||0);
-const cl={suhu:'#6c5ce7',kelembaban:'#00b894',heat_index:'#e17055',comfort_index:'#fdcb6e'},cr=cl[currentField]||'#6c5ce7';
-if(mainChart)mainChart.destroy();
-mainChart=new Chart(document.getElementById('mainChart'),{type:'line',data:{labels:lb,datasets:[{data:vl,borderColor:cr,backgroundColor:cr+'22',fill:true,tension:.4,pointRadius:2,pointBackgroundColor:cr,borderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#fff4',font:{size:8},maxTicksLimit:8},grid:{color:'#fff1'}},y:{ticks:{color:'#fff4',font:{size:9}},grid:{color:'#fff1'}}}}});
-const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null||d.suhu==null)return;if(!gr[o])gr[o]=[];gr[o].push(d.suhu);});
-const av=a=>a.reduce((x,y)=>x+y,0)/a.length,ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
-if(corrChart)corrChart.destroy();
-corrChart=new Chart(document.getElementById('corrChart'),{type:'scatter',data:{datasets:[{data:ks.map(k=>({x:k,y:av(gr[k])})),backgroundColor:'#6c5ce7',pointRadius:6,pointHoverRadius:8}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x+' orang: '+c.parsed.y.toFixed(1)+'°C'}}},scales:{x:{title:{display:true,text:'Jumlah Orang',color:'#fff8'},ticks:{color:'#fff4'},grid:{color:'#fff1'}},y:{title:{display:true,text:'Suhu (°C)',color:'#fff8'},ticks:{color:'#fff4'},grid:{color:'#fff1'}}}}});}
-
-function updateSummary(){
-if(!allData.length)return;const f=allData[0],l=allData[allData.length-1];
-const sa=allData.map(d=>d.suhu).filter(v=>v!=null),av=a=>a.reduce((x,y)=>x+y,0)/a.length;
-document.getElementById('sumContent').innerHTML='Tanggal: '+(f.tanggal||'-')+'<br>Durasi: '+(f.waktu||'-')+' s/d '+(l.waktu||'-')+'<br>Setting AC: '+(l.setting_ac||'-')+'°C<br>────────────<br>Suhu Min/Max/Avg: '+Math.min(...sa).toFixed(1)+' / '+Math.max(...sa).toFixed(1)+' / '+av(sa).toFixed(1)+' °C<br>Total Data: '+allData.length+' record';}
-
-function updateClock(){const n=new Date();el('clk',String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0')+' WIB');}
-function el(id,v){const e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;}
-init();
-</script>
-</body>
-</html>
+if(!error){allData=[];updateDashboard();msg('mAdmin','Semua data 
