@@ -31,9 +31,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .PANAS{background:#e17055}
 .ci-bar{width:100%;height:8px;background:rgba(255,255,255,.1);border-radius:4px;margin-top:6px;overflow:hidden}
 .ci-fill{height:100%;border-radius:4px;transition:width .5s}
-.ci-good{background:#00b894}
-.ci-mid{background:#fdcb6e}
-.ci-bad{background:#e17055}
+.ci-good{background:#00b894}.ci-mid{background:#fdcb6e}.ci-bad{background:#e17055}
 .reko{font-size:11px;padding:10px;background:rgba(255,255,255,.05);border-radius:8px;margin-top:8px;border-left:3px solid #6c5ce7;line-height:1.6}
 .si{background:rgba(255,255,255,.05);padding:10px;border-radius:8px;text-align:center}
 .siv{font-size:20px;font-weight:700}
@@ -44,8 +42,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .alert-card{border:2px solid #e17055!important;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{border-color:#e17055}50%{border-color:transparent}}
 .dt{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
-.dt-ok{background:#00b894}
-.dt-er{background:#e17055}
+.dt-ok{background:#00b894}.dt-er{background:#e17055}
 table{width:100%;border-collapse:collapse;margin-top:8px;font-size:11px}
 th{background:rgba(255,255,255,.1);padding:8px 6px;text-align:center;opacity:.7;font-size:10px}
 td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.05)}
@@ -58,6 +55,37 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 .sum-card{background:rgba(108,92,231,.12);border:1px solid rgba(108,92,231,.25);border-radius:14px;padding:16px;margin-bottom:10px;font-size:12px;line-height:2}
 .sum-title{font-size:15px;font-weight:700;text-align:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1)}
 .inf{font-size:10px;opacity:.4;margin-top:14px;text-align:center}
+.ir{display:flex;gap:8px;margin-top:8px;align-items:center}
+.if{flex:1;padding:11px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:#fff;font-size:15px;font-weight:700;text-align:center}
+.if:focus{outline:none;border-color:#6c5ce7;background:rgba(255,255,255,.08)}
+.if::placeholder{color:rgba(255,255,255,.2);font-size:12px;font-weight:400}
+.it{flex:1;padding:11px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:#fff;font-size:13px}
+.it:focus{outline:none;border-color:#6c5ce7}
+.it::placeholder{color:rgba(255,255,255,.2)}
+.sf{flex:1;padding:11px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(20,20,50,.9);color:#fff;font-size:12px}
+.sf:focus{outline:none;border-color:#6c5ce7}
+.bs{padding:11px 18px;background:#6c5ce7;border:none;color:#fff;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+.bs:hover{background:#5a4bd1}
+.bsn{width:100%;padding:14px;background:#00b894;border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
+.bsn:hover{background:#00a381}
+.mg{text-align:center;font-size:11px;margin-top:5px;min-height:16px;opacity:0;transition:opacity .3s}
+.mg.sh{opacity:1}
+.mg-ok{color:#00b894}
+.mg-er{color:#e17055}
+.admin-card{background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.2);border-radius:14px;padding:16px;margin-bottom:10px}
+.admin-title{font-size:12px;font-weight:700;color:#a29bfe;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:600px){.admin-grid{grid-template-columns:1fr}}
+.admin-item{background:rgba(255,255,255,.05);border-radius:10px;padding:12px}
+.admin-label{font-size:10px;opacity:.5;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.admin-value{font-size:24px;font-weight:700;margin-bottom:8px}
+.mode-btn{padding:10px 20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;font-size:12px;cursor:pointer;margin-top:10px}
+.mode-btn:hover{background:rgba(255,255,255,.15)}
+.pres-hide{}
+.brst{padding:8px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);border-radius:8px;font-size:10px;cursor:pointer;margin-top:8px}
+.brst:hover{background:rgba(255,255,255,.15)}
+.del-btn{padding:6px 12px;background:rgba(231,76,60,.2);border:1px solid rgba(231,76,60,.3);color:#e74c3c;border-radius:6px;font-size:10px;cursor:pointer;margin-left:8px}
+.del-btn:hover{background:rgba(231,76,60,.4)}
 </style>
 </head>
 <body>
@@ -69,12 +97,63 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 </div>
 <div class="clk" id="clk">Menghubungkan ke database...</div>
 
+<!-- ADMIN PANEL -->
+<div class="admin-card pres-hide">
+<div class="admin-title">⚙️ Admin Panel — Kontrol Ruangan</div>
+<div class="admin-grid">
+
+<div class="admin-item">
+<div class="admin-label">Jumlah Orang</div>
+<div class="admin-value"><span id="orgDisplay">0</span> <span style="font-size:12px;opacity:.5">orang</span></div>
+<div class="ir" style="margin:0"><input type="number" id="iOrg" class="if" min="0" placeholder="Jumlah orang">
+<button class="bs" onclick="setOrang()">SET</button></div>
+<div class="mg" id="mOrg"></div>
+</div>
+
+<div class="admin-item">
+<div class="admin-label">Setting AC</div>
+<div class="admin-value"><span id="acDisplay">24</span> <span style="font-size:12px;opacity:.5">°C</span></div>
+<div class="ir" style="margin:0"><input type="number" id="iAC" class="if" min="16" max="30" placeholder="16-30 °C">
+<button class="bs" onclick="setAC()">SET</button></div>
+<div class="mg" id="mAC"></div>
+</div>
+
+<div class="admin-item">
+<div class="admin-label">Kondisi Ruangan</div>
+<div class="ir" style="margin:0"><select id="sKon" class="sf" onchange="setKondisi()">
+<option value="AC Menyala">AC Menyala</option>
+<option value="AC Mati">AC Mati</option>
+<option value="Jendela Terbuka">Jendela Terbuka</option>
+<option value="Pintu Terbuka">Pintu Terbuka</option>
+<option value="AC + Jendela Terbuka">AC + Jendela</option>
+</select></div>
+<div class="mg" id="mKon"></div>
+</div>
+
+<div class="admin-item">
+<div class="admin-label">Catatan</div>
+<div class="ir" style="margin:0"><input type="text" id="iCat" class="it" placeholder="Catatan (opsional)">
+<button class="bs" onclick="setCatatan()">OK</button></div>
+<div class="mg" id="mCat"></div>
+</div>
+
+</div>
+
+<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+<button class="bsn" style="flex:1" onclick="kirimManual()">📤 Kirim Data Sekarang</button>
+<button class="brst" onclick="hapusData()">🗑️ Hapus Semua Data</button>
+</div>
+<div class="mg" id="mAdmin"></div>
+</div>
+
+<!-- SUHU -->
 <div class="cd" id="suhuCard">
 <div class="ct">Suhu Ruangan</div>
 <div class="bv"><span id="suhu">--</span><span class="un"> °C</span></div>
-<div class="sv">Terasa: <b id="hi">--</b>°C &bull; Deviasi: <span id="dev" class="dev-ok">--</span>°C &bull; AC: <span id="ac">--</span>°C</div>
+<div class="sv">Terasa: <b id="hi">--</b>°C &bull; Deviasi: <span id="dev" class="dev-ok">--</span>°C &bull; AC: <span id="ac">--</span>°C &bull; Orang: <span id="orgInfo">0</span></div>
 </div>
 
+<!-- KELEMBABAN + STATUS + CI -->
 <div class="grid g3">
 <div class="cd"><div class="ct">Kelembaban</div>
 <div style="font-size:28px;font-weight:700"><span id="lem">--</span><span class="un"> %</span></div></div>
@@ -85,11 +164,13 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 <div class="ci-bar"><div class="ci-fill" id="ciBar" style="width:0%"></div></div></div>
 </div>
 
+<!-- REKOMENDASI -->
 <div class="cd">
 <div class="ct">Rekomendasi (SNI 03-6572-2001)</div>
 <div class="reko" id="reko">Menunggu data dari sensor...</div>
 </div>
 
+<!-- GRAFIK -->
 <div class="cd">
 <div class="ct">Grafik Realtime</div>
 <div class="tab-r">
@@ -101,20 +182,23 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 <div class="chart-box"><canvas id="mainChart" height="200"></canvas></div>
 </div>
 
+<!-- KORELASI -->
 <div class="cd">
 <div class="ct">Korelasi: Suhu vs Jumlah Orang</div>
 <div class="chart-box"><canvas id="corrChart" height="200"></canvas></div>
 </div>
 
+<!-- STATISTIK PER KELOMPOK -->
 <div class="cd">
 <div class="ct">Statistik Per Kelompok Orang</div>
 <table><thead><tr><th>Orang</th><th>Avg Suhu</th><th>Avg Lembab</th><th>Avg Deviasi</th><th>Avg CI</th><th>Data</th></tr></thead>
 <tbody id="grpTable"><tr><td colspan="6" style="opacity:.4">Menunggu data...</td></tr></tbody></table>
 </div>
 
+<!-- RINGKASAN -->
 <div class="cd">
 <div class="ct">Ringkasan Sesi</div>
-<div class="grid g4" id="statsGrid">
+<div class="grid g4">
 <div class="si"><div class="siv" id="sMin">--</div><div class="sil">Suhu Min</div></div>
 <div class="si"><div class="siv" id="sMax">--</div><div class="sil">Suhu Max</div></div>
 <div class="si"><div class="siv" id="sAvg">--</div><div class="sil">Suhu Avg</div></div>
@@ -125,6 +209,7 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 <div class="si"><div class="siv" id="deltaT">--</div><div class="sil">°C / Orang</div></div>
 </div></div>
 
+<!-- 20 DATA TERAKHIR -->
 <div class="cd">
 <div class="ct">20 Data Terakhir</div>
 <div style="overflow-x:auto">
@@ -132,11 +217,18 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 <tbody id="logTable"><tr><td colspan="9" style="opacity:.4">Menunggu data...</td></tr></tbody></table>
 </div></div>
 
+<!-- RINGKASAN PENGUKURAN -->
 <div class="sum-card">
 <div class="sum-title">RINGKASAN PENGUKURAN</div>
 <div id="sumContent">Menunggu data...</div>
 </div>
 
+<!-- MODE PRESENTASI -->
+<div style="text-align:center;margin-bottom:10px">
+<button class="mode-btn" id="modeBtn" onclick="toggleMode()">🎬 Mode Presentasi</button>
+</div>
+
+<!-- INFO -->
 <div class="cd">
 <div class="ct">Info Koneksi</div>
 <div style="font-size:12px;line-height:1.8">
@@ -151,63 +243,126 @@ Total record: <span id="totalRec">0</span> &bull; Update terakhir: <span id="las
 // ╔════════════════════════════════════════════╗
 // ║  GANTI 2 BARIS INI DENGAN PUNYAMU         ║
 // ╚════════════════════════════════════════════╝
-const SUPA_URL='https://sjvrugtlhvyvqkebjmka.supabase.co';
-const SUPA_KEY='sb_publishable_6iKYw5qRwfEsF7g2XUZDEQ_et9RV8LS';
+const SUPA_URL='https://XXXXX.supabase.co';
+const SUPA_KEY='eyJhbGci_ANON_KEY_KAMU';
 // ═════════════════════════════════════════════
 
 const db=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 let allData=[],mainChart=null,corrChart=null,currentField='suhu';
+let adminOrang=0,adminAC=24,adminKondisi='AC Menyala',adminCatatan='-';
+let presMode=false;
 
-async function init(){await loadData();setupRealtime();setInterval(updateClock,1000);}
+async function init(){await loadData();await loadConfig();setupRealtime();setInterval(updateClock,1000);}
 
+// === CONFIG TABLE (untuk admin) ===
+async function loadConfig(){
+const{data}=await db.from('admin_config').select('*').eq('id',1).single();
+if(data){adminOrang=data.jumlah_orang||0;adminAC=data.setting_ac||24;adminKondisi=data.kondisi||'AC Menyala';adminCatatan=data.catatan||'-';
+el('orgDisplay',adminOrang);el('acDisplay',adminAC);el('orgInfo',adminOrang);}}
+
+async function saveConfig(){
+await db.from('admin_config').upsert({id:1,jumlah_orang:adminOrang,setting_ac:adminAC,kondisi:adminKondisi,catatan:adminCatatan});}
+
+// === LOAD DATA ===
 async function loadData(){
 const{data,error}=await db.from('sensor_data').select('*').order('created_at',{ascending:true});
-if(error){console.error(error);el('dbStatus','Gagal: '+error.message);document.getElementById('dot').className='dt dt-er';return;}
+if(error){el('dbStatus','Gagal: '+error.message);document.getElementById('dot').className='dt dt-er';return;}
 allData=data||[];el('dbStatus','Terhubung');document.getElementById('dot').className='dt dt-ok';el('totalRec',allData.length);updateDashboard();}
 
+// === REALTIME ===
 function setupRealtime(){
-db.channel('sensor_changes').on('postgres_changes',{event:'INSERT',schema:'public',table:'sensor_data'},(payload)=>{
-allData.push(payload.new);el('totalRec',allData.length);updateDashboard();}).subscribe();}
+db.channel('sensor_changes').on('postgres_changes',{event:'INSERT',schema:'public',table:'sensor_data'},(p)=>{
+allData.push(p.new);el('totalRec',allData.length);updateDashboard();}).subscribe();
+db.channel('config_changes').on('postgres_changes',{event:'*',schema:'public',table:'admin_config'},(p)=>{
+const d=p.new;if(d){adminOrang=d.jumlah_orang||0;adminAC=d.setting_ac||24;adminKondisi=d.kondisi||'AC Menyala';adminCatatan=d.catatan||'-';
+el('orgDisplay',adminOrang);el('acDisplay',adminAC);el('orgInfo',adminOrang);}}).subscribe();}
 
+// === ADMIN FUNCTIONS ===
+function msg(id,t,c){const m=document.getElementById(id);m.textContent=t;m.className='mg sh '+c;setTimeout(()=>m.className='mg',3000);}
+
+async function setOrang(){
+const v=parseInt(document.getElementById('iOrg').value);
+if(isNaN(v)){msg('mOrg','Masukkan angka!','mg-er');return;}
+adminOrang=Math.max(0,v);document.getElementById('iOrg').value=adminOrang;
+await saveConfig();el('orgDisplay',adminOrang);el('orgInfo',adminOrang);msg('mOrg','Orang: '+adminOrang,'mg-ok');}
+
+async function setAC(){
+const v=parseInt(document.getElementById('iAC').value);
+if(isNaN(v)){msg('mAC','Masukkan angka!','mg-er');return;}
+adminAC=Math.min(30,Math.max(16,v));document.getElementById('iAC').value=adminAC;
+await saveConfig();el('acDisplay',adminAC);msg('mAC','AC: '+adminAC+'°C','mg-ok');}
+
+async function setKondisi(){
+adminKondisi=document.getElementById('sKon').value;await saveConfig();msg('mKon',adminKondisi,'mg-ok');}
+
+async function setCatatan(){
+adminCatatan=document.getElementById('iCat').value||'-';await saveConfig();msg('mCat','Catatan OK','mg-ok');}
+
+async function kirimManual(){
+const latest=allData.length>0?allData[allData.length-1]:null;
+if(!latest){msg('mAdmin','Belum ada data sensor!','mg-er');return;}
+const{error}=await db.from('sensor_data').insert({
+tanggal:latest.tanggal,waktu:new Date().toLocaleTimeString('id-ID'),suhu:latest.suhu,kelembaban:latest.kelembaban,
+heat_index:latest.heat_index,deviasi:latest.suhu-adminAC,comfort_index:latest.comfort_index,
+jumlah_orang:adminOrang,setting_ac:adminAC,kondisi:adminKondisi,catatan:adminCatatan+'(manual)',status:latest.status});
+if(!error)msg('mAdmin','Data terkirim!','mg-ok');else msg('mAdmin','Gagal: '+error.message,'mg-er');}
+
+async function hapusData(){
+if(!confirm('Yakin hapus SEMUA data? Tidak bisa dikembalikan!'))return;
+const{error}=await db.from('sensor_data').delete().neq('id',0);
+if(!error){allData=[];updateDashboard();msg('mAdmin','Semua data dihapus','mg-ok');}
+else msg('mAdmin','Gagal: '+error.message,'mg-er');}
+
+function toggleMode(){
+presMode=!presMode;document.querySelectorAll('.pres-hide').forEach(e=>e.style.display=presMode?'none':'block');
+document.getElementById('modeBtn').textContent=presMode?'👁️ Mode Normal':'🎬 Mode Presentasi';}
+
+// === ENTER KEY ===
+document.addEventListener('DOMContentLoaded',()=>{
+document.getElementById('iOrg')?.addEventListener('keypress',e=>{if(e.key==='Enter')setOrang();});
+document.getElementById('iAC')?.addEventListener('keypress',e=>{if(e.key==='Enter')setAC();});
+document.getElementById('iCat')?.addEventListener('keypress',e=>{if(e.key==='Enter')setCatatan();});});
+
+// === UPDATE DASHBOARD ===
 function updateDashboard(){
-if(allData.length===0)return;
+if(allData.length===0){el('totalRec','0');return;}
 const L=allData[allData.length-1];
 el('suhu',L.suhu?.toFixed(1));el('lem',L.kelembaban?.toFixed(1));el('hi',L.heat_index?.toFixed(1));
 el('ac',L.setting_ac);el('ci',L.comfort_index?.toFixed(0));el('lastUpdate',L.waktu||'--');
+el('orgInfo',L.jumlah_orang??adminOrang);
 const st=document.getElementById('sts');st.textContent=L.status;st.className='sb '+L.status;
 const dv=document.getElementById('dev');const d=L.deviasi||0;
 dv.textContent=(d>=0?'+':'')+d.toFixed(1);dv.className=Math.abs(d)<=1?'dev-ok':d>0?'dev-pos':'dev-neg';
 const ci=L.comfort_index||0;const bar=document.getElementById('ciBar');
 bar.style.width=ci+'%';bar.className='ci-fill '+(ci>=70?'ci-good':ci>=40?'ci-mid':'ci-bad');
-const sc=document.getElementById('suhuCard');const cc=document.getElementById('ciCard');
+const sc=document.getElementById('suhuCard'),cc=document.getElementById('ciCard');
 if(ci<40){sc.classList.add('alert-card');cc.classList.add('alert-card');}
 else{sc.classList.remove('alert-card');cc.classList.remove('alert-card');}
 if(ci>=80)el('reko','Kondisi ruangan memenuhi standar kenyamanan SNI 03-6572-2001 (24-27°C, 55-65% RH).');
 else if(ci>=60)el('reko','Kondisi cukup nyaman. Pertimbangkan menurunkan AC 1-2 derajat untuk efisiensi energi.');
 else if(ci>=40)el('reko','Ruangan kurang nyaman. Disarankan menurunkan setting AC atau mengurangi jumlah penghuni.');
-else el('reko','TIDAK NYAMAN! AC tidak mampu mengkompensasi beban panas dari penghuni. Perlu penambahan unit AC atau pengurangan penghuni.');
+else el('reko','TIDAK NYAMAN! AC tidak mampu mengkompensasi beban panas. Perlu penambahan unit AC.');
 updateStats();updateGroupStats();updateLogTable();updateCharts();updateSummary();}
 
 function updateStats(){
-if(allData.length===0)return;
 const sa=allData.map(d=>d.suhu).filter(v=>v!=null);
 const la=allData.map(d=>d.kelembaban).filter(v=>v!=null);
 const da=allData.map(d=>d.deviasi).filter(v=>v!=null);
-const av=a=>a.reduce((x,y)=>x+y,0)/a.length;
+if(!sa.length)return;const av=a=>a.reduce((x,y)=>x+y,0)/a.length;
 el('sMin',Math.min(...sa).toFixed(1));el('sMax',Math.max(...sa).toFixed(1));el('sAvg',av(sa).toFixed(1));
-const dA=av(da);el('dAvg',(dA>=0?'+':'')+dA.toFixed(1));
+const dA=da.length?av(da):0;el('dAvg',(dA>=0?'+':'')+dA.toFixed(1));
 el('lMin',Math.min(...la).toFixed(1));el('lMax',Math.max(...la).toFixed(1));el('cnt',allData.length);
 const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null)return;if(!gr[o])gr[o]=[];gr[o].push(d.suhu);});
 const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
-if(ks.length>=2){const mn=ks[0],mx=ks[ks.length-1];const am=av(gr[mn]),ax=av(gr[mx]);
+if(ks.length>=2){const mn=ks[0],mx=ks[ks.length-1],am=av(gr[mn]),ax=av(gr[mx]);
 if(mx>mn){const dt=(ax-am)/(mx-mn);el('deltaT',(dt>=0?'+':'')+dt.toFixed(3));}}}
 
 function updateGroupStats(){
 const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null)return;
 if(!gr[o])gr[o]={s:[],l:[],d:[],c:[]};gr[o].s.push(d.suhu);gr[o].l.push(d.kelembaban);gr[o].d.push(d.deviasi);gr[o].c.push(d.comfort_index);});
 const av=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):0;
-const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
-let h='';ks.forEach(o=>{const g=gr[o];const ad=av(g.d);
+const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);let h='';
+ks.forEach(o=>{const g=gr[o],ad=av(g.d);
 h+='<tr><td>'+o+'</td><td>'+av(g.s).toFixed(1)+'°C</td><td>'+av(g.l).toFixed(1)+'%</td><td>'+(ad>=0?'+':'')+ad.toFixed(1)+'°C</td><td>'+av(g.c).toFixed(0)+'%</td><td>'+g.s.length+'</td></tr>';});
 document.getElementById('grpTable').innerHTML=h||'<tr><td colspan="6" style="opacity:.4">Belum ada data</td></tr>';}
 
@@ -220,29 +375,22 @@ document.getElementById('logTable').innerHTML=h||'<tr><td colspan="9" style="opa
 function setChart(f,b){currentField=f;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));b.classList.add('act');updateCharts();}
 
 function updateCharts(){
-const l30=allData.slice(-30);const lb=l30.map(d=>d.waktu||'');const vl=l30.map(d=>d[currentField]||0);
-const cl={suhu:'#6c5ce7',kelembaban:'#00b894',heat_index:'#e17055',comfort_index:'#fdcb6e'};
-const cr=cl[currentField]||'#6c5ce7';
+const l30=allData.slice(-30),lb=l30.map(d=>d.waktu||''),vl=l30.map(d=>d[currentField]||0);
+const cl={suhu:'#6c5ce7',kelembaban:'#00b894',heat_index:'#e17055',comfort_index:'#fdcb6e'},cr=cl[currentField]||'#6c5ce7';
 if(mainChart)mainChart.destroy();
-mainChart=new Chart(document.getElementById('mainChart'),{type:'line',data:{labels:lb,datasets:[{label:currentField.replace('_',' '),data:vl,borderColor:cr,backgroundColor:cr+'22',fill:true,tension:.4,pointRadius:2,pointBackgroundColor:cr,borderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#ffffff44',font:{size:8},maxTicksLimit:8},grid:{color:'#ffffff08'}},y:{ticks:{color:'#ffffff44',font:{size:9}},grid:{color:'#ffffff08'}}}}});
-
+mainChart=new Chart(document.getElementById('mainChart'),{type:'line',data:{labels:lb,datasets:[{data:vl,borderColor:cr,backgroundColor:cr+'22',fill:true,tension:.4,pointRadius:2,pointBackgroundColor:cr,borderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#fff4',font:{size:8},maxTicksLimit:8},grid:{color:'#fff1'}},y:{ticks:{color:'#fff4',font:{size:9}},grid:{color:'#fff1'}}}}});
 const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null||d.suhu==null)return;if(!gr[o])gr[o]=[];gr[o].push(d.suhu);});
-const av=a=>a.reduce((x,y)=>x+y,0)/a.length;const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
+const av=a=>a.reduce((x,y)=>x+y,0)/a.length,ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
 if(corrChart)corrChart.destroy();
-corrChart=new Chart(document.getElementById('corrChart'),{type:'scatter',data:{datasets:[{label:'Avg Suhu',data:ks.map(k=>({x:k,y:av(gr[k])})),backgroundColor:'#6c5ce7',pointRadius:6,pointHoverRadius:8}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.x+' orang: '+ctx.parsed.y.toFixed(1)+'°C'}}},scales:{x:{title:{display:true,text:'Jumlah Orang',color:'#fff8'},ticks:{color:'#ffffff44'},grid:{color:'#ffffff08'}},y:{title:{display:true,text:'Suhu (°C)',color:'#fff8'},ticks:{color:'#ffffff44'},grid:{color:'#ffffff08'}}}}});}
+corrChart=new Chart(document.getElementById('corrChart'),{type:'scatter',data:{datasets:[{data:ks.map(k=>({x:k,y:av(gr[k])})),backgroundColor:'#6c5ce7',pointRadius:6,pointHoverRadius:8}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x+' orang: '+c.parsed.y.toFixed(1)+'°C'}}},scales:{x:{title:{display:true,text:'Jumlah Orang',color:'#fff8'},ticks:{color:'#fff4'},grid:{color:'#fff1'}},y:{title:{display:true,text:'Suhu (°C)',color:'#fff8'},ticks:{color:'#fff4'},grid:{color:'#fff1'}}}}});}
 
 function updateSummary(){
-if(allData.length===0)return;const f=allData[0];const l=allData[allData.length-1];
-const sa=allData.map(d=>d.suhu).filter(v=>v!=null);const av=a=>a.reduce((x,y)=>x+y,0)/a.length;
-let h='';h+='Tanggal: '+(f.tanggal||'-')+'<br>';h+='Durasi: '+(f.waktu||'-')+' s/d '+(l.waktu||'-')+'<br>';
-h+='Setting AC: '+(l.setting_ac||'-')+'°C<br>';h+='────────────<br>';
-h+='Suhu Min/Max/Avg: '+Math.min(...sa).toFixed(1)+' / '+Math.max(...sa).toFixed(1)+' / '+av(sa).toFixed(1)+' °C<br>';
-h+='Total Data: '+allData.length+' record';document.getElementById('sumContent').innerHTML=h;}
+if(!allData.length)return;const f=allData[0],l=allData[allData.length-1];
+const sa=allData.map(d=>d.suhu).filter(v=>v!=null),av=a=>a.reduce((x,y)=>x+y,0)/a.length;
+document.getElementById('sumContent').innerHTML='Tanggal: '+(f.tanggal||'-')+'<br>Durasi: '+(f.waktu||'-')+' s/d '+(l.waktu||'-')+'<br>Setting AC: '+(l.setting_ac||'-')+'°C<br>────────────<br>Suhu Min/Max/Avg: '+Math.min(...sa).toFixed(1)+' / '+Math.max(...sa).toFixed(1)+' / '+av(sa).toFixed(1)+' °C<br>Total Data: '+allData.length+' record';}
 
 function updateClock(){const n=new Date();el('clk',String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0')+' WIB');}
-
 function el(id,v){const e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;}
-
 init();
 </script>
 </body>
