@@ -3,192 +3,255 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Monitor Suhu Ruangan</title>
+<meta name="theme-color" content="#0f0c29">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Monitor Suhu Ruangan — IoT Dashboard</title>
+<link rel="manifest" href="data:application/json,{}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;padding:12px;color:#fff}
-.c{max-width:900px;margin:0 auto}
-.hdr{text-align:center;margin-bottom:16px}
-.hdr h1{font-size:20px;font-weight:700}
-.hdr p{font-size:11px;opacity:.4;margin-top:4px}
-.clk{text-align:center;font-size:12px;opacity:.6;margin-bottom:12px}
-.grid{display:grid;gap:10px}
+:root{
+--bg1:#0a0a1a;--bg2:#12122a;--bg3:#1a1a3e;
+--card:rgba(255,255,255,.04);--card-hover:rgba(255,255,255,.07);
+--border:rgba(255,255,255,.06);--border-hover:rgba(255,255,255,.12);
+--text:#f0f0f5;--sub:rgba(255,255,255,.45);--muted:rgba(255,255,255,.25);
+--accent:#7c6ff7;--accent2:#a78bfa;--accent-glow:rgba(124,111,247,.15);
+--green:#10b981;--green-glow:rgba(16,185,129,.15);
+--yellow:#f59e0b;--yellow-glow:rgba(245,158,11,.15);
+--red:#ef4444;--red-glow:rgba(239,68,68,.15);
+--blue:#3b82f6;--blue-glow:rgba(59,130,246,.15);
+--radius:16px;--radius-sm:10px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg1);min-height:100vh;padding:16px;color:var(--text);overflow-x:hidden}
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 50%,rgba(124,111,247,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(16,185,129,.05) 0%,transparent 50%);pointer-events:none;z-index:0}
+.c{max-width:920px;margin:0 auto;position:relative;z-index:1}
+
+/* Header */
+.hdr{text-align:center;margin-bottom:20px;padding:20px 0}
+.hdr h1{font-size:22px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,#f0f0f5,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr p{font-size:11px;color:var(--sub);margin-top:6px;letter-spacing:.5px}
+.live-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:20px;font-size:10px;color:var(--green);font-weight:600;margin-top:10px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.clk{text-align:center;font-size:13px;color:var(--sub);margin-bottom:16px;font-family:'JetBrains Mono',monospace}
+
+/* Cards */
+.cd{background:var(--card);backdrop-filter:blur(20px);border-radius:var(--radius);padding:20px;border:1px solid var(--border);margin-bottom:12px;transition:all .3s ease}
+.cd:hover{background:var(--card-hover);border-color:var(--border-hover)}
+.ct{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--sub);margin-bottom:8px;font-weight:600}
+
+/* Big Values */
+.bv{font-size:52px;font-weight:800;letter-spacing:-2px;font-family:'Inter',sans-serif;line-height:1}
+.un{font-size:20px;font-weight:400;opacity:.4;letter-spacing:0}
+.sv{font-size:12px;color:var(--sub);margin-top:6px;font-weight:400}
+
+/* Grid */
+.grid{display:grid;gap:12px}
 .g2{grid-template-columns:1fr 1fr}
 .g3{grid-template-columns:1fr 1fr 1fr}
 .g4{grid-template-columns:1fr 1fr 1fr 1fr}
-@media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}}
-.cd{background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,.08);margin-bottom:10px}
-.ct{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:.5;margin-bottom:6px}
-.bv{font-size:44px;font-weight:700}
-.un{font-size:20px;opacity:.6}
-.sv{font-size:12px;opacity:.7;margin-top:4px}
-.sb{display:inline-block;padding:5px 16px;border-radius:20px;font-weight:700;font-size:13px}
-.DINGIN{background:#74b9ff;color:#000}
-.NYAMAN{background:#00b894}
-.HANGAT{background:#fdcb6e;color:#000}
-.PANAS{background:#e17055}
-.ci-bar{width:100%;height:8px;background:rgba(255,255,255,.1);border-radius:4px;margin-top:6px;overflow:hidden}
-.ci-fill{height:100%;border-radius:4px;transition:width .5s}
-.ci-good{background:#00b894}.ci-mid{background:#fdcb6e}.ci-bad{background:#e17055}
-.reko{font-size:11px;padding:10px;background:rgba(255,255,255,.05);border-radius:8px;margin-top:8px;border-left:3px solid #6c5ce7;line-height:1.6}
-.si{background:rgba(255,255,255,.05);padding:10px;border-radius:8px;text-align:center}
-.siv{font-size:20px;font-weight:700}
-.sil{font-size:8px;opacity:.5;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
-.dev-pos{color:#e17055;font-weight:700}
-.dev-neg{color:#74b9ff;font-weight:700}
-.dev-ok{color:#00b894;font-weight:700}
-.alert-card{border:2px solid #e17055!important;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{border-color:#e17055}50%{border-color:transparent}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}.bv{font-size:38px}}
+
+/* Status Badge */
+.sb{display:inline-block;padding:6px 18px;border-radius:20px;font-weight:700;font-size:13px;letter-spacing:.5px}
+.DINGIN{background:var(--blue-glow);color:var(--blue);border:1px solid rgba(59,130,246,.2)}
+.NYAMAN{background:var(--green-glow);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.HANGAT{background:var(--yellow-glow);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
+.PANAS{background:var(--red-glow);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+
+/* Comfort Bar */
+.ci-wrap{margin-top:8px}
+.ci-bar{width:100%;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.ci-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.ci-good{background:linear-gradient(90deg,#10b981,#34d399)}.ci-mid{background:linear-gradient(90deg,#f59e0b,#fbbf24)}.ci-bad{background:linear-gradient(90deg,#ef4444,#f87171)}
+.ci-label{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--muted)}
+
+/* Rekomendasi */
+.reko{font-size:12px;padding:14px 16px;background:var(--accent-glow);border-radius:var(--radius-sm);margin-top:10px;border-left:3px solid var(--accent);line-height:1.7;color:rgba(255,255,255,.7)}
+
+/* Stat Items */
+.si{background:rgba(255,255,255,.03);padding:14px 10px;border-radius:var(--radius-sm);text-align:center;border:1px solid rgba(255,255,255,.04);transition:all .3s}
+.si:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08)}
+.siv{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.sil{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;font-weight:600}
+
+/* Dev Colors */
+.dev-pos{color:var(--red);font-weight:700}.dev-neg{color:var(--blue);font-weight:700}.dev-ok{color:var(--green);font-weight:700}
+
+/* Alert */
+.alert-card{border-color:rgba(239,68,68,.3)!important;box-shadow:0 0 30px rgba(239,68,68,.08);animation:alert-pulse 3s infinite}
+@keyframes alert-pulse{0%,100%{box-shadow:0 0 30px rgba(239,68,68,.08)}50%{box-shadow:0 0 40px rgba(239,68,68,.15)}}
+
+/* Dot */
 .dt{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
-.dt-ok{background:#00b894}.dt-er{background:#e17055}
-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:11px}
-th{background:rgba(255,255,255,.1);padding:8px 6px;text-align:center;opacity:.7;font-size:10px}
-td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.05)}
-.tab-r{display:flex;gap:4px;margin-bottom:8px}
-.tab{flex:1;padding:8px;text-align:center;border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);border-radius:8px;cursor:pointer;font-size:10px;font-weight:700}
-.tab.act{background:#6c5ce7;color:#fff}
-.chart-box{background:rgba(0,0,0,.2);border-radius:10px;padding:12px;margin-top:8px}
-.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#00b894;animation:blink 1s infinite;margin-right:4px}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.sum-card{background:rgba(108,92,231,.12);border:1px solid rgba(108,92,231,.25);border-radius:14px;padding:16px;margin-bottom:10px;font-size:12px;line-height:2}
-.sum-title{font-size:15px;font-weight:700;text-align:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1)}
-.inf{font-size:10px;opacity:.4;margin-top:14px;text-align:center}
+.dt-ok{background:var(--green);box-shadow:0 0 8px rgba(16,185,129,.4)}.dt-er{background:var(--red);box-shadow:0 0 8px rgba(239,68,68,.4)}
+
+/* Table */
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px;font-size:11px}
+th{background:rgba(255,255,255,.04);padding:10px 8px;text-align:center;color:var(--sub);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+th:first-child{border-radius:8px 0 0 8px}
+th:last-child{border-radius:0 8px 8px 0}
+td{padding:10px 8px;text-align:center;border-bottom:1px solid rgba(255,255,255,.03);font-family:'JetBrains Mono',monospace;font-size:11px}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* Tabs */
+.tab-r{display:flex;gap:4px;margin-bottom:10px;background:rgba(255,255,255,.03);padding:4px;border-radius:var(--radius-sm)}
+.tab{flex:1;padding:8px;text-align:center;border:none;background:transparent;color:var(--sub);border-radius:8px;cursor:pointer;font-size:10px;font-weight:600;transition:all .2s;font-family:'Inter',sans-serif}
+.tab.act{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(124,111,247,.3)}
+.tab:hover:not(.act){background:rgba(255,255,255,.05)}
+
+/* Chart */
+.chart-box{background:rgba(0,0,0,.15);border-radius:12px;padding:16px;margin-top:8px;border:1px solid rgba(255,255,255,.03)}
+
+/* Inputs */
 .ir{display:flex;gap:8px;margin-top:8px;align-items:center}
-.if{flex:1;padding:11px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:#fff;font-size:15px;font-weight:700;text-align:center}
-.if:focus{outline:none;border-color:#6c5ce7;background:rgba(255,255,255,.08)}
-.if::placeholder{color:rgba(255,255,255,.2);font-size:12px;font-weight:400}
-.it{flex:1;padding:11px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:#fff;font-size:13px}
-.it:focus{outline:none;border-color:#6c5ce7}
-.it::placeholder{color:rgba(255,255,255,.2)}
-.sf{flex:1;padding:11px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(20,20,50,.9);color:#fff;font-size:12px}
-.sf:focus{outline:none;border-color:#6c5ce7}
-.bs{padding:11px 18px;background:#6c5ce7;border:none;color:#fff;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
-.bs:hover{background:#5a4bd1}
-.bsn{width:100%;padding:14px;background:#00b894;border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
-.bsn:hover{background:#00a381}
+.if{flex:1;padding:12px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:#fff;font-size:15px;font-weight:600;text-align:center;font-family:'JetBrains Mono',monospace;transition:all .2s}
+.if:focus{outline:none;border-color:var(--accent);background:rgba(124,111,247,.05);box-shadow:0 0 20px rgba(124,111,247,.1)}
+.if::placeholder{color:var(--muted);font-size:11px;font-weight:400;font-family:'Inter',sans-serif}
+.it{flex:1;padding:12px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:#fff;font-size:13px;transition:all .2s}
+.it:focus{outline:none;border-color:var(--accent)}
+.it::placeholder{color:var(--muted)}
+.sf{flex:1;padding:12px;border-radius:var(--radius-sm);border:1.5px solid rgba(255,255,255,.1);background:rgba(15,15,40,.9);color:#fff;font-size:12px}
+.bs{padding:12px 20px;background:var(--accent);border:none;color:#fff;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.bs:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 15px rgba(124,111,247,.3)}
+.bsn{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),#059669);border:none;color:#fff;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:all .2s;font-family:'Inter',sans-serif}
+.bsn:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(16,185,129,.3)}
+
+/* Messages */
 .mg{text-align:center;font-size:11px;margin-top:5px;min-height:16px;opacity:0;transition:opacity .3s}
-.mg.sh{opacity:1}
-.mg-ok{color:#00b894}
-.mg-er{color:#e17055}
-.admin-card{background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.2);border-radius:14px;padding:16px;margin-bottom:10px}
-.admin-title{font-size:12px;font-weight:700;color:#a29bfe;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-@media(max-width:600px){.admin-grid{grid-template-columns:1fr}}
-.admin-item{background:rgba(255,255,255,.05);border-radius:10px;padding:12px}
-.admin-label{font-size:10px;opacity:.5;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.admin-value{font-size:24px;font-weight:700;margin-bottom:8px}
-.mode-btn{padding:10px 20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;font-size:12px;cursor:pointer;margin-top:10px}
-.mode-btn:hover{background:rgba(255,255,255,.15)}
-.brst{padding:8px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);border-radius:8px;font-size:10px;cursor:pointer;margin-top:8px}
-.brst:hover{background:rgba(255,255,255,.15)}
+.mg.sh{opacity:1}.mg-ok{color:var(--green)}.mg-er{color:var(--red)}
+
+/* Admin */
+.admin-card{background:linear-gradient(135deg,rgba(124,111,247,.06),rgba(124,111,247,.02));border:1px solid rgba(124,111,247,.12);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.admin-title{font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:640px){.admin-grid{grid-template-columns:1fr}}
+.admin-item{background:rgba(255,255,255,.03);border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,.04)}
+.admin-label{font-size:9px;color:var(--sub);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:600}
+.admin-value{font-size:28px;font-weight:800;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+
+/* Buttons */
+.mode-btn{padding:10px 24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--sub);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;font-weight:500}
+.mode-btn:hover{background:rgba(255,255,255,.1);color:var(--text);border-color:rgba(255,255,255,.2)}
+.brst{padding:8px 16px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.15);color:var(--red);border-radius:8px;font-size:11px;cursor:pointer;font-weight:500;transition:all .2s}
+.brst:hover{background:rgba(239,68,68,.15)}
+.export-btn{padding:8px 16px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);color:var(--green);border-radius:8px;font-size:11px;cursor:pointer;font-weight:500;transition:all .2s}
+.export-btn:hover{background:rgba(16,185,129,.15)}
+
+/* Summary */
+.sum-card{background:linear-gradient(135deg,rgba(124,111,247,.08),rgba(124,111,247,.03));border:1px solid rgba(124,111,247,.15);border-radius:var(--radius);padding:20px;margin-bottom:12px;font-size:13px;line-height:2}
+.sum-title{font-size:16px;font-weight:800;text-align:center;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06);background:linear-gradient(135deg,#f0f0f5,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;opacity:0;transform:translateY(20px);transition:all .3s;z-index:999;backdrop-filter:blur(10px)}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-ok{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+.toast-er{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.toast-info{background:rgba(124,111,247,.15);border:1px solid rgba(124,111,247,.3);color:var(--accent2)}
+
+/* Gauge */
+.gauge-wrap{display:flex;justify-content:center;margin:10px 0}
+.gauge{position:relative;width:140px;height:70px;overflow:hidden}
+.gauge-bg{width:140px;height:70px;border-radius:70px 70px 0 0;background:rgba(255,255,255,.05);position:absolute}
+.gauge-fill{width:140px;height:70px;border-radius:70px 70px 0 0;position:absolute;transform-origin:bottom center;transition:transform .8s cubic-bezier(.4,0,.2,1)}
+.gauge-cover{width:110px;height:55px;border-radius:55px 55px 0 0;background:var(--bg1);position:absolute;bottom:0;left:15px}
+.gauge-value{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace}
+
+.inf{font-size:10px;color:var(--muted);margin-top:16px;text-align:center;letter-spacing:.5px}
 </style>
 </head>
 <body>
+
+<div id="toast" class="toast"></div>
+
 <div class="c">
-
 <div class="hdr">
-<h1><span class="live-dot"></span> MONITOR SUHU RUANGAN</h1>
-<p>Pengaruh Jumlah Orang Terhadap Suhu Ruang Kelas &bull; Realtime Dashboard</p>
+<h1>MONITOR SUHU RUANGAN</h1>
+<p>Pengaruh Jumlah Orang Terhadap Suhu Ruang Kelas</p>
+<div class="live-badge"><span class="live-dot"></span> LIVE MONITORING</div>
 </div>
-<div class="clk" id="clk">Menghubungkan ke database...</div>
+<div class="clk" id="clk">Menghubungkan...</div>
 
-<!-- ADMIN PANEL (Default: Hidden) -->
+<!-- ADMIN (Hidden Default) -->
 <div class="admin-card pres-hide" style="display:none">
-<div class="admin-title">⚙️ Admin Panel — Kontrol Ruangan</div>
+<div class="admin-title">⚙️ Admin Panel</div>
 <div class="admin-grid">
-<div class="admin-item">
-<div class="admin-label">Jumlah Orang</div>
-<div class="admin-value"><span id="orgDisplay">0</span> <span style="font-size:12px;opacity:.5">orang</span></div>
-<div class="ir" style="margin:0"><input type="number" id="iOrg" class="if" min="0" placeholder="Jumlah orang">
-<button class="bs" onclick="setOrang()">SET</button></div>
-<div class="mg" id="mOrg"></div>
-</div>
-<div class="admin-item">
-<div class="admin-label">Setting AC</div>
-<div class="admin-value"><span id="acDisplay">24</span> <span style="font-size:12px;opacity:.5">°C</span></div>
-<div class="ir" style="margin:0"><input type="number" id="iAC" class="if" min="16" max="30" placeholder="16-30 °C">
-<button class="bs" onclick="setAC()">SET</button></div>
-<div class="mg" id="mAC"></div>
-</div>
-<div class="admin-item">
-<div class="admin-label">Kondisi Ruangan</div>
+<div class="admin-item"><div class="admin-label">Jumlah Orang</div>
+<div class="admin-value"><span id="orgDisplay">0</span></div>
+<div class="ir" style="margin:0"><input type="number" id="iOrg" class="if" min="0" placeholder="Jumlah orang"><button class="bs" onclick="setOrang()">SET</button></div><div class="mg" id="mOrg"></div></div>
+<div class="admin-item"><div class="admin-label">Setting AC</div>
+<div class="admin-value"><span id="acDisplay">24</span><span style="font-size:14px;opacity:.4">°C</span></div>
+<div class="ir" style="margin:0"><input type="number" id="iAC" class="if" min="16" max="30" placeholder="16-30°C"><button class="bs" onclick="setAC()">SET</button></div><div class="mg" id="mAC"></div></div>
+<div class="admin-item"><div class="admin-label">Kondisi Ruangan</div>
 <div class="ir" style="margin:0"><select id="sKon" class="sf" onchange="setKondisi()">
-<option value="AC Menyala">AC Menyala</option>
-<option value="AC Mati">AC Mati</option>
-<option value="Jendela Terbuka">Jendela Terbuka</option>
-<option value="Pintu Terbuka">Pintu Terbuka</option>
-<option value="AC + Jendela Terbuka">AC + Jendela</option>
-</select></div>
-<div class="mg" id="mKon"></div>
+<option value="AC Menyala">AC Menyala</option><option value="AC Mati">AC Mati</option>
+<option value="Jendela Terbuka">Jendela Terbuka</option><option value="Pintu Terbuka">Pintu Terbuka</option>
+<option value="AC + Jendela Terbuka">AC + Jendela</option></select></div><div class="mg" id="mKon"></div></div>
+<div class="admin-item"><div class="admin-label">Catatan</div>
+<div class="ir" style="margin:0"><input type="text" id="iCat" class="it" placeholder="Catatan (opsional)"><button class="bs" onclick="setCatatan()">OK</button></div><div class="mg" id="mCat"></div></div>
 </div>
-<div class="admin-item">
-<div class="admin-label">Catatan</div>
-<div class="ir" style="margin:0"><input type="text" id="iCat" class="it" placeholder="Catatan (opsional)">
-<button class="bs" onclick="setCatatan()">OK</button></div>
-<div class="mg" id="mCat"></div>
-</div>
-</div>
-<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-<button class="bsn" style="flex:1" onclick="kirimManual()">📤 Kirim Data Sekarang</button>
-<button class="brst" onclick="hapusData()">🗑️ Hapus Semua Data</button>
-</div>
-<div class="mg" id="mAdmin"></div>
-</div>
+<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+<button class="bsn" style="flex:1" onclick="kirimManual()">📤 Kirim Data</button>
+<button class="export-btn" onclick="exportCSV()">📊 Export CSV</button>
+<button class="brst" onclick="hapusData()">🗑️ Hapus Data</button>
+</div><div class="mg" id="mAdmin"></div></div>
 
-<!-- SUHU -->
+<!-- SUHU + GAUGE -->
 <div class="cd" id="suhuCard">
 <div class="ct">Suhu Ruangan</div>
-<div class="bv"><span id="suhu">--</span><span class="un"> °C</span></div>
-<div class="sv">Terasa: <b id="hi">--</b>°C &bull; Deviasi: <span id="dev" class="dev-ok">--</span>°C &bull; AC: <span id="ac">--</span>°C &bull; Orang: <span id="orgInfo">0</span></div>
+<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+<div style="flex:1;min-width:150px">
+<div class="bv"><span id="suhu">--</span><span class="un">°C</span></div>
+<div class="sv">Terasa <b id="hi">--</b>°C &bull; Deviasi <span id="dev" class="dev-ok">--</span>°C</div>
+<div class="sv" style="margin-top:2px">AC: <span id="ac">--</span>°C &bull; Orang: <span id="orgInfo">0</span></div>
 </div>
+<div class="gauge-wrap"><div class="gauge">
+<div class="gauge-bg"></div>
+<div class="gauge-fill" id="gaugeS" style="background:linear-gradient(to right,#3b82f6,#10b981,#f59e0b,#ef4444);transform:rotate(-90deg)"></div>
+<div class="gauge-cover"></div>
+<div class="gauge-value" id="gaugeVal">--</div>
+</div></div>
+</div></div>
 
-<!-- KELEMBABAN + STATUS + CI -->
+<!-- ROW: KELEMBABAN + STATUS + CI -->
 <div class="grid g3">
 <div class="cd"><div class="ct">Kelembaban</div>
-<div style="font-size:28px;font-weight:700"><span id="lem">--</span><span class="un"> %</span></div></div>
+<div style="font-size:32px;font-weight:800;font-family:'JetBrains Mono',monospace"><span id="lem">--</span><span class="un">%</span></div></div>
 <div class="cd"><div class="ct">Status</div>
-<div style="margin-top:6px"><span id="sts" class="sb">--</span></div></div>
+<div style="margin-top:8px"><span id="sts" class="sb">--</span></div></div>
 <div class="cd" id="ciCard"><div class="ct">Kenyamanan</div>
-<div style="font-size:28px;font-weight:700"><span id="ci">--</span><span class="un"> %</span></div>
-<div class="ci-bar"><div class="ci-fill" id="ciBar" style="width:0%"></div></div></div>
+<div style="font-size:32px;font-weight:800;font-family:'JetBrains Mono',monospace"><span id="ci">--</span><span class="un">%</span></div>
+<div class="ci-wrap"><div class="ci-bar"><div class="ci-fill" id="ciBar" style="width:0%"></div></div>
+<div class="ci-label"><span>0%</span><span>Ideal</span><span>100%</span></div></div></div>
 </div>
 
 <!-- REKOMENDASI -->
-<div class="cd">
-<div class="ct">Rekomendasi (SNI 03-6572-2001)</div>
-<div class="reko" id="reko">Menunggu data dari sensor...</div>
-</div>
+<div class="cd"><div class="ct">Rekomendasi — SNI 03-6572-2001</div>
+<div class="reko" id="reko">Menunggu data dari sensor...</div></div>
 
 <!-- GRAFIK -->
-<div class="cd">
-<div class="ct">Grafik Realtime</div>
+<div class="cd"><div class="ct">Grafik Realtime</div>
 <div class="tab-r">
-<button class="tab act" onclick="setChart('suhu',this)">Suhu</button>
-<button class="tab" onclick="setChart('kelembaban',this)">Kelembaban</button>
-<button class="tab" onclick="setChart('heat_index',this)">Heat Index</button>
-<button class="tab" onclick="setChart('comfort_index',this)">Comfort</button>
-</div>
-<div class="chart-box"><canvas id="mainChart" height="200"></canvas></div>
-</div>
+<button class="tab act" onclick="setChart('suhu',this)">🌡 Suhu</button>
+<button class="tab" onclick="setChart('kelembaban',this)">💧 Kelembaban</button>
+<button class="tab" onclick="setChart('heat_index',this)">🔥 Heat Index</button>
+<button class="tab" onclick="setChart('comfort_index',this)">😊 Comfort</button>
+</div><div class="chart-box"><canvas id="mainChart" height="200"></canvas></div></div>
 
 <!-- KORELASI -->
-<div class="cd">
-<div class="ct">Korelasi: Suhu vs Jumlah Orang</div>
-<div class="chart-box"><canvas id="corrChart" height="200"></canvas></div>
-</div>
+<div class="cd"><div class="ct">Korelasi — Suhu vs Jumlah Orang</div>
+<div class="chart-box"><canvas id="corrChart" height="200"></canvas></div></div>
 
 <!-- STATISTIK PER KELOMPOK -->
-<div class="cd">
-<div class="ct">Statistik Per Kelompok Orang</div>
+<div class="cd"><div class="ct">Statistik Per Kelompok Orang</div>
 <table><thead><tr><th>Orang</th><th>Avg Suhu</th><th>Avg Lembab</th><th>Avg Deviasi</th><th>Avg CI</th><th>Data</th></tr></thead>
-<tbody id="grpTable"><tr><td colspan="6" style="opacity:.4">Menunggu data...</td></tr></tbody></table>
-</div>
+<tbody id="grpTable"><tr><td colspan="6" style="color:var(--muted)">Menunggu data...</td></tr></tbody></table></div>
 
 <!-- RINGKASAN -->
-<div class="cd">
-<div class="ct">Ringkasan Sesi</div>
+<div class="cd"><div class="ct">Ringkasan Sesi</div>
 <div class="grid g4">
 <div class="si"><div class="siv" id="sMin">--</div><div class="sil">Suhu Min</div></div>
 <div class="si"><div class="siv" id="sMax">--</div><div class="sil">Suhu Max</div></div>
@@ -197,46 +260,36 @@ td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.0
 <div class="si"><div class="siv" id="lMin">--</div><div class="sil">Lem Min</div></div>
 <div class="si"><div class="siv" id="lMax">--</div><div class="sil">Lem Max</div></div>
 <div class="si"><div class="siv" id="cnt">0</div><div class="sil">Total Data</div></div>
-<div class="si"><div class="siv" id="deltaT">--</div><div class="sil">°C / Orang</div></div>
+<div class="si"><div class="siv" id="deltaT">--</div><div class="sil">°C/Orang</div></div>
 </div></div>
 
-<!-- 20 DATA TERAKHIR -->
-<div class="cd">
-<div class="ct">20 Data Terakhir</div>
-<div style="overflow-x:auto">
-<table><thead><tr><th>Waktu</th><th>Suhu</th><th>Lembab</th><th>HI</th><th>Orang</th><th>AC</th><th>Dev</th><th>CI</th><th>Status</th></tr></thead>
-<tbody id="logTable"><tr><td colspan="9" style="opacity:.4">Menunggu data...</td></tr></tbody></table>
-</div></div>
+<!-- DATA TERAKHIR -->
+<div class="cd"><div class="ct">20 Data Terakhir</div>
+<div style="overflow-x:auto"><table><thead><tr><th>Waktu</th><th>Suhu</th><th>Lembab</th><th>HI</th><th>Orang</th><th>AC</th><th>Dev</th><th>CI</th><th>Status</th></tr></thead>
+<tbody id="logTable"><tr><td colspan="9" style="color:var(--muted)">Menunggu data...</td></tr></tbody></table></div></div>
 
 <!-- RINGKASAN PENGUKURAN -->
-<div class="sum-card">
-<div class="sum-title">RINGKASAN PENGUKURAN</div>
-<div id="sumContent">Menunggu data...</div>
-</div>
+<div class="sum-card"><div class="sum-title">RINGKASAN PENGUKURAN</div>
+<div id="sumContent" style="color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:12px">Menunggu data...</div></div>
 
-<!-- MODE TOGGLE -->
-<div style="text-align:center;margin-bottom:10px">
+<!-- MODE -->
+<div style="text-align:center;margin-bottom:12px">
 <button class="mode-btn" id="modeBtn" onclick="toggleMode()">👁️ Mode Admin</button>
 </div>
 
 <!-- INFO -->
-<div class="cd">
-<div class="ct">Info Koneksi</div>
-<div style="font-size:12px;line-height:1.8">
+<div class="cd"><div class="ct">Koneksi</div>
+<div style="font-size:12px;line-height:2;color:var(--sub)">
 <span class="dt" id="dot"></span> Database: <span id="dbStatus">Menghubungkan...</span><br>
-Total record: <span id="totalRec">0</span> &bull; Update terakhir: <span id="lastUpdate">-</span>
+Total: <span id="totalRec" style="font-family:'JetBrains Mono',monospace">0</span> record &bull; Update: <span id="lastUpdate" style="font-family:'JetBrains Mono',monospace">-</span>
 </div></div>
 
-<div class="inf">Realtime Dashboard &bull; Supabase + Vercel &bull; ESP32 IoT</div>
+<div class="inf">ESP32 IoT &bull; Supabase &bull; Vercel &bull; Realtime</div>
 </div>
 
 <script>
-// ╔════════════════════════════════════════════╗
-// ║  GANTI 2 BARIS INI DENGAN PUNYAMU         ║
-// ╚════════════════════════════════════════════╝
 const SUPA_URL='https://sjvrugtlhvyvqkebjmka.supabase.co';
 const SUPA_KEY='sb_publishable_6iKYw5qRwfEsF7g2XUZDEQ_et9RV8LS';
-// ═════════════════════════════════════════════
 
 const db=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 let allData=[],mainChart=null,corrChart=null,currentField='suhu';
@@ -245,92 +298,86 @@ let presMode=true;
 
 async function init(){await loadData();await loadConfig();setupRealtime();setInterval(updateClock,1000);}
 
+function toast(msg,type='info'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show toast-'+type;setTimeout(()=>t.className='toast',3000);}
+function msg(id,t,c){const m=document.getElementById(id);m.textContent=t;m.className='mg sh '+c;setTimeout(()=>m.className='mg',3000);}
+function el(id,v){const e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;}
+
 async function loadConfig(){
 const{data}=await db.from('admin_config').select('*').eq('id',1).single();
 if(data){adminOrang=data.jumlah_orang||0;adminAC=data.setting_ac||24;adminKondisi=data.kondisi||'AC Menyala';adminCatatan=data.catatan||'-';
 el('orgDisplay',adminOrang);el('acDisplay',adminAC);el('orgInfo',adminOrang);}}
 
-async function saveConfig(){
-await db.from('admin_config').upsert({id:1,jumlah_orang:adminOrang,setting_ac:adminAC,kondisi:adminKondisi,catatan:adminCatatan});}
+async function saveConfig(){await db.from('admin_config').upsert({id:1,jumlah_orang:adminOrang,setting_ac:adminAC,kondisi:adminKondisi,catatan:adminCatatan});}
 
 async function loadData(){
 const{data,error}=await db.from('sensor_data').select('*').order('created_at',{ascending:true});
-if(error){el('dbStatus','Gagal: '+error.message);document.getElementById('dot').className='dt dt-er';return;}
-allData=data||[];el('dbStatus','Terhubung');document.getElementById('dot').className='dt dt-ok';el('totalRec',allData.length);updateDashboard();}
+if(error){el('dbStatus','Gagal');document.getElementById('dot').className='dt dt-er';toast('Database error: '+error.message,'er');return;}
+allData=data||[];el('dbStatus','Terhubung');document.getElementById('dot').className='dt dt-ok';el('totalRec',allData.length);
+toast('Database terhubung! '+allData.length+' record','ok');updateDashboard();}
 
 function setupRealtime(){
 db.channel('sensor_changes').on('postgres_changes',{event:'INSERT',schema:'public',table:'sensor_data'},(p)=>{
-allData.push(p.new);el('totalRec',allData.length);updateDashboard();}).subscribe();
+allData.push(p.new);el('totalRec',allData.length);updateDashboard();toast('Data baru masuk!','ok');}).subscribe();
 db.channel('config_changes').on('postgres_changes',{event:'*',schema:'public',table:'admin_config'},(p)=>{
 const d=p.new;if(d){adminOrang=d.jumlah_orang||0;adminAC=d.setting_ac||24;adminKondisi=d.kondisi||'AC Menyala';adminCatatan=d.catatan||'-';
 el('orgDisplay',adminOrang);el('acDisplay',adminAC);el('orgInfo',adminOrang);}}).subscribe();}
 
-function msg(id,t,c){const m=document.getElementById(id);m.textContent=t;m.className='mg sh '+c;setTimeout(()=>m.className='mg',3000);}
+async function setOrang(){const v=parseInt(document.getElementById('iOrg').value);if(isNaN(v)){msg('mOrg','Masukkan angka!','mg-er');return;}
+adminOrang=Math.max(0,v);document.getElementById('iOrg').value=adminOrang;await saveConfig();el('orgDisplay',adminOrang);el('orgInfo',adminOrang);msg('mOrg','✓ Orang: '+adminOrang,'mg-ok');toast('Jumlah orang: '+adminOrang,'ok');}
 
-async function setOrang(){
-const v=parseInt(document.getElementById('iOrg').value);
-if(isNaN(v)){msg('mOrg','Masukkan angka!','mg-er');return;}
-adminOrang=Math.max(0,v);document.getElementById('iOrg').value=adminOrang;
-await saveConfig();el('orgDisplay',adminOrang);el('orgInfo',adminOrang);msg('mOrg','Orang: '+adminOrang,'mg-ok');}
+async function setAC(){const v=parseInt(document.getElementById('iAC').value);if(isNaN(v)){msg('mAC','Masukkan angka!','mg-er');return;}
+adminAC=Math.min(30,Math.max(16,v));document.getElementById('iAC').value=adminAC;await saveConfig();el('acDisplay',adminAC);msg('mAC','✓ AC: '+adminAC+'°C','mg-ok');toast('Setting AC: '+adminAC+'°C','ok');}
 
-async function setAC(){
-const v=parseInt(document.getElementById('iAC').value);
-if(isNaN(v)){msg('mAC','Masukkan angka!','mg-er');return;}
-adminAC=Math.min(30,Math.max(16,v));document.getElementById('iAC').value=adminAC;
-await saveConfig();el('acDisplay',adminAC);msg('mAC','AC: '+adminAC+'°C','mg-ok');}
+async function setKondisi(){adminKondisi=document.getElementById('sKon').value;await saveConfig();msg('mKon','✓ '+adminKondisi,'mg-ok');toast(adminKondisi,'ok');}
+async function setCatatan(){adminCatatan=document.getElementById('iCat').value||'-';await saveConfig();msg('mCat','✓ Tersimpan','mg-ok');}
 
-async function setKondisi(){adminKondisi=document.getElementById('sKon').value;await saveConfig();msg('mKon',adminKondisi,'mg-ok');}
+async function kirimManual(){const L=allData.length>0?allData[allData.length-1]:null;if(!L){toast('Belum ada data sensor!','er');return;}
+const{error}=await db.from('sensor_data').insert({tanggal:L.tanggal,waktu:new Date().toLocaleTimeString('id-ID'),suhu:L.suhu,kelembaban:L.kelembaban,heat_index:L.heat_index,deviasi:L.suhu-adminAC,comfort_index:L.comfort_index,jumlah_orang:adminOrang,setting_ac:adminAC,kondisi:adminKondisi,catatan:adminCatatan+'(manual)',status:L.status});
+if(!error)toast('Data terkirim!','ok');else toast('Gagal: '+error.message,'er');}
 
-async function setCatatan(){adminCatatan=document.getElementById('iCat').value||'-';await saveConfig();msg('mCat','Catatan OK','mg-ok');}
-
-async function kirimManual(){
-const latest=allData.length>0?allData[allData.length-1]:null;
-if(!latest){msg('mAdmin','Belum ada data sensor!','mg-er');return;}
-const{error}=await db.from('sensor_data').insert({
-tanggal:latest.tanggal,waktu:new Date().toLocaleTimeString('id-ID'),suhu:latest.suhu,kelembaban:latest.kelembaban,
-heat_index:latest.heat_index,deviasi:latest.suhu-adminAC,comfort_index:latest.comfort_index,
-jumlah_orang:adminOrang,setting_ac:adminAC,kondisi:adminKondisi,catatan:adminCatatan+'(manual)',status:latest.status});
-if(!error)msg('mAdmin','Data terkirim!','mg-ok');else msg('mAdmin','Gagal: '+error.message,'mg-er');}
-
-async function hapusData(){
-if(!confirm('Yakin hapus SEMUA data? Tidak bisa dikembalikan!'))return;
+async function hapusData(){if(!confirm('Yakin hapus SEMUA data?'))return;
 const{error}=await db.from('sensor_data').delete().neq('id',0);
-if(!error){allData=[];updateDashboard();msg('mAdmin','Semua data dihapus','mg-ok');}
-else msg('mAdmin','Gagal: '+error.message,'mg-er');}
+if(!error){allData=[];updateDashboard();toast('Semua data dihapus','info');}else toast('Gagal','er');}
 
-function toggleMode(){
-presMode=!presMode;document.querySelectorAll('.pres-hide').forEach(e=>e.style.display=presMode?'none':'block');
+function exportCSV(){if(!allData.length){toast('Tidak ada data','er');return;}
+let csv='No,Tanggal,Waktu,Suhu,Kelembaban,HeatIndex,Deviasi,ComfortIndex,Orang,AC,Kondisi,Catatan,Status\n';
+allData.forEach((d,i)=>{csv+=[i+1,d.tanggal,d.waktu,d.suhu,d.kelembaban,d.heat_index,d.deviasi,d.comfort_index,d.jumlah_orang,d.setting_ac,d.kondisi,d.catatan,d.status].join(',')+'\n';});
+const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sensor_data_'+new Date().toISOString().slice(0,10)+'.csv';a.click();toast('CSV berhasil diexport!','ok');}
+
+function toggleMode(){presMode=!presMode;document.querySelectorAll('.pres-hide').forEach(e=>e.style.display=presMode?'none':'block');
 document.getElementById('modeBtn').textContent=presMode?'👁️ Mode Admin':'🎬 Mode Presentasi';}
 
 document.addEventListener('DOMContentLoaded',()=>{
-document.getElementById('iOrg')?.addEventListener('keypress',e=>{if(e.key==='Enter')setOrang();});
-document.getElementById('iAC')?.addEventListener('keypress',e=>{if(e.key==='Enter')setAC();});
+['iOrg','iAC'].forEach(id=>{document.getElementById(id)?.addEventListener('keypress',e=>{if(e.key==='Enter'){id==='iOrg'?setOrang():setAC();}});});
 document.getElementById('iCat')?.addEventListener('keypress',e=>{if(e.key==='Enter')setCatatan();});});
 
+function updateGauge(val){
+const min=15,max=40,pct=Math.min(1,Math.max(0,(val-min)/(max-min)));
+const deg=-90+pct*180;document.getElementById('gaugeS').style.transform='rotate('+deg+'deg)';
+document.getElementById('gaugeVal').textContent=val.toFixed(1)+'°';}
+
 function updateDashboard(){
-if(allData.length===0){el('totalRec','0');return;}
+if(!allData.length){el('totalRec','0');return;}
 const L=allData[allData.length-1];
 el('suhu',L.suhu?.toFixed(1));el('lem',L.kelembaban?.toFixed(1));el('hi',L.heat_index?.toFixed(1));
 el('ac',L.setting_ac);el('ci',L.comfort_index?.toFixed(0));el('lastUpdate',L.waktu||'--');
 el('orgInfo',L.jumlah_orang??adminOrang);
+if(L.suhu)updateGauge(L.suhu);
 const st=document.getElementById('sts');st.textContent=L.status;st.className='sb '+L.status;
 const dv=document.getElementById('dev');const d=L.deviasi||0;
 dv.textContent=(d>=0?'+':'')+d.toFixed(1);dv.className=Math.abs(d)<=1?'dev-ok':d>0?'dev-pos':'dev-neg';
 const ci=L.comfort_index||0;const bar=document.getElementById('ciBar');
 bar.style.width=ci+'%';bar.className='ci-fill '+(ci>=70?'ci-good':ci>=40?'ci-mid':'ci-bad');
 const sc=document.getElementById('suhuCard'),cc=document.getElementById('ciCard');
-if(ci<40){sc.classList.add('alert-card');cc.classList.add('alert-card');}
-else{sc.classList.remove('alert-card');cc.classList.remove('alert-card');}
-if(ci>=80)el('reko','Kondisi ruangan memenuhi standar kenyamanan SNI 03-6572-2001 (24-27°C, 55-65% RH).');
-else if(ci>=60)el('reko','Kondisi cukup nyaman. Pertimbangkan menurunkan AC 1-2 derajat untuk efisiensi energi.');
-else if(ci>=40)el('reko','Ruangan kurang nyaman. Disarankan menurunkan setting AC atau mengurangi jumlah penghuni.');
-else el('reko','TIDAK NYAMAN! AC tidak mampu mengkompensasi beban panas. Perlu penambahan unit AC.');
+if(ci<40){sc.classList.add('alert-card');cc.classList.add('alert-card');}else{sc.classList.remove('alert-card');cc.classList.remove('alert-card');}
+if(ci>=80)el('reko','✅ Kondisi ruangan memenuhi standar kenyamanan SNI 03-6572-2001 (24-27°C, 55-65% RH). Suhu dan kelembaban dalam batas ideal.');
+else if(ci>=60)el('reko','⚠️ Kondisi cukup nyaman. Pertimbangkan menurunkan AC 1-2 derajat untuk meningkatkan kenyamanan dan efisiensi energi.');
+else if(ci>=40)el('reko','🟡 Ruangan kurang nyaman. Disarankan menurunkan setting AC atau mengurangi jumlah penghuni ruangan.');
+else el('reko','🔴 TIDAK NYAMAN! AC tidak mampu mengkompensasi beban panas. Perlu penambahan unit AC atau pengurangan signifikan jumlah penghuni.');
 updateStats();updateGroupStats();updateLogTable();updateCharts();updateSummary();}
 
 function updateStats(){
-const sa=allData.map(d=>d.suhu).filter(v=>v!=null);
-const la=allData.map(d=>d.kelembaban).filter(v=>v!=null);
-const da=allData.map(d=>d.deviasi).filter(v=>v!=null);
+const sa=allData.map(d=>d.suhu).filter(v=>v!=null),la=allData.map(d=>d.kelembaban).filter(v=>v!=null),da=allData.map(d=>d.deviasi).filter(v=>v!=null);
 if(!sa.length)return;const av=a=>a.reduce((x,y)=>x+y,0)/a.length;
 el('sMin',Math.min(...sa).toFixed(1));el('sMax',Math.max(...sa).toFixed(1));el('sAvg',av(sa).toFixed(1));
 const dA=da.length?av(da):0;el('dAvg',(dA>=0?'+':'')+dA.toFixed(1));
@@ -341,39 +388,43 @@ if(ks.length>=2){const mn=ks[0],mx=ks[ks.length-1],am=av(gr[mn]),ax=av(gr[mx]);
 if(mx>mn){const dt=(ax-am)/(mx-mn);el('deltaT',(dt>=0?'+':'')+dt.toFixed(3));}}}
 
 function updateGroupStats(){
-const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null)return;
-if(!gr[o])gr[o]={s:[],l:[],d:[],c:[]};gr[o].s.push(d.suhu);gr[o].l.push(d.kelembaban);gr[o].d.push(d.deviasi);gr[o].c.push(d.comfort_index);});
-const av=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):0;
-const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);let h='';
-ks.forEach(o=>{const g=gr[o],ad=av(g.d);
-h+='<tr><td>'+o+'</td><td>'+av(g.s).toFixed(1)+'°C</td><td>'+av(g.l).toFixed(1)+'%</td><td>'+(ad>=0?'+':'')+ad.toFixed(1)+'°C</td><td>'+av(g.c).toFixed(0)+'%</td><td>'+g.s.length+'</td></tr>';});
-document.getElementById('grpTable').innerHTML=h||'<tr><td colspan="6" style="opacity:.4">Belum ada data</td></tr>';}
+const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null)return;if(!gr[o])gr[o]={s:[],l:[],d:[],c:[]};gr[o].s.push(d.suhu);gr[o].l.push(d.kelembaban);gr[o].d.push(d.deviasi);gr[o].c.push(d.comfort_index);});
+const av=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):0;const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);let h='';
+ks.forEach(o=>{const g=gr[o],ad=av(g.d);h+='<tr><td>'+o+'</td><td>'+av(g.s).toFixed(1)+'°C</td><td>'+av(g.l).toFixed(1)+'%</td><td class="'+(ad>1?'dev-pos':ad<-1?'dev-neg':'dev-ok')+'">'+(ad>=0?'+':'')+ad.toFixed(1)+'°C</td><td>'+av(g.c).toFixed(0)+'%</td><td>'+g.s.length+'</td></tr>';});
+document.getElementById('grpTable').innerHTML=h||'<tr><td colspan="6" style="color:var(--muted)">Belum ada data</td></tr>';}
 
 function updateLogTable(){
 const rc=allData.slice(-20).reverse();let h='';
-rc.forEach(d=>{const dv=d.deviasi||0;
-h+='<tr><td>'+(d.waktu||'-')+'</td><td>'+(d.suhu?.toFixed(1)||'-')+'</td><td>'+(d.kelembaban?.toFixed(1)||'-')+'</td><td>'+(d.heat_index?.toFixed(1)||'-')+'</td><td>'+(d.jumlah_orang??'-')+'</td><td>'+(d.setting_ac??'-')+'</td><td>'+(dv>=0?'+':'')+dv.toFixed(1)+'</td><td>'+(d.comfort_index?.toFixed(0)||'-')+'%</td><td><span class="sb '+d.status+'" style="font-size:9px;padding:2px 8px">'+(d.status||'-')+'</span></td></tr>';});
-document.getElementById('logTable').innerHTML=h||'<tr><td colspan="9" style="opacity:.4">Belum ada data</td></tr>';}
+rc.forEach(d=>{const dv=d.deviasi||0;h+='<tr><td>'+(d.waktu||'-')+'</td><td>'+(d.suhu?.toFixed(1)||'-')+'</td><td>'+(d.kelembaban?.toFixed(1)||'-')+'</td><td>'+(d.heat_index?.toFixed(1)||'-')+'</td><td>'+(d.jumlah_orang??'-')+'</td><td>'+(d.setting_ac??'-')+'</td><td class="'+(dv>1?'dev-pos':dv<-1?'dev-neg':'dev-ok')+'">'+(dv>=0?'+':'')+dv.toFixed(1)+'</td><td>'+(d.comfort_index?.toFixed(0)||'-')+'%</td><td><span class="sb '+d.status+'" style="font-size:9px;padding:3px 10px">'+(d.status||'-')+'</span></td></tr>';});
+document.getElementById('logTable').innerHTML=h||'<tr><td colspan="9" style="color:var(--muted)">Belum ada data</td></tr>';}
 
 function setChart(f,b){currentField=f;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));b.classList.add('act');updateCharts();}
 
 function updateCharts(){
 const l30=allData.slice(-30),lb=l30.map(d=>d.waktu||''),vl=l30.map(d=>d[currentField]||0);
-const cl={suhu:'#6c5ce7',kelembaban:'#00b894',heat_index:'#e17055',comfort_index:'#fdcb6e'},cr=cl[currentField]||'#6c5ce7';
+const cl={suhu:'#7c6ff7',kelembaban:'#10b981',heat_index:'#ef4444',comfort_index:'#f59e0b'},cr=cl[currentField]||'#7c6ff7';
 if(mainChart)mainChart.destroy();
-mainChart=new Chart(document.getElementById('mainChart'),{type:'line',data:{labels:lb,datasets:[{data:vl,borderColor:cr,backgroundColor:cr+'22',fill:true,tension:.4,pointRadius:2,pointBackgroundColor:cr,borderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#fff4',font:{size:8},maxTicksLimit:8},grid:{color:'#fff1'}},y:{ticks:{color:'#fff4',font:{size:9}},grid:{color:'#fff1'}}}}});
+const ctx=document.getElementById('mainChart').getContext('2d');
+const gradient=ctx.createLinearGradient(0,0,0,300);gradient.addColorStop(0,cr+'44');gradient.addColorStop(1,cr+'00');
+mainChart=new Chart(ctx,{type:'line',data:{labels:lb,datasets:[{data:vl,borderColor:cr,backgroundColor:gradient,fill:true,tension:.4,pointRadius:3,pointBackgroundColor:cr,pointBorderColor:'#fff',pointBorderWidth:1,borderWidth:2.5}]},options:{responsive:true,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,15,40,.9)',titleFont:{family:'Inter'},bodyFont:{family:'JetBrains Mono',size:13},padding:12,cornerRadius:10,borderColor:cr+'44',borderWidth:1}},scales:{x:{ticks:{color:'#ffffff33',font:{size:8,family:'JetBrains Mono'},maxTicksLimit:6},grid:{color:'#ffffff06'}},y:{ticks:{color:'#ffffff33',font:{size:9,family:'JetBrains Mono'}},grid:{color:'#ffffff06'}}}}});
+
 const gr={};allData.forEach(d=>{const o=d.jumlah_orang;if(o==null||d.suhu==null)return;if(!gr[o])gr[o]=[];gr[o].push(d.suhu);});
 const av=a=>a.reduce((x,y)=>x+y,0)/a.length,ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
 if(corrChart)corrChart.destroy();
-corrChart=new Chart(document.getElementById('corrChart'),{type:'scatter',data:{datasets:[{data:ks.map(k=>({x:k,y:av(gr[k])})),backgroundColor:'#6c5ce7',pointRadius:6,pointHoverRadius:8}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x+' orang: '+c.parsed.y.toFixed(1)+'°C'}}},scales:{x:{title:{display:true,text:'Jumlah Orang',color:'#fff8'},ticks:{color:'#fff4'},grid:{color:'#fff1'}},y:{title:{display:true,text:'Suhu (°C)',color:'#fff8'},ticks:{color:'#fff4'},grid:{color:'#fff1'}}}}});}
+corrChart=new Chart(document.getElementById('corrChart'),{type:'scatter',data:{datasets:[{data:ks.map(k=>({x:k,y:av(gr[k])})),backgroundColor:'#7c6ff7',pointRadius:8,pointHoverRadius:12,pointBorderColor:'#fff',pointBorderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,15,40,.9)',bodyFont:{family:'JetBrains Mono',size:13},padding:12,cornerRadius:10,callbacks:{label:c=>c.parsed.x+' orang → '+c.parsed.y.toFixed(1)+'°C'}}},scales:{x:{title:{display:true,text:'Jumlah Orang',color:'#ffffff55',font:{family:'Inter',size:11}},ticks:{color:'#ffffff33',font:{family:'JetBrains Mono'}},grid:{color:'#ffffff06'}},y:{title:{display:true,text:'Rata-rata Suhu (°C)',color:'#ffffff55',font:{family:'Inter',size:11}},ticks:{color:'#ffffff33',font:{family:'JetBrains Mono'}},grid:{color:'#ffffff06'}}}}});}
 
 function updateSummary(){
 if(!allData.length)return;const f=allData[0],l=allData[allData.length-1];
 const sa=allData.map(d=>d.suhu).filter(v=>v!=null),av=a=>a.reduce((x,y)=>x+y,0)/a.length;
-document.getElementById('sumContent').innerHTML='Tanggal: '+(f.tanggal||'-')+'<br>Durasi: '+(f.waktu||'-')+' s/d '+(l.waktu||'-')+'<br>Setting AC: '+(l.setting_ac||'-')+'°C<br>────────────<br>Suhu Min/Max/Avg: '+Math.min(...sa).toFixed(1)+' / '+Math.max(...sa).toFixed(1)+' / '+av(sa).toFixed(1)+' °C<br>Total Data: '+allData.length+' record';}
+document.getElementById('sumContent').innerHTML=
+'📅 Tanggal    : '+(f.tanggal||'-')+'<br>'+
+'⏱️ Durasi     : '+(f.waktu||'-')+' → '+(l.waktu||'-')+'<br>'+
+'❄️ Setting AC : '+(l.setting_ac||'-')+'°C<br>'+
+'─────────────────────────<br>'+
+'🌡️ Suhu       : '+Math.min(...sa).toFixed(1)+' / '+Math.max(...sa).toFixed(1)+' / '+av(sa).toFixed(1)+' °C<br>'+
+'📊 Total Data : '+allData.length+' record';}
 
 function updateClock(){const n=new Date();el('clk',String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0')+' WIB');}
-function el(id,v){const e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;}
 init();
 </script>
 </body>
