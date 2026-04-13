@@ -337,7 +337,7 @@ const r=document.getElementById('suhuRing');r.style.strokeDashoffset=off;
 r.style.stroke=val<=26?'#10b981':val<=32?'#f59e0b':'#ef4444';el('ringVal',val.toFixed(1));}
 
 function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});}
-function fmtTime(ts){if(!ts)return'-';const d=new Date(ts);return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
+function fmtTime(ts){if(!ts)return'-';const d=new Date(ts);if(isNaN(d))return'-';return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
 function updateDashboard(){if(!allData.length){el('totalRec','0');return;}const L=allData[allData.length-1];
 el('suhu',L.suhu?.toFixed(1));el('lem',L.kelembaban?.toFixed(1));el('hi',L.heat_index?.toFixed(1));el('ac',L.setting_ac);el('ci',L.comfort_index?.toFixed(0));el('lastUpdate',fmtDate(L.created_at)+' '+fmtTime(L.created_at));el('orgInfo',L.jumlah_orang??adminOrang);
 if(L.suhu)updateRing(L.suhu);
