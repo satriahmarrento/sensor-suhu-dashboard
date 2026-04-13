@@ -110,10 +110,24 @@ body {
 @media (max-width: 900px) {
   .bento-grid { grid-template-columns: repeat(2, 1fr); }
   .bento-large, .bento-wide, .bento-full { grid-column: span 2; }
+  .admin-grid, .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
 @media (max-width: 500px) {
-  .bento-grid { grid-template-columns: 1fr; }
+  body { padding: 4vw; }
+  .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .header > div { text-align: left !important; }
+  .bento-grid { grid-template-columns: 1fr; gap: 12px; }
   .bento-large, .bento-wide, .bento-full { grid-column: span 1; }
+  .admin-grid, .metrics-grid { grid-template-columns: 1fr; gap: 8px; }
+  .bv { font-size: 44px; letter-spacing: -2px; }
+  .un { font-size: 18px; }
+  .hero-val-wrap { margin-bottom: 16px; }
+  .hero-foot { flex-wrap: wrap; gap: 12px; padding-top: 16px; }
+  .ring { width: 90px; height: 90px; }
+  .ring-val { font-size: 18px; }
+  .footer { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .tab-r { flex-wrap: wrap; }
+  .tab { flex: 1; min-width: 30%; }
 }
 
 /* Typography & Titles */
