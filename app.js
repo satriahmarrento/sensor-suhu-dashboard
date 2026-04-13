@@ -33,6 +33,8 @@ function animateValue(id, end, duration=1000, isFloat=false) {
 
 // --- 3D PHYSICS & AMBIENT OP ---
 document.addEventListener('mousemove', (e) => {
+    if (window.innerWidth <= 900) return; // Disable expensive 3D physics on mobile!
+    
     const w = window.innerWidth, h = window.innerHeight;
     const glow = el('ambient-glow');
     // Move ambient glow slowly towards mouse

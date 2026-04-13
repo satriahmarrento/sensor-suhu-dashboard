@@ -128,6 +128,9 @@ body {
   .footer { flex-direction: column; align-items: flex-start; gap: 16px; }
   .tab-r { flex-wrap: wrap; }
   .tab { flex: 1; min-width: 30%; }
+  /* Deep performance optimization */
+  .bento-item { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(22,22,25,0.98); border: 1px solid rgba(255,255,255,0.1); }
+  #ambient-glow { display: none !important; }
 }
 
 /* Typography & Titles */
