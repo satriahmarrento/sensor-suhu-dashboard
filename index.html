@@ -3,123 +3,162 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0a0a1a">
-<title>Monitor Suhu Ruangan — IoT Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#000000">
+<title>Monitor Suhu & Kenyamanan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<div id="ambient-glow"></div>
 <div id="toast" class="toast"></div>
 
-<div class="c">
-<div class="hdr fade-in">
-<h1>MONITOR SUHU RUANGAN</h1>
-<p>Pengaruh Jumlah Orang Terhadap Suhu Ruang Kelas</p>
-<div class="live-badge"><span class="live-dot"></span> LIVE MONITORING</div>
-</div>
-<div class="clk fade-in d1" id="clk">Menghubungkan...</div>
-
-<!-- ADMIN -->
-<div class="admin-card pres-hide" style="display:none">
-<div class="admin-title">⚙️ Admin Panel</div>
-<div class="admin-grid">
-<div class="admin-item"><div class="admin-label">Jumlah Orang</div><div class="admin-value"><span id="orgDisplay">0</span></div>
-<div class="ir" style="margin:0"><input type="number" id="iOrg" class="if" min="0" placeholder="Jumlah orang"><button class="bs" onclick="setOrang()">SET</button></div><div class="mg" id="mOrg"></div></div>
-<div class="admin-item"><div class="admin-label">Setting AC</div><div class="admin-value"><span id="acDisplay">24</span><span style="font-size:14px;opacity:.3">°C</span></div>
-<div class="ir" style="margin:0"><input type="number" id="iAC" class="if" min="16" max="30" placeholder="16-30°C"><button class="bs" onclick="setAC()">SET</button></div><div class="mg" id="mAC"></div></div>
-<div class="admin-item"><div class="admin-label">Kondisi</div>
-<div class="ir" style="margin:0"><select id="sKon" class="sf" onchange="setKondisi()"><option value="AC Menyala">AC Menyala</option><option value="AC Mati">AC Mati</option><option value="Jendela Terbuka">Jendela Terbuka</option><option value="Pintu Terbuka">Pintu Terbuka</option><option value="AC + Jendela Terbuka">AC + Jendela</option></select></div><div class="mg" id="mKon"></div></div>
-<div class="admin-item"><div class="admin-label">Catatan</div>
-<div class="ir" style="margin:0"><input type="text" id="iCat" class="it" placeholder="Catatan (opsional)"><button class="bs" onclick="setCatatan()">OK</button></div><div class="mg" id="mCat"></div></div>
-</div>
-<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-<button class="bsn" style="flex:1" onclick="kirimManual()">📤 Kirim Data</button>
-<button class="export-btn" onclick="exportCSV()">📊 Export CSV</button>
-<button class="brst" onclick="hapusData()">🗑️ Hapus</button>
-</div><div class="mg" id="mAdmin"></div></div>
-
-<!-- SUHU -->
-<div class="cd fade-in d2" id="suhuCard">
-<div class="ct">Suhu Ruangan</div>
-<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
-<div style="flex:1;min-width:180px">
-<div class="bv"><span id="suhu">--</span><span class="un">°C</span></div>
-<div class="sv">Terasa <b id="hi">--</b>°C &bull; Deviasi <span id="dev" class="dev-ok">--</span>°C<br>AC: <span id="ac">--</span>°C &bull; Orang: <span id="orgInfo">0</span></div>
-</div>
-<div class="ring"><svg width="100" height="100" viewBox="0 0 100 100">
-<circle class="ring-bg" cx="50" cy="50" r="42"/>
-<circle class="ring-fill" id="suhuRing" cx="50" cy="50" r="42" stroke="#8b7cf7" stroke-dasharray="264" stroke-dashoffset="264"/>
-</svg><div class="ring-val"><div class="ring-num" id="ringVal">--</div><div class="ring-label">Suhu °C</div></div></div>
-</div></div>
-
-<!-- KELEMBABAN + STATUS + CI -->
-<div class="grid g3 fade-in d3">
-<div class="cd"><div class="ct">Kelembaban</div>
-<div style="font-size:34px;font-weight:800;font-family:'JetBrains Mono',monospace"><span id="lem">--</span><span class="un">%</span></div></div>
-<div class="cd"><div class="ct">Status</div>
-<div style="margin-top:8px"><span id="sts" class="sb">--</span></div></div>
-<div class="cd" id="ciCard"><div class="ct">Kenyamanan</div>
-<div style="font-size:34px;font-weight:800;font-family:'JetBrains Mono',monospace"><span id="ci">--</span><span class="un">%</span></div>
-<div class="ci-wrap"><div class="ci-bar"><div class="ci-fill" id="ciBar" style="width:0%"></div></div>
-<div class="ci-label"><span>0%</span><span>Ideal</span><span>100%</span></div></div></div>
+<div class="header fade-in">
+    <div>
+        <h1>ENVIRONMENT MONITOR</h1>
+        <p>Kelas • Pengaruh Kapasitas Manusia vs Kinerja AC</p>
+    </div>
+    <div style="text-align:right">
+        <div class="live-badge"><span class="live-dot"></span> LIVE SYNC</div>
+        <div class="clk d1" id="clk" style="margin-top:8px">--:--:--</div>
+    </div>
 </div>
 
-<!-- REKO -->
-<div class="cd fade-in d4"><div class="ct">Rekomendasi — SNI 03-6572-2001</div>
-<div class="reko" id="reko">Menunggu data dari sensor...</div></div>
+<main class="bento-grid">
 
-<!-- GRAFIK -->
-<div class="cd fade-in d5"><div class="ct">Grafik Realtime</div>
-<div class="tab-r">
-<button class="tab act" onclick="setChart('suhu',this)">🌡 Suhu</button>
-<button class="tab" onclick="setChart('kelembaban',this)">💧 Lembab</button>
-<button class="tab" onclick="setChart('heat_index',this)">🔥 Heat</button>
-<button class="tab" onclick="setChart('comfort_index',this)">😊 Comfort</button>
-</div><div class="chart-box"><canvas id="mainChart" height="200"></canvas></div></div>
+    <!-- ADMIN PANEL (Hides in Present Mode) -->
+    <div class="bento-item bento-full admin-card pres-hide fade-in d1" style="display:none">
+        <div class="title-row">
+            <div class="ct"><span class="icon">⚙️</span> Control Panel</div>
+            <button class="export-btn" onclick="exportCSV()"><span class="icon">📊</span> Export CSV</button>
+        </div>
+        <div class="admin-grid">
+            <div class="admin-cell">
+                <div class="admin-label">Penghuni / Kapasitas</div>
+                <div class="flex-row">
+                    <button class="circ-btn" onclick="adjOrg(-1)">-</button>
+                    <div class="admin-val" id="orgDisplay">0</div>
+                    <button class="circ-btn" onclick="adjOrg(1)">+</button>
+                </div>
+                <div class="mg" id="mOrg"></div>
+            </div>
+            <div class="admin-cell">
+                <div class="admin-label">Target AC</div>
+                <div class="flex-row">
+                    <button class="circ-btn" onclick="adjAC(-1)">-</button>
+                    <div class="admin-val"><span id="acDisplay">24</span><span class="un">°C</span></div>
+                    <button class="circ-btn" onclick="adjAC(1)">+</button>
+                </div>
+                <div class="mg" id="mAC"></div>
+            </div>
+            <div class="admin-cell">
+                <div class="admin-label">Kondisi Tipe</div>
+                <div class="seg-ctrl">
+                    <button class="seg-btn act" onclick="setKon('AC Menyala', this)">AC On</button>
+                    <button class="seg-btn" onclick="setKon('AC Mati', this)">AC Off</button>
+                    <button class="seg-btn" onclick="setKon('Jendela Terbuka', this)">Vent</button>
+                </div>
+                <div class="mg" id="mKon"></div>
+            </div>
+            <div class="admin-cell">
+                <div class="admin-label">Kirim Telemetri</div>
+                <div class="flex-row" style="width:100%">
+                    <input type="text" id="iCat" class="inp" placeholder="Catatan opsional..." onkeypress="if(event.key==='Enter') kirimManual()">
+                    <button class="btn-primary" onclick="kirimManual()">PUSH LOG</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<!-- KORELASI -->
-<div class="cd fade-in d6"><div class="ct">Korelasi — Suhu vs Jumlah Orang</div>
-<div class="chart-box"><canvas id="corrChart" height="200"></canvas></div></div>
+    <!-- MAIN TEMPERATURE HERO -->
+    <div class="bento-item bento-large hero-card fade-in d2" id="suhuCard">
+        <div class="ct">Suhu Aktual</div>
+        <div class="hero-val-wrap">
+            <div class="bv"><span id="suhu" class="counter">0.0</span><span class="un">°C</span></div>
+            <div class="ring"><svg width="120" height="120" viewBox="0 0 100 100">
+                <circle class="ring-bg" cx="50" cy="50" r="42"/>
+                <circle class="ring-fill" id="suhuRing" cx="50" cy="50" r="42" stroke="#fff" stroke-dasharray="264" stroke-dashoffset="264"/>
+            </svg><div class="ring-val"><span id="ringVal" class="counter">0</span>°</div></div>
+        </div>
+        <div class="hero-foot">
+            <div class="h-stat">Terasa <b id="hi">0.0</b>°C</div>
+            <div class="h-stat">Deviasi <b id="dev">0.0</b>°C</div>
+            <div class="h-stat">Target <b id="ac">24</b>°C</div>
+        </div>
+    </div>
 
-<!-- GROUP STATS -->
-<div class="cd fade-in d7"><div class="ct">Statistik Per Kelompok</div>
-<div class="table-wrap"><table><thead><tr><th>Orang</th><th>Avg Suhu</th><th>Avg Lembab</th><th>Avg Dev</th><th>Avg CI</th><th>Data</th></tr></thead>
-<tbody id="grpTable"><tr><td colspan="6" style="color:var(--muted)">Menunggu data...</td></tr></tbody></table></div></div>
+    <!-- COMFORT INDEX -->
+    <div class="bento-item ci-card fade-in d3" id="ciCard">
+        <div class="ct">Kenyamanan</div>
+        <div class="bv"><span id="ci" class="counter">0</span><span class="un">%</span></div>
+        <div class="ci-wrap">
+            <div class="ci-bar"><div class="ci-fill" id="ciBar" style="width:0%"></div></div>
+        </div>
+        <div class="stat-badge" id="sts">--</div>
+    </div>
 
-<!-- RINGKASAN -->
-<div class="cd fade-in d8"><div class="ct">Ringkasan Sesi</div>
-<div class="grid g4">
-<div class="si"><div class="siv" id="sMin">--</div><div class="sil">Suhu Min</div></div>
-<div class="si"><div class="siv" id="sMax">--</div><div class="sil">Suhu Max</div></div>
-<div class="si"><div class="siv" id="sAvg">--</div><div class="sil">Suhu Avg</div></div>
-<div class="si"><div class="siv" id="dAvg">--</div><div class="sil">Dev Avg</div></div>
-<div class="si"><div class="siv" id="lMin">--</div><div class="sil">Lem Min</div></div>
-<div class="si"><div class="siv" id="lMax">--</div><div class="sil">Lem Max</div></div>
-<div class="si"><div class="siv" id="cnt">0</div><div class="sil">Total Data</div></div>
-<div class="si"><div class="siv" id="deltaT">--</div><div class="sil">°C/Orang</div></div>
-</div></div>
+    <!-- HUMIDITY -->
+    <div class="bento-item hum-card fade-in d3">
+        <div class="ct">Kelembaban</div>
+        <div class="bv"><span id="lem" class="counter">0</span><span class="un">%</span></div>
+        <div class="icon-bg">💧</div>
+    </div>
 
-<!-- LOG -->
-<div class="cd fade-in d9"><div class="ct">30 Data Terakhir</div>
-<div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Waktu</th><th>Suhu</th><th>Lem</th><th>HI</th><th>Org</th><th>AC</th><th>Dev</th><th>CI</th><th>Status</th></tr></thead>
-<tbody id="logTable"><tr><td colspan="10" style="color:var(--muted)">Menunggu data...</td></tr></tbody></table></div></div>
+    <!-- REKOMENDASI -->
+    <div class="bento-item bento-wide fade-in d4">
+        <div class="ct">Intelijen Sistem (SNI 03-6572-2001)</div>
+        <div class="reko-text" id="reko">Sinkronisasi data sensor...</div>
+    </div>
 
-<div class="sum-card fade-in d9"><div class="sum-title">RINGKASAN PENGUKURAN</div>
-<div id="sumContent" style="color:var(--sub);font-family:'JetBrains Mono',monospace;font-size:12px">Menunggu data...</div></div>
+    <!-- MAIN CHART -->
+    <div class="bento-item bento-full chart-card fade-in d5">
+        <div class="title-row">
+            <div class="ct">Lintasan Waktu Transien</div>
+            <div class="tab-r">
+                <button class="tab act" onclick="setChart('suhu',this)">Suhu</button>
+                <button class="tab" onclick="setChart('kelembaban',this)">RH</button>
+                <button class="tab" onclick="setChart('heat_index',this)">Heat</button>
+                <button class="tab" onclick="setChart('comfort_index',this)">CI</button>
+            </div>
+        </div>
+        <div class="chart-box"><canvas id="mainChart" height="200"></canvas></div>
+    </div>
 
-<div style="text-align:center;margin-bottom:12px" class="fade-in d9">
-<button class="mode-btn" id="modeBtn" onclick="toggleMode()">👁️ Mode Admin</button></div>
+    <!-- CORRELATION CHART & STATS -->
+    <div class="bento-item bento-wide fade-in d6">
+        <div class="ct">Termodinamika vs Penghuni</div>
+        <div class="chart-box"><canvas id="corrChart" height="180"></canvas></div>
+    </div>
 
-<div class="cd fade-in d9"><div class="ct">Koneksi</div>
-<div style="font-size:12px;line-height:2;color:var(--sub)">
-<span class="dt" id="dot"></span> Database: <span id="dbStatus">Menghubungkan...</span><br>
-Total: <span id="totalRec" style="font-family:'JetBrains Mono',monospace">0</span> record &bull; Update: <span id="lastUpdate" style="font-family:'JetBrains Mono',monospace">-</span>
-</div></div>
+    <!-- METRICS GRID -->
+    <div class="bento-item bento-wide metrics-grid fade-in d6">
+        <div class="metric"><div class="m-val counter" id="sMax">0</div><div class="m-lbl">MAX SUHU</div></div>
+        <div class="metric"><div class="m-val counter" id="sMin">0</div><div class="m-lbl">MIN SUHU</div></div>
+        <div class="metric"><div class="m-val counter" id="sAvg">0</div><div class="m-lbl">AVG SUHU</div></div>
+        <div class="metric"><div class="m-val" id="deltaT">0</div><div class="m-lbl">Δ°C / ORANG</div></div>
+    </div>
 
-<div class="inf fade-in d9">ESP32 IoT &bull; Supabase &bull; Vercel &bull; Realtime Dashboard</div>
+    <!-- DATA LOG -->
+    <div class="bento-item bento-full fade-in d7">
+        <div class="ct">Sistem Riwayat Pengukuran</div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Waktu</th><th>Suhu</th><th>RH</th><th>Heat</th><th>Dev</th><th>CI</th><th>Org</th><th>Target</th><th>Status</th></tr></thead>
+                <tbody id="logTable"><tr><td colspan="9">Inisialisasi tabel memori...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<div class="footer fade-in d8">
+    <div class="conn-status">
+        <span class="dt dt-ok" id="dot"></span>
+        <span id="dbStatus">Koneksi Supabase Aktif</span> • <span id="totalRec">0</span> paket • Sync <span id="lastUpdate">-</span>
+    </div>
+    <button class="mode-ctrl" id="modeBtn" onclick="toggleMode()">Buka Panel Kendali</button>
 </div>
 
 <script src="app.js"></script>
