@@ -41,7 +41,7 @@ document.addEventListener('mousemove', (e) => {
     if(glow) glow.style.transform = `translate(calc(-50% + ${(e.clientX - w/2) * 0.1}px), calc(-50% + ${(e.clientY - h/2) * 0.1}px))`;
     
     // 3D tilt cards
-    document.querySelectorAll('.bento-item').forEach(card => {
+    document.querySelectorAll('.bento-grid .bento-item').forEach(card => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left; // x position within the element.
         const y = e.clientY - rect.top;  // y position within the element.
