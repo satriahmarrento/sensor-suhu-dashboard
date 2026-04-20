@@ -21,6 +21,7 @@
         <p>Kelas • Pengaruh Kapasitas Manusia vs Kinerja AC</p>
     </div>
     <div style="text-align:right">
+        <button class="mode-ctrl" style="margin-bottom:12px; padding:4px 12px; margin-right:8px;" onclick="toggleHistory()">📋 Riwayat</button>
         <button id="themeBtn" class="mode-ctrl" style="margin-bottom:12px; padding:4px 12px;" onclick="toggleTheme()">☀️ Light Mode</button><br>
         <div class="live-badge"><span class="live-dot"></span> LIVE SYNC</div>
         <div class="clk d1" id="clk" style="margin-top:8px">--:--:--</div>
@@ -141,17 +142,6 @@
         <div class="metric"><div class="m-val" id="deltaT">0</div><div class="m-lbl">Δ°C / ORANG</div></div>
     </div>
 
-    <!-- DATA LOG -->
-    <div class="bento-item bento-full fade-in d7">
-        <div class="ct">Sistem Riwayat Pengukuran</div>
-        <div class="table-wrap">
-            <table>
-                <thead><tr><th>Waktu</th><th>Suhu</th><th>RH</th><th>Heat</th><th>Dev</th><th>CI</th><th>Org</th><th>Target</th><th>Status</th></tr></thead>
-                <tbody id="logTable"><tr><td colspan="9">Inisialisasi tabel memori...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
-
 </main>
 
 <div class="footer fade-in d8">
@@ -160,6 +150,22 @@
         <span id="dbStatus">Koneksi Supabase Aktif</span> • <span id="totalRec">0</span> paket • Sync <span id="lastUpdate">-</span>
     </div>
     <button class="mode-ctrl" id="modeBtn" onclick="toggleMode()">Buka Panel Kendali</button>
+</div>
+
+<!-- HISTORY MODAL -->
+<div id="historyModal" class="modal-overlay">
+    <div class="modal-content bento-item">
+        <div class="title-row">
+            <div class="ct">Sistem Riwayat Pengukuran</div>
+            <button class="circ-btn" onclick="toggleHistory()" style="width:30px;height:30px;font-size:14px">✕</button>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Waktu</th><th>Suhu</th><th>RH</th><th>Heat</th><th>Dev</th><th>CI</th><th>Org</th><th>Target</th><th>Status</th></tr></thead>
+                <tbody id="logTable"><tr><td colspan="9" style="color:var(--text-sub)">N/A</td></tr></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script src="app.js"></script>

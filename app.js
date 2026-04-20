@@ -248,6 +248,10 @@ function toggleTheme() {
     if(allData.length) updateCharts();
 }
 
+function toggleHistory() {
+    el('historyModal').classList.toggle('active');
+}
+
 if(localStorage.getItem('theme') !== 'dark') {
     document.body.classList.add('light-mode');
     if(el('themeBtn')) el('themeBtn').innerText = '🌙 Dark Mode';

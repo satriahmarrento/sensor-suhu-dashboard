@@ -239,8 +239,15 @@ tr:hover { background: rgba(255,255,255,0.03); transform: scale(1.005); }
 .d4 { animation-delay: 0.2s; } .d5 { animation-delay: 0.25s; } .d6 { animation-delay: 0.3s; }
 .d7 { animation-delay: 0.35s; } .d8 { animation-delay: 0.4s; }
 
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s ease; padding: 20px; }
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.modal-content { width: 100%; max-width: 1100px; max-height: 90vh; transform: translateY(20px) scale(0.95); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; }
+.modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+body.light-mode .modal-overlay { background: rgba(255,255,255,0.4); }
+
 /* Toast */
-.toast { position: fixed; bottom: 32px; right: 32px; padding: 14px 24px; border-radius: 12px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(20px); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; backdrop-filter: blur(20px); border: 1px solid; }
+.toast { position: fixed; bottom: 32px; right: 32px; padding: 14px 24px; border-radius: 12px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(20px); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000; backdrop-filter: blur(20px); border: 1px solid; }
 .toast.show { opacity: 1; transform: translateY(0); }
 .mg { text-align: center; font-size: 11px; margin-top: 8px; opacity: 0; transition: 0.3s; } .mg.sh { opacity: 1; }
 
