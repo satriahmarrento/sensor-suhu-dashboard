@@ -165,13 +165,13 @@ function updateLogTable(){
     rc.forEach(d=>{
         const dv=d.deviasi||0;
         h+=`<tr>
-            <td style="color:#aaa">${fmtTime(d.created_at)}</td>
-            <td style="color:#fff">${d.suhu?.toFixed(1)||'-'}°</td>
+            <td style="color:var(--tc-sub)">${fmtTime(d.created_at)}</td>
+            <td style="color:var(--tc-main); font-weight:700;">${d.suhu?.toFixed(1)||'-'}°</td>
             <td>${d.kelembaban?.toFixed(1)||'-'}%</td>
-            <td style="color:#ef4444">${d.heat_index?.toFixed(1)||'-'}°</td>
+            <td style="color:var(--tc-heat)">${d.heat_index?.toFixed(1)||'-'}°</td>
             <td class="${dv>1?'st-bad':dv<-1?'st-blue':'st-good'}">${(dv>=0?'+':'')+dv.toFixed(1)}°</td>
-            <td style="color:${d.comfort_index>=70?'#10b981':d.comfort_index>=40?'#f59e0b':'#ef4444'}">${d.comfort_index?.toFixed(0)||'-'}%</td>
-            <td style="color:#8b7cf7">${d.jumlah_orang??'-'}</td>
+            <td class="${d.comfort_index>=70?'st-good':d.comfort_index>=40?'st-warn':'st-bad'}">${d.comfort_index?.toFixed(0)||'-'}%</td>
+            <td style="color:var(--tc-org)">${d.jumlah_orang??'-'}</td>
             <td>${d.setting_ac??'-'}°</td>
             <td><span class="stat-badge bg-${d.comfort_index>=70?'good':d.comfort_index>=40?'warn':'bad'}" style="position:static;font-size:8px;padding:4px 8px">${(d.status||'-')}</span></td>
         </tr>`;
@@ -186,17 +186,26 @@ function setChart(f, btn){
 function updateCharts(){
     const l40=allData.slice(-40), lb=l40.map(d=>fmtTime(d.created_at)), vl=l40.map(d=>d[currentField]||0);
     const cl={suhu:'#3b82f6', kelembaban:'#10b981', heat_index:'#ef4444', comfort_index:'#f59e0b'}, cr=cl[currentField]||'#fff';
+    const isLight = document.body.classList.contains('light-mode');
     
     if(mainChart) mainChart.destroy();
     const ctx=el('mainChart').getContext('2d');
     const grd=ctx.createLinearGradient(0,0,0,300); grd.addColorStop(0,cr+'55'); grd.addColorStop(1,cr+'00');
     
-    Chart.defaults.color = 'rgba(255,255,255,0.3)';
+    Chart.defaults.color = isLight ? 'rgba(30,41,59,0.8)' : 'rgba(255,255,255,0.5)';
     Chart.defaults.font.family = "'JetBrains Mono', monospace";
+    
+    const gridX = isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.02)';
+    const gridY = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+    const tipBg = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(20,20,25,0.9)';
+    const tipTitle = isLight ? '#1e293b' : '#fff';
+    const tipBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)';
+    const axisLabel = isLight ? 'rgba(30,41,59,0.7)' : 'rgba(255,255,255,0.5)';
+    const tickCol = isLight ? 'rgba(30,41,59,0.6)' : 'rgba(255,255,255,0.4)';
     
     mainChart=new Chart(ctx,{
         type:'line', data:{labels:lb, datasets:[{data:vl, borderColor:cr, backgroundColor:grd, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:6, borderWidth:3}]},
-        options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'}, plugins:{legend:{display:false}, tooltip:{backgroundColor:'rgba(20,20,25,0.9)', titleColor:'#fff', bodyColor:cr, padding:12, borderColor:'rgba(255,255,255,0.1)', borderWidth:1}}, scales:{x:{ticks:{maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.02)'}}, y:{grid:{color:'rgba(255,255,255,0.05)'}}} }
+        options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'}, plugins:{legend:{display:false}, tooltip:{backgroundColor:tipBg, titleColor:tipTitle, bodyColor:cr, padding:12, borderColor:tipBorder, borderWidth:1}}, scales:{x:{ticks:{color:tickCol, maxTicksLimit:8},grid:{color:gridX}}, y:{ticks:{color:tickCol},grid:{color:gridY}}} }
     });
     
     const gr={}; allData.forEach(d=>{ if(d.jumlah_orang==null||d.suhu==null)return; (gr[d.jumlah_orang]=gr[d.jumlah_orang]||[]).push(d.suhu); });
@@ -204,8 +213,8 @@ function updateCharts(){
     
     if(corrChart) corrChart.destroy();
     corrChart=new Chart(el('corrChart'),{
-        type:'line', data:{labels:ks, datasets:[{data:ks.map(k=>av(gr[k])), borderColor:'#8b7cf7', backgroundColor:'rgba(139,124,247,0.2)', borderWidth:3, tension:0.4, fill:true, pointBackgroundColor:'#fff', pointRadius:4}]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{backgroundColor:'rgba(20,20,25,0.9)', padding:12, callbacks:{label:c=>'Suhu rata-rata: '+c.parsed.y.toFixed(1)+'°C'}}}, scales:{x:{title:{display:true,text:'Kapasitas (Orang)',color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.02)'}}, y:{title:{display:true,text:'Suhu (°C)',color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}} }
+        type:'line', data:{labels:ks, datasets:[{data:ks.map(k=>av(gr[k])), borderColor:'#8b7cf7', backgroundColor:'rgba(139,124,247,0.2)', borderWidth:3, tension:0.4, fill:true, pointBackgroundColor:isLight?'#6366f1':'#fff', pointRadius:4}]},
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{backgroundColor:tipBg, titleColor:tipTitle, padding:12, borderColor:tipBorder, borderWidth:1, callbacks:{label:c=>'Suhu rata-rata: '+c.parsed.y.toFixed(1)+'°C'}}}, scales:{x:{ticks:{color:tickCol},title:{display:true,text:'Kapasitas (Orang)',color:axisLabel},grid:{color:gridX}}, y:{ticks:{color:tickCol},title:{display:true,text:'Suhu (°C)',color:axisLabel},grid:{color:gridY}}} }
     });
 }
 
@@ -236,9 +245,10 @@ function toggleTheme() {
     const isLight = document.body.classList.contains('light-mode');
     if(el('themeBtn')) el('themeBtn').innerText = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    if(allData.length) updateCharts();
 }
 
-if(localStorage.getItem('theme') === 'light') {
+if(localStorage.getItem('theme') !== 'dark') {
     document.body.classList.add('light-mode');
     if(el('themeBtn')) el('themeBtn').innerText = '🌙 Dark Mode';
 }
