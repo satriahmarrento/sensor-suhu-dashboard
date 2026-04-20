@@ -238,3 +238,40 @@ tr:hover { background: rgba(255,255,255,0.03); transform: scale(1.005); }
 .toast { position: fixed; bottom: 32px; right: 32px; padding: 14px 24px; border-radius: 12px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(20px); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; backdrop-filter: blur(20px); border: 1px solid; }
 .toast.show { opacity: 1; transform: translateY(0); }
 .mg { text-align: center; font-size: 11px; margin-top: 8px; opacity: 0; transition: 0.3s; } .mg.sh { opacity: 1; }
+
+/* Light Mode Overrides */
+body.light-mode {
+  --bg-color: #f8fafc;
+  --panel-bg: rgba(255, 255, 255, 0.75);
+  --panel-border: rgba(0, 0, 0, 0.1);
+  --panel-hover: rgba(255, 255, 255, 0.95);
+  --text-main: #0f172a;
+  --text-sub: rgba(15, 23, 42, 0.6);
+  --glow-base: rgba(100, 100, 255, 0.05);
+}
+body.light-mode .bento-item::before {
+  background: linear-gradient(135deg, rgba(0,0,0,0.02) 0%, transparent 50%);
+}
+body.light-mode .header h1 {
+  background: linear-gradient(180deg, #0f172a 0%, #64748b 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+body.light-mode th {
+  background: rgba(248, 250, 252, 0.95);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+body.light-mode td { border-bottom: 1px solid rgba(0,0,0,0.05); }
+body.light-mode tr:hover { background: rgba(0,0,0,0.03); }
+body.light-mode .inp { background: rgba(0,0,0,0.05); color: #0f172a; border-color: rgba(0,0,0,0.1); }
+body.light-mode .inp:focus { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.2); }
+body.light-mode .seg-ctrl { background: rgba(0,0,0,0.05); }
+body.light-mode .admin-cell { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.05); }
+body.light-mode .circ-btn { border-color: rgba(0,0,0,0.1); background: rgba(0,0,0,0.05); color: #0f172a; }
+body.light-mode .circ-btn:hover { background: rgba(0,0,0,0.1); }
+body.light-mode .tab-r { background: rgba(0,0,0,0.05); }
+body.light-mode .tab.act { background: rgba(0,0,0,0.1); color: #0f172a; }
+body.light-mode .metric { background: rgba(0,0,0,0.03); }
+body.light-mode .mode-ctrl { border-color: rgba(0,0,0,0.2); color: #0f172a; }
+body.light-mode .mode-ctrl:hover { border-color: rgba(0,0,0,0.4); }
+body.light-mode .export-btn { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); color: #0f172a; }
+body.light-mode .export-btn:hover { background: rgba(0,0,0,0.1); }

@@ -231,4 +231,16 @@ function exportCSV(){
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'})); a.download='log_'+new Date().getTime()+'.csv'; a.click();
 }
 
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    if(el('themeBtn')) el('themeBtn').innerText = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+if(localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light-mode');
+    if(el('themeBtn')) el('themeBtn').innerText = '🌙 Dark Mode';
+}
+
 init();
