@@ -1,260 +1,545 @@
-const SUPA_URL='https://sjvrugtlhvyvqkebjmka.supabase.co';
-const SUPA_KEY='sb_publishable_6iKYw5qRwfEsF7g2XUZDEQ_et9RV8LS';
-const db=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+const SUPA_URL = "https://sjvrugtlhvyvqkebjmka.supabase.co";
+const SUPA_KEY = "sb_publishable_6iKYw5qRwfEsF7g2XUZDEQ_et9RV8LS";
+const db = window.supabase?.createClient(SUPA_URL, SUPA_KEY);
 
-let allData=[], mainChart=null, corrChart=null, currentField='suhu';
-let aOrg=0, aAC=24, aKon='AC Menyala', aCat='-', pMode=true;
+const state = {
+  rows: [],
+  config: { jumlah_orang: 0, setting_ac: 24, kondisi: "AC Menyala", catatan: "-" },
+  currentField: "suhu",
+  presentationMode: true,
+  charts: { main: null, corr: null },
+  counts: new Map()
+};
 
-// --- UTILS ---
+const FIELD_META = {
+  suhu: { label: "Suhu", color: "#36d399", unit: "\u00B0C" },
+  kelembaban: { label: "RH", color: "#6bb7ff", unit: "%" },
+  heat_index: { label: "Heat index", color: "#ff6b6b", unit: "\u00B0C" },
+  comfort_index: { label: "Comfort index", color: "#f5b84b", unit: "%" }
+};
+
 const el = (id) => document.getElementById(id);
-const fmtDate = d => new Date(d).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
-const fmtTime = d => { const t=new Date(d); return isNaN(t)?'-':t.toLocaleTimeString('id-ID',{hour12:false}); };
-function toast(m,t='info'){ const e=el('toast'); e.textContent=m; e.className='toast show toast-'+t; setTimeout(()=>e.className='toast',3000); }
-function msg(id,t,c){ const m=el(id); m.innerHTML=t; m.className='mg sh '+c; setTimeout(()=>m.className='mg',3000); }
+const num = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+const avg = (values) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+const fmtTime = (value) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "-" : date.toLocaleTimeString("id-ID", { hour12: false });
+};
 
-// --- ANIMATION ENGINE ---
-const countVals = new Map();
-function animateValue(id, end, duration=1000, isFloat=false) {
-    const obj = el(id); if(!obj) return;
-    const start = countVals.get(id) || 0;
-    if(start === end) return;
-    countVals.set(id, end);
-    let startTimestamp = null;
-    const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        const ease = 1 - Math.pow(1 - progress, 3); // cubic ease out
-        const current = start + (end - start) * ease;
-        obj.innerHTML = isFloat ? current.toFixed(1) : Math.floor(current);
-        if (progress < 1) window.requestAnimationFrame(step);
+function toast(message, type = "info") {
+  const node = el("toast");
+  if (!node) return;
+  node.textContent = message;
+  node.className = `toast show ${type}`;
+  window.clearTimeout(toast.timer);
+  toast.timer = window.setTimeout(() => { node.className = "toast"; }, 3200);
+}
+
+function inlineMsg(id, text) {
+  const node = el(id);
+  if (!node) return;
+  node.textContent = text;
+  node.classList.add("show");
+  window.setTimeout(() => node.classList.remove("show"), 1400);
+}
+
+function animateValue(id, end, options = {}) {
+  const node = el(id);
+  if (!node) return;
+  const duration = options.duration ?? 900;
+  const decimals = options.decimals ?? 0;
+  const start = state.counts.get(id) ?? num(node.textContent, 0);
+  if (Math.abs(start - end) < 0.001) return;
+  state.counts.set(id, end);
+  let startTime = null;
+  const step = (timestamp) => {
+    startTime ??= timestamp;
+    const progress = Math.min((timestamp - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    node.textContent = (start + (end - start) * eased).toFixed(decimals);
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function setConnection(status, message) {
+  const dot = el("dot");
+  if (dot) dot.className = `status-dot ${status}`;
+  if (el("dbStatus")) el("dbStatus").textContent = message;
+}
+
+async function init() {
+  if (!db) {
+    setConnection("error", "Supabase library gagal dimuat");
+    toast("Supabase library gagal dimuat.", "error");
+    return;
+  }
+  applyTheme();
+  updateClock();
+  setInterval(updateClock, 1000);
+  bindAmbientMotion();
+  await loadConfig();
+  await loadData();
+  setupRealtime();
+}
+
+async function loadConfig() {
+  const { data, error } = await db.from("admin_config").select("*").eq("id", 1).single();
+  if (error && error.code !== "PGRST116") {
+    toast(`Config gagal dimuat: ${error.message}`, "error");
+    return;
+  }
+  if (data) {
+    state.config = {
+      jumlah_orang: num(data.jumlah_orang, 0),
+      setting_ac: num(data.setting_ac, 24),
+      kondisi: data.kondisi || "AC Menyala",
+      catatan: data.catatan || "-"
     };
-    window.requestAnimationFrame(step);
+  }
+  syncConfigUI();
 }
 
-// --- 3D PHYSICS & AMBIENT OP ---
-document.addEventListener('mousemove', (e) => {
-    if (window.innerWidth <= 900) return; // Disable expensive 3D physics on mobile!
-    
-    const w = window.innerWidth, h = window.innerHeight;
-    const glow = el('ambient-glow');
-    // Move ambient glow slowly towards mouse
-    if(glow) glow.style.transform = `translate(calc(-50% + ${(e.clientX - w/2) * 0.1}px), calc(-50% + ${(e.clientY - h/2) * 0.1}px))`;
-    
-    // 3D tilt cards
-    document.querySelectorAll('.bento-grid .bento-item').forEach(card => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left; // x position within the element.
-        const y = e.clientY - rect.top;  // y position within the element.
-        
-        // Check if mouse is hovering this card
-        if(x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = ((y - centerY) / centerY) * -4; // Max rotation deg
-            const rotateY = ((x - centerX) / centerX) * 4;
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-        } else {
-            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-        }
+async function loadData() {
+  setConnection("pending", "Mengambil data");
+  const { data, error } = await db.from("sensor_data").select("*").order("created_at", { ascending: true });
+  if (error) {
+    setConnection("error", "Supabase gagal");
+    toast(`Data gagal dimuat: ${error.message}`, "error");
+    renderEmpty();
+    return;
+  }
+  state.rows = data || [];
+  setConnection("ok", "Supabase aktif");
+  animateValue("totalRec", state.rows.length);
+  renderDashboard();
+}
+
+function setupRealtime() {
+  db.channel("sensor-dashboard")
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "sensor_data" }, ({ new: row }) => {
+      state.rows.push(row);
+      animateValue("totalRec", state.rows.length);
+      renderDashboard();
+      toast("Telemetri baru masuk", "ok");
+    })
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") {
+        const latest = state.rows[state.rows.length - 1];
+        if (latest) updateFreshness(latest.created_at);
+        else setConnection("ok", "Live sync aktif");
+      }
     });
-});
 
-// --- CORE INIT ---
-async function init(){
-    await loadConfig();
-    await loadData();
-    setupRealtime();
-    setInterval(updateClock,1000);
+  db.channel("admin-config")
+    .on("postgres_changes", { event: "*", schema: "public", table: "admin_config" }, ({ new: config }) => {
+      if (!config) return;
+      state.config = {
+        jumlah_orang: num(config.jumlah_orang, 0),
+        setting_ac: num(config.setting_ac, 24),
+        kondisi: config.kondisi || "AC Menyala",
+        catatan: config.catatan || "-"
+      };
+      syncConfigUI();
+      renderDashboard();
+    })
+    .subscribe();
 }
 
-async function loadConfig(){
-    const{data}=await db.from('admin_config').select('*').eq('id',1).single();
-    if(data){
-        aOrg=data.jumlah_orang||0; aAC=data.setting_ac||24; aKon=data.kondisi||'AC Menyala'; aCat=data.catatan||'-';
-        el('orgDisplay').innerText=aOrg; el('acDisplay').innerText=aAC;
-        // sync segments
-        document.querySelectorAll('.seg-btn').forEach(b => {
-            if(b.innerText.includes(aKon.split(' ')[0])) {
-                document.querySelectorAll('.seg-btn').forEach(x=>x.classList.remove('act'));
-                b.classList.add('act');
-            }
-        });
+function syncConfigUI() {
+  const { jumlah_orang, setting_ac, kondisi } = state.config;
+  if (el("orgDisplay")) el("orgDisplay").textContent = jumlah_orang;
+  if (el("acDisplay")) el("acDisplay").textContent = setting_ac;
+  document.querySelectorAll(".segment button").forEach((button) => {
+    button.classList.toggle("active", button.textContent.includes(kondisi.includes("Mati") ? "Off" : kondisi.includes("Jendela") ? "Vent" : "On"));
+  });
+}
+
+function renderEmpty() {
+  ["suhu", "lem", "ci", "ringVal", "sMax", "sMin", "sAvg"].forEach((id) => {
+    if (el(id)) el(id).textContent = "0";
+  });
+  if (el("reko")) el("reko").textContent = "Belum ada data sensor untuk dianalisis.";
+  if (el("systemHealth")) el("systemHealth").textContent = "Tambahkan data sensor untuk membuka analisis stabilitas.";
+  renderLogTable();
+  renderCharts();
+}
+
+function renderDashboard() {
+  if (!state.rows.length) {
+    renderEmpty();
+    return;
+  }
+  const latest = state.rows[state.rows.length - 1];
+  const suhu = num(latest.suhu);
+  const rh = num(latest.kelembaban);
+  const comfort = num(latest.comfort_index);
+  const target = num(latest.setting_ac, state.config.setting_ac);
+  const heatIndex = num(latest.heat_index, suhu);
+  const deviation = Number.isFinite(Number(latest.deviasi)) ? num(latest.deviasi) : suhu - target;
+
+  animateValue("suhu", suhu, { decimals: 1, duration: 1100 });
+  animateValue("lem", rh, { decimals: 0, duration: 1000 });
+  animateValue("ci", comfort, { decimals: 0, duration: 1000 });
+  animateValue("ringVal", suhu, { decimals: 0, duration: 1000 });
+  animateValue("totalRec", state.rows.length);
+
+  el("hi").textContent = heatIndex.toFixed(1);
+  el("ac").textContent = target.toFixed(0);
+  el("dev").textContent = `${deviation >= 0 ? "+" : ""}${deviation.toFixed(1)}\u00B0`;
+  el("dev").className = Math.abs(deviation) <= 1 ? "text-good" : deviation > 0 ? "text-bad" : "text-cool";
+  el("lastUpdate").textContent = fmtTime(latest.created_at);
+  updateFreshness(latest.created_at);
+
+  updateRing(suhu);
+  updateComfort(comfort, latest.status);
+  updateRecommendation({ suhu, comfort, deviation, target, rh });
+  updateStats();
+  renderLogTable();
+  renderCharts();
+}
+
+function updateFreshness(createdAt) {
+  const timestamp = new Date(createdAt).getTime();
+  if (!Number.isFinite(timestamp)) return;
+  const ageMs = Date.now() - timestamp;
+  if (ageMs > 5 * 60 * 1000) {
+    setConnection("error", `Data stale ${formatAge(ageMs)}`);
+  } else if (ageMs > 2 * 60 * 1000) {
+    setConnection("pending", `Data ${formatAge(ageMs)} lalu`);
+  } else {
+    setConnection("ok", "Live sync aktif");
+  }
+}
+
+function formatAge(ageMs) {
+  const minutes = Math.max(1, Math.round(ageMs / 60000));
+  if (minutes < 60) return `${minutes} menit`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 48) return `${hours} jam`;
+  return `${Math.round(hours / 24)} hari`;
+}
+
+function updateRing(value) {
+  const min = 16;
+  const max = 38;
+  const pct = Math.min(1, Math.max(0, (value - min) / (max - min)));
+  const offset = 314 - pct * 314;
+  const color = value <= 26 ? "#36d399" : value <= 31 ? "#f5b84b" : "#ff6b6b";
+  const ring = el("suhuRing");
+  if (ring) {
+    ring.style.strokeDashoffset = String(offset);
+    ring.style.stroke = color;
+  }
+  const glow = el("ambient-glow");
+  if (glow) glow.style.background = `rgba(${hexToRgb(color)}, 0.17)`;
+}
+
+function updateComfort(value, status) {
+  const color = value >= 70 ? "#36d399" : value >= 40 ? "#f5b84b" : "#ff6b6b";
+  const bar = el("ciBar");
+  if (bar) {
+    bar.style.width = `${Math.max(0, Math.min(100, value))}%`;
+    bar.style.background = color;
+  }
+  const badge = el("sts");
+  if (badge) {
+    badge.textContent = status || (value >= 70 ? "Optimal" : value >= 40 ? "Marginal" : "Kritis");
+    badge.className = `badge ${value >= 70 ? "text-good" : value >= 40 ? "text-warn" : "text-bad"}`;
+  }
+}
+
+function updateRecommendation({ suhu, comfort, deviation, target, rh }) {
+  let message;
+  if (comfort >= 80 && Math.abs(deviation) <= 1) {
+    message = `<strong>Optimal.</strong> Suhu ${suhu.toFixed(1)}\u00B0C dekat target ${target.toFixed(0)}\u00B0C. Pertahankan setelan AC dan pantau stabilitas RH ${rh.toFixed(0)}%.`;
+  } else if (deviation > 2 && target <= 16) {
+    message = `<strong>Kompensasi pendinginan perlu.</strong> Suhu berada ${deviation.toFixed(1)}\u00B0C di atas target, sementara AC sudah di batas bawah. Kurangi beban penghuni atau cek kapasitas pendinginan.`;
+  } else if (deviation > 2) {
+    message = `<strong>Kompensasi pendinginan perlu.</strong> Suhu berada ${deviation.toFixed(1)}\u00B0C di atas target. Turunkan setpoint AC 1-2\u00B0C atau kurangi beban penghuni.`;
+  } else if (deviation < -2) {
+    message = `<strong>Terlalu dingin.</strong> Suhu berada ${Math.abs(deviation).toFixed(1)}\u00B0C di bawah target. Naikkan AC 1\u00B0C untuk efisiensi energi.`;
+  } else if (rh < 40 || rh > 70) {
+    message = `<strong>Kelembaban perlu dikoreksi.</strong> RH ${rh.toFixed(0)}% keluar dari zona nyaman. Ventilasi dan drainase AC perlu dicek.`;
+  } else {
+    message = `<strong>Marginal.</strong> Sistem masih terkendali, namun comfort index ${comfort.toFixed(0)}% belum stabil. Lanjutkan observasi 10-15 menit.`;
+  }
+  el("reko").innerHTML = message;
+}
+
+function updateStats() {
+  const suhuValues = state.rows.map((row) => Number(row.suhu)).filter(Number.isFinite);
+  if (!suhuValues.length) return;
+  const min = Math.min(...suhuValues);
+  const max = Math.max(...suhuValues);
+  const mean = avg(suhuValues);
+  animateValue("sMin", min, { decimals: 1 });
+  animateValue("sMax", max, { decimals: 1 });
+  animateValue("sAvg", mean, { decimals: 1 });
+
+  const grouped = new Map();
+  state.rows.forEach((row) => {
+    const people = Number(row.jumlah_orang);
+    const temp = Number(row.suhu);
+    if (!Number.isFinite(people) || !Number.isFinite(temp)) return;
+    grouped.set(people, [...(grouped.get(people) || []), temp]);
+  });
+  const keys = [...grouped.keys()].sort((a, b) => a - b);
+  if (keys.length >= 2 && keys[0] !== keys[keys.length - 1]) {
+    const delta = (avg(grouped.get(keys[keys.length - 1])) - avg(grouped.get(keys[0]))) / (keys[keys.length - 1] - keys[0]);
+    el("deltaT").textContent = `${delta >= 0 ? "+" : ""}${delta.toFixed(3)}`;
+  } else {
+    el("deltaT").textContent = "0";
+  }
+
+  const recent = suhuValues.slice(-12);
+  const spread = recent.length ? Math.max(...recent) - Math.min(...recent) : 0;
+  el("systemHealth").textContent = spread <= 1.2
+    ? `Stabil: fluktuasi 12 sampel terakhir ${spread.toFixed(1)}\u00B0C.`
+    : `Fluktuatif: rentang 12 sampel terakhir ${spread.toFixed(1)}\u00B0C. Cek siklus AC atau kepadatan ruangan.`;
+}
+
+function renderLogTable() {
+  const body = el("logTable");
+  if (!body) return;
+  const rows = state.rows.slice(-35).reverse();
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="9">Belum ada data.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map((row) => {
+    const deviation = Number.isFinite(Number(row.deviasi)) ? num(row.deviasi) : num(row.suhu) - num(row.setting_ac, state.config.setting_ac);
+    const comfort = num(row.comfort_index);
+    return `<tr>
+      <td>${fmtTime(row.created_at)}</td>
+      <td>${formatCell(row.suhu, 1)}&deg;</td>
+      <td>${formatCell(row.kelembaban, 0)}%</td>
+      <td>${formatCell(row.heat_index, 1)}&deg;</td>
+      <td class="${Math.abs(deviation) <= 1 ? "text-good" : deviation > 0 ? "text-bad" : "text-cool"}">${deviation >= 0 ? "+" : ""}${deviation.toFixed(1)}&deg;</td>
+      <td class="${comfort >= 70 ? "text-good" : comfort >= 40 ? "text-warn" : "text-bad"}">${formatCell(comfort, 0)}%</td>
+      <td>${row.jumlah_orang ?? "-"}</td>
+      <td>${row.setting_ac ?? state.config.setting_ac}&deg;</td>
+      <td>${row.status || "-"}</td>
+    </tr>`;
+  }).join("");
+}
+
+function renderCharts() {
+  const isLight = document.body.classList.contains("light-mode");
+  const textColor = isLight ? "rgba(17,27,22,0.68)" : "rgba(242,255,249,0.68)";
+  const gridColor = isLight ? "rgba(17,27,22,0.08)" : "rgba(242,255,249,0.08)";
+  Chart.defaults.color = textColor;
+  Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+
+  const rows = state.rows.slice(-48);
+  const meta = FIELD_META[state.currentField];
+  const labels = rows.map((row) => fmtTime(row.created_at));
+  const values = rows.map((row) => num(row[state.currentField]));
+
+  state.charts.main?.destroy();
+  const mainCanvas = el("mainChart");
+  if (mainCanvas) {
+    const ctx = mainCanvas.getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+    gradient.addColorStop(0, `${meta.color}66`);
+    gradient.addColorStop(1, `${meta.color}00`);
+    state.charts.main = new Chart(ctx, {
+      type: "line",
+      data: { labels, datasets: [{ label: meta.label, data: values, borderColor: meta.color, backgroundColor: gradient, fill: true, tension: 0.38, pointRadius: 0, pointHoverRadius: 5, borderWidth: 3 }] },
+      options: chartOptions(gridColor, meta)
+    });
+  }
+
+  const grouped = new Map();
+  state.rows.forEach((row) => {
+    const people = Number(row.jumlah_orang);
+    const temp = Number(row.suhu);
+    if (!Number.isFinite(people) || !Number.isFinite(temp)) return;
+    grouped.set(people, [...(grouped.get(people) || []), temp]);
+  });
+  const keys = [...grouped.keys()].sort((a, b) => a - b);
+  state.charts.corr?.destroy();
+  const corrCanvas = el("corrChart");
+  if (corrCanvas) {
+    state.charts.corr = new Chart(corrCanvas.getContext("2d"), {
+      type: "line",
+      data: { labels: keys, datasets: [{ label: "Suhu rata-rata", data: keys.map((key) => avg(grouped.get(key))), borderColor: "#6bb7ff", backgroundColor: "rgba(107,183,255,0.18)", fill: true, tension: 0.35, pointRadius: 4, borderWidth: 3 }] },
+      options: chartOptions(gridColor, { label: "Suhu rata-rata", unit: "\u00B0C" })
+    });
+  }
+}
+
+function chartOptions(gridColor, meta) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { intersect: false, mode: "index" },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        padding: 12,
+        displayColors: false,
+        callbacks: { label: (ctx) => `${meta.label}: ${Number(ctx.parsed.y).toFixed(1)}${meta.unit}` }
+      }
+    },
+    scales: {
+      x: { ticks: { maxTicksLimit: 7 }, grid: { color: gridColor } },
+      y: { grid: { color: gridColor } }
     }
+  };
 }
 
-async function loadData(){
-    const{data,error}=await db.from('sensor_data').select('*').order('created_at',{ascending:true});
-    if(error){ el('dbStatus').innerText='Gagal'; el('dot').className='dt dt-er'; toast('Error: '+error.message,'er'); return; }
-    allData=data||[]; 
-    el('dbStatus').innerText='Supabase Aktif'; el('dot').className='dt dt-ok'; 
-    animateValue('totalRec', allData.length);
-    toast(allData.length+' record dipulihkan','ok');
-    updateDashboard();
+async function saveConfig() {
+  const { error } = await db.from("admin_config").upsert({ id: 1, ...state.config });
+  if (error) {
+    toast(`Config gagal disimpan: ${error.message}`, "error");
+    return false;
+  }
+  return true;
 }
 
-function setupRealtime(){
-    db.channel('sc').on('postgres_changes',{event:'INSERT',schema:'public',table:'sensor_data'},(p)=>{
-        allData.push(p.new); animateValue('totalRec', allData.length); updateDashboard(); toast('📡 Telemetri masuk','ok');
-    }).subscribe();
-    db.channel('cc').on('postgres_changes',{event:'*',schema:'public',table:'admin_config'},(p)=>{
-        const d=p.new; if(d){ aOrg=d.jumlah_orang||0; aAC=d.setting_ac||24; aKon=d.kondisi||'AC Menyala'; aCat=d.catatan||'-'; el('orgDisplay').innerText=aOrg; el('acDisplay').innerText=aAC; }
-    }).subscribe();
+async function adjOrg(change) {
+  state.config.jumlah_orang = Math.max(0, state.config.jumlah_orang + change);
+  syncConfigUI();
+  if (await saveConfig()) inlineMsg("mOrg", "Tersimpan");
 }
 
-// --- DASHBOARD RENDER ---
-function updateRing(val){
-    const min=15, max=40, pct=Math.min(1,Math.max(0,(val-min)/(max-min)));
-    const off=264-(pct*264);
-    const r=el('suhuRing'); r.style.strokeDashoffset=off;
-    const c = val<=26?'#10b981':val<=32?'#f59e0b':'#ef4444';
-    r.style.stroke=c;
-    // Set ambient glow based on temp
-    el('ambient-glow').style.background = `radial-gradient(circle, ${c}25 0%, transparent 60%)`;
-    animateValue('ringVal', val, 1500, false);
+async function adjAC(change) {
+  state.config.setting_ac = Math.min(30, Math.max(16, state.config.setting_ac + change));
+  syncConfigUI();
+  if (await saveConfig()) inlineMsg("mAC", "Tersimpan");
 }
 
-function updateDashboard(){
-    if(!allData.length) return;
-    const L=allData[allData.length-1];
-    
-    // Hero Stats
-    if(L.suhu!=null) { animateValue('suhu', L.suhu, 1500, true); updateRing(L.suhu); }
-    if(L.kelembaban!=null) animateValue('lem', L.kelembaban, 1500, false);
-    if(L.comfort_index!=null) animateValue('ci', L.comfort_index, 1500, false);
-    
-    el('hi').innerText = L.heat_index?.toFixed(1) || '--';
-    el('ac').innerText = L.setting_ac || aAC;
-    el('lastUpdate').innerText = fmtTime(L.created_at);
-    
-    // Status badges
-    const st=el('sts'); st.innerText=L.status||'--';
-    st.className = 'stat-badge bg-' + (L.comfort_index>=70?'good':L.comfort_index>=40?'warn':'bad');
-    
-    // Compute Dev
-    const dv=el('dev'); const devVal = L.deviasi||0;
-    dv.innerText = (devVal>=0?'+':'') + devVal.toFixed(1);
-    dv.className = Math.abs(devVal)<=1?'st-good':devVal>0?'st-bad':'st-blue';
-    
-    // CI Bar
-    const ci=L.comfort_index||0, bar=el('ciBar');
-    bar.style.width=ci+'%';
-    bar.style.background = ci>=70?'#10b981':ci>=40?'#f59e0b':'#ef4444';
-    
-    if(ci>=80) el('reko').innerHTML='<span style="color:#10b981">Optimal.</span> Profil termodinamika kelas sinkron dengan standar SNI 03-6572-2001 (24-27°C).';
-    else if(ci>=60) el('reko').innerHTML='<span style="color:#f59e0b">Marginal.</span> Fluktuasi termal terdeteksi. Pertimbangan untuk kompensasi AC sebesar -1°C untuk beban penghuni saat ini.';
-    else el('reko').innerHTML='<span style="color:#ef4444">Kritis.</span> Kinerja sistem pendingin gagal mengkompensasi beban termal penghuni. Deviasi >2°C divalidasi.';
-
-    updateStats(); updateLogTable(); updateCharts();
+async function setKon(value, button) {
+  state.config.kondisi = value;
+  document.querySelectorAll(".segment button").forEach((node) => node.classList.remove("active"));
+  button?.classList.add("active");
+  if (await saveConfig()) inlineMsg("mKon", "Tersimpan");
 }
 
-function updateStats(){
-    const sa=allData.filter(d=>d.suhu!=null).map(d=>d.suhu);
-    if(!sa.length) return;
-    const av=a=>a.reduce((x,y)=>x+y,0)/a.length;
-    animateValue('sMin', Math.min(...sa), 1500, true);
-    animateValue('sMax', Math.max(...sa), 1500, true);
-    animateValue('sAvg', av(sa), 1500, true);
-    
-    const gr={}; allData.forEach(d=>{ if(d.jumlah_orang==null) return; (gr[d.jumlah_orang]=gr[d.jumlah_orang]||[]).push(d.suhu); });
-    const ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
-    if(ks.length>=2){ const dt=(av(gr[ks[ks.length-1]])-av(gr[ks[0]]))/(ks[ks.length-1]-ks[0]); el('deltaT').innerText=(dt>=0?'+':'')+dt.toFixed(3); }
+async function kirimManual() {
+  const latest = state.rows[state.rows.length - 1];
+  if (!latest) {
+    toast("Dataset kosong. Ambil data sensor dulu.", "error");
+    return;
+  }
+  state.config.catatan = el("iCat")?.value || "-";
+  await saveConfig();
+  const payload = {
+    tanggal: latest.tanggal,
+    waktu: new Date().toLocaleTimeString("id-ID", { hour12: false }),
+    suhu: latest.suhu,
+    kelembaban: latest.kelembaban,
+    heat_index: latest.heat_index,
+    deviasi: num(latest.suhu) - state.config.setting_ac,
+    comfort_index: latest.comfort_index,
+    jumlah_orang: state.config.jumlah_orang,
+    setting_ac: state.config.setting_ac,
+    kondisi: state.config.kondisi,
+    catatan: `${state.config.catatan} (manual)`,
+    status: latest.status
+  };
+  const { error } = await db.from("sensor_data").insert(payload);
+  if (error) {
+    toast(`Push gagal: ${error.message}`, "error");
+    return;
+  }
+  if (el("iCat")) el("iCat").value = "";
+  toast("Telemetri manual terkirim", "ok");
 }
 
-function updateLogTable(){
-    const rc=allData.slice(-30).reverse(); let h='';
-    rc.forEach(d=>{
-        const dv=d.deviasi||0;
-        h+=`<tr>
-            <td style="color:var(--tc-sub)">${fmtTime(d.created_at)}</td>
-            <td style="color:var(--tc-main); font-weight:700;">${d.suhu?.toFixed(1)||'-'}°</td>
-            <td>${d.kelembaban?.toFixed(1)||'-'}%</td>
-            <td style="color:var(--tc-heat)">${d.heat_index?.toFixed(1)||'-'}°</td>
-            <td class="${dv>1?'st-bad':dv<-1?'st-blue':'st-good'}">${(dv>=0?'+':'')+dv.toFixed(1)}°</td>
-            <td class="${d.comfort_index>=70?'st-good':d.comfort_index>=40?'st-warn':'st-bad'}">${d.comfort_index?.toFixed(0)||'-'}%</td>
-            <td style="color:var(--tc-org)">${d.jumlah_orang??'-'}</td>
-            <td>${d.setting_ac??'-'}°</td>
-            <td><span class="stat-badge bg-${d.comfort_index>=70?'good':d.comfort_index>=40?'warn':'bad'}" style="position:static;font-size:8px;padding:4px 8px">${(d.status||'-')}</span></td>
-        </tr>`;
-    });
-    el('logTable').innerHTML=h||'<tr><td colspan="9" style="color:var(--text-sub)">N/A</td></tr>';
+function setChart(field, button) {
+  state.currentField = field;
+  document.querySelectorAll(".tabs button").forEach((node) => node.classList.remove("active"));
+  button?.classList.add("active");
+  renderCharts();
 }
 
-function setChart(f, btn){
-    currentField=f; document.querySelectorAll('.tab-r .tab').forEach(t=>t.classList.remove('act')); btn.classList.add('act'); updateCharts();
-}
-
-function updateCharts(){
-    const l40=allData.slice(-40), lb=l40.map(d=>fmtTime(d.created_at)), vl=l40.map(d=>d[currentField]||0);
-    const cl={suhu:'#3b82f6', kelembaban:'#10b981', heat_index:'#ef4444', comfort_index:'#f59e0b'}, cr=cl[currentField]||'#fff';
-    const isLight = document.body.classList.contains('light-mode');
-    
-    if(mainChart) mainChart.destroy();
-    const ctx=el('mainChart').getContext('2d');
-    const grd=ctx.createLinearGradient(0,0,0,300); grd.addColorStop(0,cr+'55'); grd.addColorStop(1,cr+'00');
-    
-    Chart.defaults.color = isLight ? 'rgba(30,41,59,0.8)' : 'rgba(255,255,255,0.5)';
-    Chart.defaults.font.family = "'JetBrains Mono', monospace";
-    
-    const gridX = isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.02)';
-    const gridY = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
-    const tipBg = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(20,20,25,0.9)';
-    const tipTitle = isLight ? '#1e293b' : '#fff';
-    const tipBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)';
-    const axisLabel = isLight ? 'rgba(30,41,59,0.7)' : 'rgba(255,255,255,0.5)';
-    const tickCol = isLight ? 'rgba(30,41,59,0.6)' : 'rgba(255,255,255,0.4)';
-    
-    mainChart=new Chart(ctx,{
-        type:'line', data:{labels:lb, datasets:[{data:vl, borderColor:cr, backgroundColor:grd, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:6, borderWidth:3}]},
-        options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'}, plugins:{legend:{display:false}, tooltip:{backgroundColor:tipBg, titleColor:tipTitle, bodyColor:cr, padding:12, borderColor:tipBorder, borderWidth:1}}, scales:{x:{ticks:{color:tickCol, maxTicksLimit:8},grid:{color:gridX}}, y:{ticks:{color:tickCol},grid:{color:gridY}}} }
-    });
-    
-    const gr={}; allData.forEach(d=>{ if(d.jumlah_orang==null||d.suhu==null)return; (gr[d.jumlah_orang]=gr[d.jumlah_orang]||[]).push(d.suhu); });
-    const av=a=>a.reduce((x,y)=>x+y,0)/a.length, ks=Object.keys(gr).map(Number).sort((a,b)=>a-b);
-    
-    if(corrChart) corrChart.destroy();
-    corrChart=new Chart(el('corrChart'),{
-        type:'line', data:{labels:ks, datasets:[{data:ks.map(k=>av(gr[k])), borderColor:'#8b7cf7', backgroundColor:'rgba(139,124,247,0.2)', borderWidth:3, tension:0.4, fill:true, pointBackgroundColor:isLight?'#6366f1':'#fff', pointRadius:4}]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{backgroundColor:tipBg, titleColor:tipTitle, padding:12, borderColor:tipBorder, borderWidth:1, callbacks:{label:c=>'Suhu rata-rata: '+c.parsed.y.toFixed(1)+'°C'}}}, scales:{x:{ticks:{color:tickCol},title:{display:true,text:'Kapasitas (Orang)',color:axisLabel},grid:{color:gridX}}, y:{ticks:{color:tickCol},title:{display:true,text:'Suhu (°C)',color:axisLabel},grid:{color:gridY}}} }
-    });
-}
-
-function updateClock(){ const n=new Date(); el('clk').innerText=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0'); }
-
-// --- ADMIN CONTROL ---
-async function saveConfig(){await db.from('admin_config').upsert({id:1,jumlah_orang:aOrg,setting_ac:aAC,kondisi:aKon,catatan:aCat});}
-async function adjOrg(val){ aOrg=Math.max(0,aOrg+val); el('orgDisplay').innerText=aOrg; await saveConfig(); msg('mOrg','✓','st-green'); }
-async function adjAC(val){ aAC=Math.min(30,Math.max(16,aAC+val)); el('acDisplay').innerText=aAC; await saveConfig(); msg('mAC','✓','st-green'); }
-async function setKon(k, btn){ aKon=k; document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); await saveConfig(); msg('mKon','✓','st-green'); }
-
-async function kirimManual(){
-    const L=allData[allData.length-1]; if(!L){ toast('Dataset kosong.','er'); return; }
-    aCat=el('iCat').value||'-'; await saveConfig();
-    const{error}=await db.from('sensor_data').insert({tanggal:L.tanggal, waktu:new Date().toLocaleTimeString('id-ID'), suhu:L.suhu, kelembaban:L.kelembaban, heat_index:L.heat_index, deviasi:L.suhu-aAC, comfort_index:L.comfort_index, jumlah_orang:aOrg, setting_ac:aAC, kondisi:aKon, catatan:aCat+'(req)', status:L.status});
-    if(!error){ toast('📦 Sync force sukses','ok'); el('iCat').value=''; } else toast('Gagal push','er');
-}
-function toggleMode(){ pMode=!pMode; document.querySelectorAll('.pres-hide').forEach(e=>e.style.display=pMode?'none':'block'); el('modeBtn').innerText=pMode?'Buka Panel Kendali':'Tutup Kendali'; }
-function exportCSV(){
-    if(!allData.length)return;
-    let c='Tanggal,Waktu,Suhu,RH,HI,Deviasi,CI,Orang,Target,Status\n';
-    allData.forEach(d=>c+=[d.tanggal,d.waktu,d.suhu,d.kelembaban,d.heat_index,d.deviasi,d.comfort_index,d.jumlah_orang,d.setting_ac,d.status].join(',')+'\n');
-    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'})); a.download='log_'+new Date().getTime()+'.csv'; a.click();
+function toggleMode() {
+  state.presentationMode = !state.presentationMode;
+  document.querySelectorAll(".pres-hide").forEach((node) => {
+    node.style.display = state.presentationMode ? "none" : "block";
+  });
+  el("modeBtn").textContent = state.presentationMode ? "Buka Panel Kendali" : "Tutup Panel Kendali";
 }
 
 function toggleTheme() {
-    document.body.classList.toggle('light-mode');
-    const isLight = document.body.classList.contains('light-mode');
-    if(el('themeBtn')) el('themeBtn').innerText = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
-    localStorage.setItem('theme', isLight ? 'light' : 'dark');
-    if(allData.length) updateCharts();
+  const isLight = document.body.classList.toggle("light-mode");
+  localStorage.setItem("theme", isLight ? "light" : "dark");
+  el("themeBtn").textContent = isLight ? "Dark mode" : "Light mode";
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isLight ? "#f7f1df" : "#07120f");
+  renderCharts();
+}
+
+function applyTheme() {
+  const savedTheme = localStorage.getItem("theme");
+  const isLight = savedTheme ? savedTheme === "light" : true;
+  document.body.classList.toggle("light-mode", isLight);
+  if (el("themeBtn")) el("themeBtn").textContent = isLight ? "Dark mode" : "Light mode";
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isLight ? "#f7f1df" : "#07120f");
 }
 
 function toggleHistory() {
-    el('historyModal').classList.toggle('active');
+  const modal = el("historyModal");
+  const active = !modal.classList.contains("active");
+  modal.classList.toggle("active", active);
+  modal.setAttribute("aria-hidden", String(!active));
 }
 
-if(localStorage.getItem('theme') !== 'dark') {
-    document.body.classList.add('light-mode');
-    if(el('themeBtn')) el('themeBtn').innerText = '🌙 Dark Mode';
+function exportCSV() {
+  if (!state.rows.length) {
+    toast("Tidak ada data untuk diekspor.", "error");
+    return;
+  }
+  const header = ["Tanggal", "Waktu", "Suhu", "RH", "HeatIndex", "Deviasi", "CI", "Orang", "Target", "Status"];
+  const lines = state.rows.map((row) => [row.tanggal, row.waktu, row.suhu, row.kelembaban, row.heat_index, row.deviasi, row.comfort_index, row.jumlah_orang, row.setting_ac, row.status].map(csvSafe).join(","));
+  const blob = new Blob([[header.join(","), ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `sensor_suhu_${Date.now()}.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
+
+function updateClock() {
+  const now = new Date();
+  el("clk").textContent = [now.getHours(), now.getMinutes(), now.getSeconds()].map((part) => String(part).padStart(2, "0")).join(":");
+}
+
+function bindAmbientMotion() {
+  document.addEventListener("mousemove", (event) => {
+    if (window.innerWidth < 900) return;
+    const glow = el("ambient-glow");
+    if (!glow) return;
+    const x = (event.clientX / window.innerWidth - 0.5) * 36;
+    const y = (event.clientY / window.innerHeight - 0.5) * 28;
+    glow.style.transform = `translate(${x}px, ${y}px)`;
+  }, { passive: true });
+}
+
+function formatCell(value, decimals) {
+  return Number.isFinite(Number(value)) ? Number(value).toFixed(decimals) : "-";
+}
+
+function csvSafe(value) {
+  const text = value == null ? "" : String(value);
+  return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+function hexToRgb(hex) {
+  const clean = hex.replace("#", "");
+  const value = Number.parseInt(clean, 16);
+  return `${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}`;
+}
+
+window.adjOrg = adjOrg;
+window.adjAC = adjAC;
+window.setKon = setKon;
+window.kirimManual = kirimManual;
+window.setChart = setChart;
+window.toggleMode = toggleMode;
+window.toggleTheme = toggleTheme;
+window.toggleHistory = toggleHistory;
+window.exportCSV = exportCSV;
 
 init();

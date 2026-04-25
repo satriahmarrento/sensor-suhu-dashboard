@@ -1,173 +1,181 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#000000">
-<title>Monitor Suhu & Kenyamanan</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f1df">
+  <title>Monitor Suhu & Kenyamanan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="light-mode">
+  <div class="scene" aria-hidden="true">
+    <div id="ambient-glow" class="orb orb-main"></div>
+    <div class="orb orb-cool"></div>
+    <div class="grain"></div>
+  </div>
 
-<div id="ambient-glow"></div>
-<div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<div class="header fade-in">
-    <div>
-        <h1>ENVIRONMENT MONITOR</h1>
-        <p>Kelas • Pengaruh Kapasitas Manusia vs Kinerja AC</p>
-    </div>
-    <div style="text-align:right">
-        <button class="mode-ctrl" style="margin-bottom:12px; padding:4px 12px; margin-right:8px;" onclick="toggleHistory()">📋 Riwayat</button>
-        <button id="themeBtn" class="mode-ctrl" style="margin-bottom:12px; padding:4px 12px;" onclick="toggleTheme()">☀️ Light Mode</button><br>
-        <div class="live-badge"><span class="live-dot"></span> LIVE SYNC</div>
-        <div class="clk d1" id="clk" style="margin-top:8px">--:--:--</div>
-    </div>
-</div>
+  <header class="shell header">
+    <section class="hero-copy">
+      <div class="eyebrow">Live IoT telemetry</div>
+      <h1>Thermal Command Center</h1>
+      <p>Monitoring suhu kelas, kelembaban, beban penghuni, dan rekomendasi AC berbasis SNI 03-6572-2001.</p>
+      <div class="quick-row" aria-label="Status koneksi">
+        <span class="pill"><span id="dot" class="status-dot pending"></span><span id="dbStatus">Menghubungkan Supabase</span></span>
+        <span class="pill"><span id="totalRec">0</span> paket data</span>
+        <span class="pill">Update <span id="lastUpdate">-</span></span>
+      </div>
+    </section>
 
-<main class="bento-grid">
+    <aside class="command-card">
+      <div class="clock" id="clk">--:--:--</div>
+      <div class="command-actions">
+        <button class="ghost-btn" type="button" onclick="toggleHistory()">Riwayat</button>
+        <button id="themeBtn" class="ghost-btn" type="button" onclick="toggleTheme()">Dark mode</button>
+      </div>
+      <button class="primary-btn" id="modeBtn" type="button" onclick="toggleMode()">Buka Panel Kendali</button>
+    </aside>
+  </header>
 
-    <!-- ADMIN PANEL (Hides in Present Mode) -->
-    <div class="bento-item bento-full admin-card pres-hide fade-in d1" style="display:none">
-        <div class="title-row">
-            <div class="ct"><span class="icon">⚙️</span> Control Panel</div>
-            <button class="export-btn" onclick="exportCSV()"><span class="icon">📊</span> Export CSV</button>
+  <main class="shell dashboard-grid">
+    <section class="panel hero-panel span-6">
+      <div class="panel-head">
+        <span class="label">Suhu aktual</span>
+        <span id="sts" class="badge muted">Menunggu data</span>
+      </div>
+      <div class="temperature-layout">
+        <div>
+          <div class="mega-value"><span id="suhu">0.0</span><small>&deg;C</small></div>
+          <p id="reko" class="reco-text">Sinkronisasi data sensor...</p>
         </div>
-        <div class="admin-grid">
-            <div class="admin-cell">
-                <div class="admin-label">Penghuni / Kapasitas</div>
-                <div class="flex-row">
-                    <button class="circ-btn" onclick="adjOrg(-1)">-</button>
-                    <div class="admin-val" id="orgDisplay">0</div>
-                    <button class="circ-btn" onclick="adjOrg(1)">+</button>
-                </div>
-                <div class="mg" id="mOrg"></div>
-            </div>
-            <div class="admin-cell">
-                <div class="admin-label">Target AC</div>
-                <div class="flex-row">
-                    <button class="circ-btn" onclick="adjAC(-1)">-</button>
-                    <div class="admin-val"><span id="acDisplay">24</span><span class="un">°C</span></div>
-                    <button class="circ-btn" onclick="adjAC(1)">+</button>
-                </div>
-                <div class="mg" id="mAC"></div>
-            </div>
-            <div class="admin-cell">
-                <div class="admin-label">Kondisi Tipe</div>
-                <div class="seg-ctrl">
-                    <button class="seg-btn act" onclick="setKon('AC Menyala', this)">AC On</button>
-                    <button class="seg-btn" onclick="setKon('AC Mati', this)">AC Off</button>
-                    <button class="seg-btn" onclick="setKon('Jendela Terbuka', this)">Vent</button>
-                </div>
-                <div class="mg" id="mKon"></div>
-            </div>
-            <div class="admin-cell">
-                <div class="admin-label">Kirim Telemetri</div>
-                <div class="flex-row" style="width:100%">
-                    <input type="text" id="iCat" class="inp" placeholder="Catatan opsional..." onkeypress="if(event.key==='Enter') kirimManual()">
-                    <button class="btn-primary" onclick="kirimManual()">PUSH LOG</button>
-                </div>
-            </div>
+        <div class="thermal-ring" aria-label="Indikator suhu">
+          <svg viewBox="0 0 120 120">
+            <circle class="ring-track" cx="60" cy="60" r="50"></circle>
+            <circle id="suhuRing" class="ring-progress" cx="60" cy="60" r="50"></circle>
+          </svg>
+          <strong><span id="ringVal">0</span>&deg;</strong>
         </div>
-    </div>
+      </div>
+      <div class="insight-strip">
+        <div><span>Terasa</span><b><span id="hi">--</span>&deg;C</b></div>
+        <div><span>Deviasi</span><b id="dev">0.0</b></div>
+        <div><span>Target AC</span><b><span id="ac">24</span>&deg;C</b></div>
+      </div>
+    </section>
 
-    <!-- MAIN TEMPERATURE HERO -->
-    <div class="bento-item bento-large hero-card fade-in d2" id="suhuCard">
-        <div class="ct">Suhu Aktual</div>
-        <div class="hero-val-wrap">
-            <div class="bv"><span id="suhu" class="counter">0.0</span><span class="un">°C</span></div>
-            <div class="ring"><svg width="120" height="120" viewBox="0 0 100 100">
-                <circle class="ring-bg" cx="50" cy="50" r="42"/>
-                <circle class="ring-fill" id="suhuRing" cx="50" cy="50" r="42" stroke="#fff" stroke-dasharray="264" stroke-dashoffset="264"/>
-            </svg><div class="ring-val"><span id="ringVal" class="counter">0</span>°</div></div>
+    <section class="panel metric-panel span-3">
+      <span class="label">Kenyamanan</span>
+      <div class="metric-value"><span id="ci">0</span><small>%</small></div>
+      <div class="meter"><i id="ciBar"></i></div>
+      <p class="muted-copy">Indeks komposit dari suhu, heat index, dan deviasi AC.</p>
+    </section>
+
+    <section class="panel metric-panel span-3">
+      <span class="label">Kelembaban</span>
+      <div class="metric-value"><span id="lem">0</span><small>%</small></div>
+      <div class="humidity-mark">RH</div>
+      <p class="muted-copy">Rentang ideal kelas umumnya 40-60% RH.</p>
+    </section>
+
+    <section class="panel admin-panel span-12 pres-hide" style="display:none">
+      <div class="panel-head">
+        <span class="label">Panel kendali</span>
+        <button class="ghost-btn compact" type="button" onclick="exportCSV()">Export CSV</button>
+      </div>
+      <div class="admin-grid">
+        <div class="control-card">
+          <span>Penghuni</span>
+          <div class="stepper">
+            <button type="button" onclick="adjOrg(-1)">-</button>
+            <strong id="orgDisplay">0</strong>
+            <button type="button" onclick="adjOrg(1)">+</button>
+          </div>
+          <div class="mini-msg" id="mOrg"></div>
         </div>
-        <div class="hero-foot">
-            <div class="h-stat">Terasa <b id="hi">0.0</b>°C</div>
-            <div class="h-stat">Deviasi <b id="dev">0.0</b>°C</div>
-            <div class="h-stat">Target <b id="ac">24</b>°C</div>
+        <div class="control-card">
+          <span>Target AC</span>
+          <div class="stepper">
+            <button type="button" onclick="adjAC(-1)">-</button>
+            <strong><span id="acDisplay">24</span>&deg;</strong>
+            <button type="button" onclick="adjAC(1)">+</button>
+          </div>
+          <div class="mini-msg" id="mAC"></div>
         </div>
-    </div>
-
-    <!-- COMFORT INDEX -->
-    <div class="bento-item ci-card fade-in d3" id="ciCard">
-        <div class="ct">Kenyamanan</div>
-        <div class="bv"><span id="ci" class="counter">0</span><span class="un">%</span></div>
-        <div class="ci-wrap">
-            <div class="ci-fill" id="ciBar" style="width:0%"></div>
+        <div class="control-card">
+          <span>Kondisi</span>
+          <div class="segment">
+            <button class="active" type="button" onclick="setKon('AC Menyala', this)">AC On</button>
+            <button type="button" onclick="setKon('AC Mati', this)">AC Off</button>
+            <button type="button" onclick="setKon('Jendela Terbuka', this)">Vent</button>
+          </div>
+          <div class="mini-msg" id="mKon"></div>
         </div>
-        <div class="stat-badge" id="sts">--</div>
-    </div>
-
-    <!-- HUMIDITY -->
-    <div class="bento-item hum-card fade-in d3">
-        <div class="ct">Kelembaban</div>
-        <div class="bv"><span id="lem" class="counter">0</span><span class="un">%</span></div>
-        <div class="icon-bg">💧</div>
-    </div>
-
-    <!-- REKOMENDASI -->
-    <div class="bento-item bento-wide fade-in d4">
-        <div class="ct">Intelijen Sistem (SNI 03-6572-2001)</div>
-        <div class="reko-text" id="reko">Sinkronisasi data sensor...</div>
-    </div>
-
-    <!-- MAIN CHART -->
-    <div class="bento-item bento-full chart-card fade-in d5">
-        <div class="title-row">
-            <div class="ct">Lintasan Waktu Transien</div>
-            <div class="tab-r">
-                <button class="tab act" onclick="setChart('suhu',this)">Suhu</button>
-                <button class="tab" onclick="setChart('kelembaban',this)">RH</button>
-                <button class="tab" onclick="setChart('heat_index',this)">Heat</button>
-                <button class="tab" onclick="setChart('comfort_index',this)">CI</button>
-            </div>
+        <div class="control-card push-card">
+          <span>Kirim telemetri</span>
+          <div class="push-row">
+            <input id="iCat" type="text" placeholder="Catatan opsional" onkeypress="if(event.key==='Enter') kirimManual()">
+            <button class="primary-btn compact" type="button" onclick="kirimManual()">Push</button>
+          </div>
         </div>
-        <div class="chart-box"><canvas id="mainChart" height="200"></canvas></div>
-    </div>
+      </div>
+    </section>
 
-    <!-- CORRELATION CHART & STATS -->
-    <div class="bento-item bento-wide fade-in d6">
-        <div class="ct">Termodinamika vs Penghuni</div>
-        <div class="chart-box"><canvas id="corrChart" height="180"></canvas></div>
-    </div>
-
-    <!-- METRICS GRID -->
-    <div class="bento-item bento-wide metrics-grid fade-in d6">
-        <div class="metric"><div class="m-val counter" id="sMax">0</div><div class="m-lbl">MAX SUHU</div></div>
-        <div class="metric"><div class="m-val counter" id="sMin">0</div><div class="m-lbl">MIN SUHU</div></div>
-        <div class="metric"><div class="m-val counter" id="sAvg">0</div><div class="m-lbl">AVG SUHU</div></div>
-        <div class="metric"><div class="m-val" id="deltaT">0</div><div class="m-lbl">Δ°C / ORANG</div></div>
-    </div>
-
-</main>
-
-<div class="footer fade-in d8">
-    <div class="conn-status">
-        <span class="dt dt-ok" id="dot"></span>
-        <span id="dbStatus">Koneksi Supabase Aktif</span> • <span id="totalRec">0</span> paket • Sync <span id="lastUpdate">-</span>
-    </div>
-    <button class="mode-ctrl" id="modeBtn" onclick="toggleMode()">Buka Panel Kendali</button>
-</div>
-
-<!-- HISTORY MODAL -->
-<div id="historyModal" class="modal-overlay">
-    <div class="modal-content bento-item">
-        <div class="title-row">
-            <div class="ct">Sistem Riwayat Pengukuran</div>
-            <button class="circ-btn" onclick="toggleHistory()" style="width:30px;height:30px;font-size:14px">✕</button>
+    <section class="panel span-12">
+      <div class="panel-head">
+        <span class="label">Lintasan waktu transien</span>
+        <div class="tabs">
+          <button class="active" type="button" onclick="setChart('suhu',this)">Suhu</button>
+          <button type="button" onclick="setChart('kelembaban',this)">RH</button>
+          <button type="button" onclick="setChart('heat_index',this)">Heat</button>
+          <button type="button" onclick="setChart('comfort_index',this)">CI</button>
         </div>
-        <div class="table-wrap">
-            <table>
-                <thead><tr><th>Waktu</th><th>Suhu</th><th>RH</th><th>Heat</th><th>Dev</th><th>CI</th><th>Org</th><th>Target</th><th>Status</th></tr></thead>
-                <tbody id="logTable"><tr><td colspan="9" style="color:var(--text-sub)">N/A</td></tr></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+      </div>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+    </section>
 
-<script src="app.js"></script>
+    <section class="panel span-6">
+      <span class="label">Termodinamika vs penghuni</span>
+      <div class="chart-wrap small"><canvas id="corrChart"></canvas></div>
+    </section>
+
+    <section class="panel span-6">
+      <span class="label">Ringkasan performa</span>
+      <div class="stat-grid">
+        <div><b id="sMax">0</b><span>Max suhu</span></div>
+        <div><b id="sMin">0</b><span>Min suhu</span></div>
+        <div><b id="sAvg">0</b><span>Rata-rata</span></div>
+        <div><b id="deltaT">0</b><span>&Delta;&deg;C/orang</span></div>
+      </div>
+      <div class="health-card">
+        <span class="label">Kesehatan sistem</span>
+        <p id="systemHealth">Menunggu cukup data untuk analisis stabilitas.</p>
+      </div>
+    </section>
+  </main>
+
+  <section id="historyModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content panel">
+      <div class="panel-head">
+        <span class="label">Riwayat pengukuran</span>
+        <button class="icon-btn" type="button" onclick="toggleHistory()" aria-label="Tutup riwayat">&times;</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Waktu</th><th>Suhu</th><th>RH</th><th>Heat</th><th>Dev</th><th>CI</th><th>Org</th><th>Target</th><th>Status</th></tr>
+          </thead>
+          <tbody id="logTable"><tr><td colspan="9">Belum ada data.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
 </body>
 </html>
