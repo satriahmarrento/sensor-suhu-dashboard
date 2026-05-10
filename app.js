@@ -103,12 +103,8 @@ async function loadData() {
     return;
   }
   state.rows = data || [];
-  const latest = state.rows[state.rows.length - 1];
-  const forceReal = new URLSearchParams(window.location.search).get("real") === "1";
-  if (latest && isStale(latest.created_at, 24 * 60 * 60 * 1000) && !forceReal) {
-    activateDemoMode("data real stale");
-    return;
-  }
+  
+  // Always use real data from the database, even if it's old
   setConnection("ok", "Supabase aktif");
   animateValue("totalRec", state.rows.length);
   renderDashboard();
@@ -225,6 +221,7 @@ function renderDashboard() {
 
   updateRing(suhu);
   updateComfort(comfort, latest.status);
+  updateHumidityBar(rh);
   updateRecommendation({ suhu, comfort, deviation, target, rh });
   updateStats();
   renderLogTable();
@@ -317,6 +314,15 @@ function updateComfort(value, status) {
   if (badge) {
     badge.textContent = status || (value >= 70 ? "Optimal" : value >= 40 ? "Marginal" : "Kritis");
     badge.className = `badge ${value >= 70 ? "text-good" : value >= 40 ? "text-warn" : "text-bad"}`;
+  }
+}
+
+function updateHumidityBar(rh) {
+  const color = (rh >= 40 && rh <= 60) ? "#36d399" : ((rh > 30 && rh < 70) ? "#f5b84b" : "#ff6b6b");
+  const bar = el("rhBar");
+  if (bar) {
+    bar.style.width = `${Math.max(0, Math.min(100, rh))}%`;
+    bar.style.background = color;
   }
 }
 
