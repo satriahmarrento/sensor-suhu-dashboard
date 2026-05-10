@@ -1,6 +1,4 @@
-const SUPA_URL = "https://sjvrugtlhvyvqkebjmka.supabase.co";
-const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqdnJ1Z3RsaHZ5dnFrZWJqbWthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNzk5MDUsImV4cCI6MjA4ODk1NTkwNX0.zwyavkDQvyUaVZoKfHe9WRTFoI1yva6jI0ntm82ZSwU";
-const db = window.supabase?.createClient(SUPA_URL, SUPA_KEY);
+const db = null;
 
 const state = {
   rows: [],
@@ -75,18 +73,14 @@ async function init() {
   setInterval(updateClock, 1000);
   bindAmbientMotion();
 
-  if (!db) {
-    activateDemoMode("Supabase offline");
-    return;
-  }
   await loadConfig();
   await loadData();
   setupRealtime();
 }
 
 async function loadConfig() {
-  const { data, error } = await db.from("admin_config").select("*").eq("id", 1).single();
-  if (error && error.code !== "PGRST116") {
+  const { data, error } = await apiRequest("/api/admin_config");
+  if (error) {
     toast(`Config gagal dimuat: ${error.message}`, "error");
     return;
   }
@@ -103,7 +97,7 @@ async function loadConfig() {
 
 async function loadData() {
   setConnection("pending", "Mengambil data");
-  const { data, error } = await db.from("sensor_data").select("*").order("created_at", { ascending: true });
+  const { data, error } = await apiRequest("/api/sensor_data");
   if (error) {
     activateDemoMode(`Supabase gagal: ${error.message}`);
     return;
@@ -121,35 +115,23 @@ async function loadData() {
 }
 
 function setupRealtime() {
-  if (!db || state.demoMode) return;
-  db.channel("sensor-dashboard")
-    .on("postgres_changes", { event: "INSERT", schema: "public", table: "sensor_data" }, ({ new: row }) => {
-      state.rows.push(row);
-      animateValue("totalRec", state.rows.length);
-      renderDashboard();
-      toast("Telemetri baru masuk", "ok");
-    })
-    .subscribe((status) => {
-      if (status === "SUBSCRIBED") {
-        const latest = state.rows[state.rows.length - 1];
-        if (latest) updateFreshness(latest.created_at);
-        else setConnection("ok", "Live sync aktif");
-      }
-    });
+  return;
+}
 
-  db.channel("admin-config")
-    .on("postgres_changes", { event: "*", schema: "public", table: "admin_config" }, ({ new: config }) => {
-      if (!config) return;
-      state.config = {
-        jumlah_orang: num(config.jumlah_orang, 0),
-        setting_ac: num(config.setting_ac, 24),
-        kondisi: config.kondisi || "AC Menyala",
-        catatan: config.catatan || "-"
-      };
-      syncConfigUI();
-      renderDashboard();
-    })
-    .subscribe();
+async function apiRequest(path, options = {}) {
+  try {
+    const response = await fetch(path, {
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return { data: null, error: { message: payload.error || `HTTP ${response.status}` } };
+    }
+    return { data: payload.data ?? null, error: null };
+  } catch (error) {
+    return { data: null, error: { message: error.message || "API tidak tersedia" } };
+  }
 }
 
 function activateDemoMode(reason) {
@@ -483,11 +465,14 @@ function chartOptions(gridColor, meta) {
 }
 
 async function saveConfig() {
-  if (!db || state.demoMode) {
+  if (state.demoMode) {
     renderDashboard();
     return true;
   }
-  const { error } = await db.from("admin_config").upsert({ id: 1, ...state.config });
+  const { error } = await apiRequest("/api/admin_config", {
+    method: "POST",
+    body: JSON.stringify({ id: 1, ...state.config })
+  });
   if (error) {
     toast(`Config gagal disimpan: ${error.message}`, "error");
     return false;
@@ -536,7 +521,7 @@ async function kirimManual() {
     catatan: `${state.config.catatan} (manual)`,
     status: latest.status
   };
-  if (!db || state.demoMode) {
+  if (state.demoMode) {
     state.rows.push({ ...payload, created_at: new Date().toISOString() });
     if (el("iCat")) el("iCat").value = "";
     animateValue("totalRec", state.rows.length);
@@ -544,7 +529,10 @@ async function kirimManual() {
     toast("Telemetri demo ditambahkan", "ok");
     return;
   }
-  const { error } = await db.from("sensor_data").insert(payload);
+  const { error } = await apiRequest("/api/sensor_data", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
   if (error) {
     toast(`Push gagal: ${error.message}`, "error");
     return;
