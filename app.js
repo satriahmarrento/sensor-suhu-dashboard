@@ -1,5 +1,5 @@
 const SUPA_URL = "https://sjvrugtlhvyvqkebjmka.supabase.co";
-const SUPA_KEY = "sb_publishable_6iKYw5qRwfEsF7g2XUZDEQ_et9RV8LS";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqdnJ1Z3RsaHZ5dnFrZWJqbWthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNzk5MDUsImV4cCI6MjA4ODk1NTkwNX0.zwyavkDQvyUaVZoKfHe9WRTFoI1yva6jI0ntm82ZSwU";
 const db = window.supabase?.createClient(SUPA_URL, SUPA_KEY);
 
 const state = {
