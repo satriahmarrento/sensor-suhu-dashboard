@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260510e">
 </head>
 <body class="light-mode">
   <div class="scene" aria-hidden="true">
@@ -34,7 +34,13 @@
     </section>
 
     <aside class="command-card">
+      <span class="clock-label">Waktu lokal</span>
       <div class="clock" id="clk">--:--:--</div>
+      <div class="ops-stack" aria-label="Ringkasan operasi">
+        <div><span>Mode</span><b id="opMode">-</b></div>
+        <div><span>Penghuni</span><b><span id="peopleNow">0</span> org</b></div>
+        <div><span>Setpoint</span><b><span id="targetNow">24</span>&deg;C</b></div>
+      </div>
       <div class="command-actions">
         <button class="ghost-btn" type="button" onclick="toggleHistory()">Riwayat</button>
         <button id="themeBtn" class="ghost-btn" type="button" onclick="toggleTheme()">Dark mode</button>
@@ -53,6 +59,11 @@
         <div>
           <div class="mega-value"><span id="suhu">0.0</span><small>&deg;C</small></div>
           <p id="reko" class="reco-text">Sinkronisasi data sensor...</p>
+          <div class="guidance-strip" aria-label="Panduan cepat">
+            <span id="priorityAction">Menunggu rekomendasi</span>
+            <span id="rhSignal">RH belum terbaca</span>
+            <span id="trendSignal">Tren belum tersedia</span>
+          </div>
         </div>
         <div class="thermal-ring" aria-label="Indikator suhu">
           <svg viewBox="0 0 120 120">
@@ -73,14 +84,14 @@
       <span class="label">Kenyamanan</span>
       <div class="metric-value"><span id="ci">0</span><small>%</small></div>
       <div class="meter"><i id="ciBar"></i></div>
-      <p class="muted-copy">Indeks komposit dari suhu, heat index, dan deviasi AC.</p>
+      <p id="ciState" class="muted-copy">Indeks komposit dari suhu, heat index, dan deviasi AC.</p>
     </section>
 
     <section class="panel metric-panel span-3">
       <span class="label">Kelembaban</span>
       <div class="metric-value"><span id="lem">0</span><small>%</small></div>
       <div class="humidity-mark">RH</div>
-      <p class="muted-copy">Rentang ideal kelas umumnya 40-60% RH.</p>
+      <p id="rhStateCard" class="muted-copy">Rentang ideal kelas umumnya 40-60% RH.</p>
     </section>
 
     <section class="panel admin-panel span-12 pres-hide" style="display:none">
@@ -129,11 +140,14 @@
     <section class="panel span-12">
       <div class="panel-head">
         <span class="label">Lintasan waktu transien</span>
-        <div class="tabs">
-          <button class="active" type="button" onclick="setChart('suhu',this)">Suhu</button>
-          <button type="button" onclick="setChart('kelembaban',this)">RH</button>
-          <button type="button" onclick="setChart('heat_index',this)">Heat</button>
-          <button type="button" onclick="setChart('comfort_index',this)">CI</button>
+        <div class="chart-tools">
+          <span id="chartSummary" class="chart-summary">Menunggu data</span>
+          <div class="tabs">
+            <button class="active" type="button" onclick="setChart('suhu',this)">Suhu</button>
+            <button type="button" onclick="setChart('kelembaban',this)">RH</button>
+            <button type="button" onclick="setChart('heat_index',this)">Heat</button>
+            <button type="button" onclick="setChart('comfort_index',this)">CI</button>
+          </div>
         </div>
       </div>
       <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
@@ -176,6 +190,6 @@
     </div>
   </section>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20260510e"></script>
 </body>
 </html>

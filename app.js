@@ -7,6 +7,7 @@ const state = {
   config: { jumlah_orang: 0, setting_ac: 24, kondisi: "AC Menyala", catatan: "-" },
   currentField: "suhu",
   presentationMode: true,
+  demoMode: false,
   charts: { main: null, corr: null },
   counts: new Map()
 };
@@ -69,15 +70,15 @@ function setConnection(status, message) {
 }
 
 async function init() {
-  if (!db) {
-    setConnection("error", "Supabase library gagal dimuat");
-    toast("Supabase library gagal dimuat.", "error");
-    return;
-  }
   applyTheme();
   updateClock();
   setInterval(updateClock, 1000);
   bindAmbientMotion();
+
+  if (!db) {
+    activateDemoMode("Supabase offline");
+    return;
+  }
   await loadConfig();
   await loadData();
   setupRealtime();
@@ -104,18 +105,23 @@ async function loadData() {
   setConnection("pending", "Mengambil data");
   const { data, error } = await db.from("sensor_data").select("*").order("created_at", { ascending: true });
   if (error) {
-    setConnection("error", "Supabase gagal");
-    toast(`Data gagal dimuat: ${error.message}`, "error");
-    renderEmpty();
+    activateDemoMode(`Supabase gagal: ${error.message}`);
     return;
   }
   state.rows = data || [];
+  const latest = state.rows[state.rows.length - 1];
+  const forceReal = new URLSearchParams(window.location.search).get("real") === "1";
+  if (latest && isStale(latest.created_at, 24 * 60 * 60 * 1000) && !forceReal) {
+    activateDemoMode("data real stale");
+    return;
+  }
   setConnection("ok", "Supabase aktif");
   animateValue("totalRec", state.rows.length);
   renderDashboard();
 }
 
 function setupRealtime() {
+  if (!db || state.demoMode) return;
   db.channel("sensor-dashboard")
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "sensor_data" }, ({ new: row }) => {
       state.rows.push(row);
@@ -146,10 +152,48 @@ function setupRealtime() {
     .subscribe();
 }
 
+function activateDemoMode(reason) {
+  state.demoMode = true;
+  const now = Date.now();
+  state.config = { jumlah_orang: 28, setting_ac: 24, kondisi: "AC Menyala", catatan: "Mode demo" };
+  state.rows = Array.from({ length: 36 }, (_, index) => {
+    const phase = index / 5;
+    const suhu = 25.6 + Math.sin(phase) * 0.9 + index * 0.018;
+    const kelembaban = 56 + Math.cos(phase * 0.8) * 5;
+    const setting_ac = 24;
+    const deviasi = suhu - setting_ac;
+    const heat_index = suhu + Math.max(0, (kelembaban - 55) * 0.035);
+    const comfort_index = Math.max(0, Math.min(100, 88 - Math.abs(deviasi) * 12 - Math.max(0, kelembaban - 60) * 0.9));
+    const createdAt = new Date(now - (35 - index) * 60000).toISOString();
+    return {
+      tanggal: createdAt.slice(0, 10),
+      waktu: fmtTime(createdAt),
+      created_at: createdAt,
+      suhu,
+      kelembaban,
+      heat_index,
+      deviasi,
+      comfort_index,
+      jumlah_orang: 22 + (index % 9),
+      setting_ac,
+      kondisi: state.config.kondisi,
+      catatan: reason,
+      status: comfort_index >= 70 ? "Optimal" : "Marginal"
+    };
+  });
+  setConnection("pending", `Mode demo (${reason})`);
+  syncConfigUI();
+  animateValue("totalRec", state.rows.length);
+  renderDashboard();
+}
+
 function syncConfigUI() {
   const { jumlah_orang, setting_ac, kondisi } = state.config;
   if (el("orgDisplay")) el("orgDisplay").textContent = jumlah_orang;
   if (el("acDisplay")) el("acDisplay").textContent = setting_ac;
+  if (el("opMode")) el("opMode").textContent = kondisi;
+  if (el("peopleNow")) el("peopleNow").textContent = jumlah_orang;
+  if (el("targetNow")) el("targetNow").textContent = setting_ac;
   document.querySelectorAll(".segment button").forEach((button) => {
     button.classList.toggle("active", button.textContent.includes(kondisi.includes("Mati") ? "Off" : kondisi.includes("Jendela") ? "Vent" : "On"));
   });
@@ -177,6 +221,7 @@ function renderDashboard() {
   const target = num(latest.setting_ac, state.config.setting_ac);
   const heatIndex = num(latest.heat_index, suhu);
   const deviation = Number.isFinite(Number(latest.deviasi)) ? num(latest.deviasi) : suhu - target;
+  const trend = getTrend(state.rows.map((row) => num(row.suhu)).filter(Number.isFinite));
 
   animateValue("suhu", suhu, { decimals: 1, duration: 1100 });
   animateValue("lem", rh, { decimals: 0, duration: 1000 });
@@ -189,7 +234,12 @@ function renderDashboard() {
   el("dev").textContent = `${deviation >= 0 ? "+" : ""}${deviation.toFixed(1)}\u00B0`;
   el("dev").className = Math.abs(deviation) <= 1 ? "text-good" : deviation > 0 ? "text-bad" : "text-cool";
   el("lastUpdate").textContent = fmtTime(latest.created_at);
-  updateFreshness(latest.created_at);
+  if (el("peopleNow")) el("peopleNow").textContent = num(latest.jumlah_orang, state.config.jumlah_orang);
+  if (el("targetNow")) el("targetNow").textContent = target.toFixed(0);
+  if (el("opMode")) el("opMode").textContent = latest.kondisi || state.config.kondisi;
+  updateMicrocopy({ rh, comfort, deviation, trend });
+  if (state.demoMode) setConnection("pending", "Mode demo offline");
+  else updateFreshness(latest.created_at);
 
   updateRing(suhu);
   updateComfort(comfort, latest.status);
@@ -197,6 +247,40 @@ function renderDashboard() {
   updateStats();
   renderLogTable();
   renderCharts();
+}
+
+function updateMicrocopy({ rh, comfort, deviation, trend }) {
+  const action = Math.abs(deviation) <= 1
+    ? "Setpoint tepat"
+    : deviation > 1
+      ? "Turunkan AC 1-2\u00B0C"
+      : "Naikkan AC 1\u00B0C";
+  const rhText = rh < 40 ? "RH rendah" : rh > 60 ? "RH tinggi" : "RH nyaman";
+  const trendText = trend > 0.15 ? "Suhu naik" : trend < -0.15 ? "Suhu turun" : "Suhu stabil";
+  if (el("priorityAction")) el("priorityAction").textContent = action;
+  if (el("rhSignal")) el("rhSignal").textContent = `${rhText} ${rh.toFixed(0)}%`;
+  if (el("trendSignal")) el("trendSignal").textContent = trendText;
+  if (el("ciState")) {
+    el("ciState").textContent = comfort >= 70
+      ? "Kondisi nyaman. Pertahankan setpoint dan pantau deviasi."
+      : comfort >= 40
+        ? "Kondisi marginal. Perlu koreksi kecil sebelum kelas padat."
+        : "Kondisi kritis. Prioritaskan pendinginan dan ventilasi.";
+  }
+  if (el("rhStateCard")) {
+    el("rhStateCard").textContent = rh < 40
+      ? "Udara cenderung kering. Hindari setpoint terlalu rendah."
+      : rh > 60
+        ? "RH melewati zona ideal. Cek ventilasi dan drainase AC."
+        : "RH berada dalam rentang ideal 40-60%.";
+  }
+  if (el("chartSummary")) el("chartSummary").textContent = `${trendText} dalam 6 sampel`;
+}
+
+function getTrend(values) {
+  if (values.length < 6) return 0;
+  const recent = values.slice(-6);
+  return recent[recent.length - 1] - recent[0];
 }
 
 function updateFreshness(createdAt) {
@@ -210,6 +294,11 @@ function updateFreshness(createdAt) {
   } else {
     setConnection("ok", "Live sync aktif");
   }
+}
+
+function isStale(createdAt, limitMs) {
+  const timestamp = new Date(createdAt).getTime();
+  return Number.isFinite(timestamp) && Date.now() - timestamp > limitMs;
 }
 
 function formatAge(ageMs) {
@@ -325,6 +414,10 @@ function renderLogTable() {
 }
 
 function renderCharts() {
+  if (!window.Chart) {
+    renderCanvasFallbacks();
+    return;
+  }
   const isLight = document.body.classList.contains("light-mode");
   const textColor = isLight ? "rgba(17,27,22,0.68)" : "rgba(242,255,249,0.68)";
   const gridColor = isLight ? "rgba(17,27,22,0.08)" : "rgba(242,255,249,0.08)";
@@ -390,6 +483,10 @@ function chartOptions(gridColor, meta) {
 }
 
 async function saveConfig() {
+  if (!db || state.demoMode) {
+    renderDashboard();
+    return true;
+  }
   const { error } = await db.from("admin_config").upsert({ id: 1, ...state.config });
   if (error) {
     toast(`Config gagal disimpan: ${error.message}`, "error");
@@ -439,6 +536,14 @@ async function kirimManual() {
     catatan: `${state.config.catatan} (manual)`,
     status: latest.status
   };
+  if (!db || state.demoMode) {
+    state.rows.push({ ...payload, created_at: new Date().toISOString() });
+    if (el("iCat")) el("iCat").value = "";
+    animateValue("totalRec", state.rows.length);
+    renderDashboard();
+    toast("Telemetri demo ditambahkan", "ok");
+    return;
+  }
   const { error } = await db.from("sensor_data").insert(payload);
   if (error) {
     toast(`Push gagal: ${error.message}`, "error");
@@ -469,6 +574,86 @@ function toggleTheme() {
   el("themeBtn").textContent = isLight ? "Dark mode" : "Light mode";
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isLight ? "#f7f1df" : "#07120f");
   renderCharts();
+}
+
+function renderCanvasFallbacks() {
+  const rows = state.rows.slice(-48);
+  const meta = FIELD_META[state.currentField];
+  drawFallbackLine(el("mainChart"), rows.map((row) => num(row[state.currentField])), meta.color, meta.unit);
+
+  const grouped = new Map();
+  state.rows.forEach((row) => {
+    const people = Number(row.jumlah_orang);
+    const temp = Number(row.suhu);
+    if (!Number.isFinite(people) || !Number.isFinite(temp)) return;
+    grouped.set(people, [...(grouped.get(people) || []), temp]);
+  });
+  const keys = [...grouped.keys()].sort((a, b) => a - b);
+  drawFallbackLine(el("corrChart"), keys.map((key) => avg(grouped.get(key))), "#6bb7ff", "\u00B0C");
+}
+
+function drawFallbackLine(canvas, values, color, unit) {
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const scale = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(rect.width * scale));
+  canvas.height = Math.max(1, Math.floor(rect.height * scale));
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+  ctx.clearRect(0, 0, rect.width, rect.height);
+  const pad = 28;
+  const width = Math.max(1, rect.width - pad * 2);
+  const height = Math.max(1, rect.height - pad * 2);
+  const finite = values.filter(Number.isFinite);
+  if (finite.length < 2) {
+    ctx.fillStyle = document.body.classList.contains("light-mode") ? "rgba(19,35,27,0.55)" : "rgba(242,255,249,0.55)";
+    ctx.font = "600 13px IBM Plex Mono, monospace";
+    ctx.fillText("Menunggu data chart", pad, pad + 10);
+    return;
+  }
+  const min = Math.min(...finite);
+  const max = Math.max(...finite);
+  const span = max - min || 1;
+  ctx.strokeStyle = document.body.classList.contains("light-mode") ? "rgba(19,35,27,0.09)" : "rgba(242,255,249,0.09)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i += 1) {
+    const y = pad + (height / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad, y);
+    ctx.lineTo(pad + width, y);
+    ctx.stroke();
+  }
+  const gradient = ctx.createLinearGradient(0, pad, 0, pad + height);
+  gradient.addColorStop(0, `${color}55`);
+  gradient.addColorStop(1, `${color}00`);
+  ctx.beginPath();
+  finite.forEach((value, index) => {
+    const x = pad + (width * index) / (finite.length - 1);
+    const y = pad + height - ((value - min) / span) * height;
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.lineTo(pad + width, pad + height);
+  ctx.lineTo(pad, pad + height);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.beginPath();
+  finite.forEach((value, index) => {
+    const x = pad + (width * index) / (finite.length - 1);
+    const y = pad + height - ((value - min) / span) * height;
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.stroke();
+  ctx.fillStyle = document.body.classList.contains("light-mode") ? "rgba(19,35,27,0.66)" : "rgba(242,255,249,0.66)";
+  ctx.font = "700 12px IBM Plex Mono, monospace";
+  ctx.fillText(`${max.toFixed(1)}${unit}`, pad, pad - 8);
+  ctx.fillText(`${min.toFixed(1)}${unit}`, pad, pad + height + 18);
 }
 
 function applyTheme() {
