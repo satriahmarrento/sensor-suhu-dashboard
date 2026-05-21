@@ -1,0 +1,64 @@
+{
+  "model_name": "Random Forest",
+  "r2_score": 0.9936,
+  "mae": 0.1163,
+  "rmse": 0.1782,
+  "all_models_results": {
+    "Linear Regression": {
+      "MAE": 0.5433,
+      "RMSE": 0.6698,
+      "R2": 0.9101
+    },
+    "Random Forest": {
+      "MAE": 0.1163,
+      "RMSE": 0.1782,
+      "R2": 0.9936
+    },
+    "Gradient Boosting": {
+      "MAE": 0.1328,
+      "RMSE": 0.1815,
+      "R2": 0.9934
+    }
+  },
+  "feature_importances": [
+    {
+      "feature": "kelembaban",
+      "importance": 0.766611834658134
+    },
+    {
+      "feature": "day_of_week",
+      "importance": 0.26553251501822256
+    },
+    {
+      "feature": "hour",
+      "importance": 0.15358762423363545
+    },
+    {
+      "feature": "jumlah_orang",
+      "importance": 0.09874941810915927
+    },
+    {
+      "feature": "setting_ac",
+      "importance": 0.08840596335811522
+    }
+  ],
+  "latest_telemetry": {
+    "actual_suhu": 31.1,
+    "predicted_suhu": 31.155383333333326,
+    "features": {
+      "kelembaban": 79.0,
+      "jumlah_orang": 6.0,
+      "setting_ac": 26.0,
+      "hour": 23.0,
+      "day_of_week": 2.0
+    },
+    "shap_values": {
+      "kelembaban": 2.9942630957067013,
+      "jumlah_orang": 0.2258801569417119,
+      "setting_ac": 0.1799524913355708,
+      "hour": 0.07272139586508274,
+      "day_of_week": 0.6186754786223173
+    },
+    "base_value": 27.064613490620488
+  }
+}

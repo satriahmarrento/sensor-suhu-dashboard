@@ -1,0 +1,11 @@
+{
+  "name": "sensor-suhu-dashboard",
+  "version": "1.0.0",
+  "description": "Industrial sensor temperature dashboard with ML & XAI",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}

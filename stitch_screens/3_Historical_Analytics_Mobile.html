@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SENSOR OPS - Historical Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary": "#575e70",
+                        "inverse-surface": "#2c322e",
+                        "surface-variant": "#dee4de",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "tertiary-container": "#737575",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "surface-dim": "#d5dcd6",
+                        "primary": "#006948",
+                        "primary-fixed-dim": "#68dba9",
+                        "outline-variant": "#bccac0",
+                        "on-secondary-fixed-variant": "#404758",
+                        "inverse-on-surface": "#ecf2ec",
+                        "on-surface": "#171d19",
+                        "surface-container-high": "#e4eae4",
+                        "surface": "#f5fbf5",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#e2e2e2",
+                        "primary-container": "#00855d",
+                        "on-primary": "#ffffff",
+                        "outline": "#6d7a72",
+                        "tertiary": "#5a5c5c",
+                        "secondary-fixed-dim": "#c0c6db",
+                        "surface-container": "#e9efe9",
+                        "on-primary-fixed": "#002114",
+                        "secondary-fixed": "#dce2f7",
+                        "on-primary-fixed-variant": "#005137",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#141b2b",
+                        "tertiary-fixed-dim": "#c6c6c7",
+                        "on-error-container": "#93000a",
+                        "on-background": "#171d19",
+                        "primary-fixed": "#85f8c4",
+                        "on-tertiary-container": "#fcfcfc",
+                        "on-primary-container": "#f5fff7",
+                        "surface-container-highest": "#dee4de",
+                        "surface-container-low": "#eff5ef",
+                        "on-error": "#ffffff",
+                        "background": "#f5fbf5",
+                        "secondary-container": "#d9dff5",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#006c4a",
+                        "on-secondary-container": "#5c6274",
+                        "on-surface-variant": "#3d4a42",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f5fbf5",
+                        "inverse-primary": "#68dba9"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "gutter": "16px",
+                        "margin": "24px",
+                        "xs": "4px",
+                        "xl": "40px",
+                        "md": "16px",
+                        "unit": "4px",
+                        "sm": "8px",
+                        "lg": "24px"
+                    },
+                    fontFamily: {
+                        "h2": ["Space Grotesk"],
+                        "body-md": ["Space Grotesk"],
+                        "h1": ["Space Grotesk"],
+                        "h3": ["Space Grotesk"],
+                        "button": ["Space Grotesk"],
+                        "body-lg": ["Space Grotesk"],
+                        "label-caps": ["Space Grotesk"]
+                    },
+                    fontSize: {
+                        "h2": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "h3": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased min-h-screen pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-primary dark:bg-primary-container docked full-width top-0 border-b-2 border-inverse-surface flat no shadows z-40 fixed w-full">
+<div class="flex justify-between items-center w-full px-gutter h-16">
+<button class="text-on-primary dark:text-on-primary-container p-sm hover:bg-primary-container dark:hover:bg-primary rounded-DEFAULT">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-h3 text-h3 font-bold text-on-primary dark:text-on-primary-container uppercase tracking-tight">SENSOR OPS</h1>
+<button class="text-on-primary dark:text-on-primary-container p-sm hover:bg-primary-container dark:hover:bg-primary rounded-DEFAULT">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-20 px-gutter md:px-margin max-w-7xl mx-auto space-y-lg mb-24">
+<!-- Header Zone -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-sm mt-md">
+<div>
+<h2 class="font-h2 text-h2 text-on-background">Historical Analytics</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Data timeframe: Last 30 Days | Facility: Sector 4A</p>
+</div>
+<div class="flex gap-sm w-full md:w-auto mt-sm md:mt-0">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-xs px-md py-sm bg-surface border-2 border-inverse-surface text-on-surface font-button text-button hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px_#111827] transition-all">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                    Date Range
+                </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 gap-md">
+<!-- Main Chart: Temp & Humidity -->
+<div class="bg-surface border-2 border-inverse-surface flex flex-col">
+<div class="bg-primary text-on-primary p-md border-b-2 border-inverse-surface flex justify-between items-center">
+<h3 class="font-h3 text-h3">Temp &amp; Humidity Correlation</h3>
+<span class="material-symbols-outlined">stacked_line_chart</span>
+</div>
+<div class="p-md flex-1 min-h-[300px] relative overflow-hidden bg-white">
+<!-- Placeholder for Chart -->
+<div class="absolute inset-0 flex flex-col justify-end p-md gap-sm">
+<!-- Y Axis labels -->
+<div class="absolute left-sm top-md bottom-xl flex flex-col justify-between text-xs text-on-surface-variant font-label-caps">
+<span>80°</span>
+<span>70°</span>
+<span>60°</span>
+<span>50°</span>
+</div>
+<!-- Grid Lines -->
+<div class="absolute inset-x-xl inset-y-md border-b border-surface-variant flex flex-col justify-between">
+<div class="w-full border-t border-surface-variant h-0"></div>
+<div class="w-full border-t border-surface-variant h-0"></div>
+<div class="w-full border-t border-surface-variant h-0"></div>
+<div class="w-full border-t border-surface-variant h-0"></div>
+</div>
+<!-- Mock Data Lines (SVG would be better here, using absolute positioning for mock) -->
+<svg class="absolute inset-x-xl inset-y-md w-[calc(100%-3rem)] h-[calc(100%-2rem)]" preserveaspectratio="none" viewbox="0 0 100 100">
+<polyline fill="none" points="0,70 20,65 40,40 60,45 80,20 100,10" stroke="#006948" stroke-width="3"></polyline>
+<polyline fill="none" points="0,40 20,45 40,30 60,35 80,50 100,45" stroke="#575e70" stroke-dasharray="4" stroke-width="2"></polyline>
+</svg>
+<!-- X Axis labels -->
+<div class="flex justify-between w-full pl-xl text-xs text-on-surface-variant font-label-caps mt-auto pt-sm">
+<span>Oct 1</span>
+<span>Oct 15</span>
+<span>Oct 30</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Stats Stack -->
+<div class="grid grid-cols-2 gap-sm">
+<!-- Stat 1 -->
+<div class="bg-surface border-2 border-inverse-surface p-md flex flex-col justify-center items-center text-center hover:shadow-[4px_4px_0px_0px_#111827] transition-all">
+<span class="material-symbols-outlined text-primary mb-xs text-[32px]">thermostat</span>
+<span class="font-h1 text-h1 text-on-surface">68.4°</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-xs">Avg Temp</span>
+</div>
+<!-- Stat 2 -->
+<div class="bg-surface border-2 border-inverse-surface p-md flex flex-col justify-center items-center text-center hover:shadow-[4px_4px_0px_0px_#111827] transition-all">
+<span class="material-symbols-outlined text-secondary mb-xs text-[32px]">water_drop</span>
+<span class="font-h1 text-h1 text-on-surface">42%</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-xs">Avg Humidity</span>
+</div>
+<!-- Stat 3 -->
+<div class="bg-surface border-2 border-inverse-surface p-md flex flex-col justify-center items-center text-center col-span-2 hover:shadow-[4px_4px_0px_0px_#111827] transition-all">
+<span class="material-symbols-outlined text-error mb-xs text-[32px]">warning</span>
+<span class="font-h1 text-h1 text-error">12</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-xs">Anomalies Detected</span>
+</div>
+</div>
+<!-- Recent Anomalies List -->
+<div class="bg-surface border-2 border-inverse-surface">
+<div class="bg-inverse-surface text-on-secondary p-md border-b-2 border-inverse-surface flex justify-between items-center">
+<h3 class="font-h3 text-h3">Recent Anomalies</h3>
+<span class="font-label-caps text-label-caps bg-error px-sm py-xs text-on-error">CRITICAL</span>
+</div>
+<div class="divide-y divide-inverse-surface">
+<!-- Item 1 -->
+<div class="p-sm flex items-center gap-sm bg-white">
+<div class="bg-error-container text-on-error-container p-xs border-2 border-inverse-surface w-10 h-10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">priority_high</span>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-body-md font-bold text-on-surface">Temp Spike &gt; 85°F</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Sensor: TH-092 | Oct 28, 14:32</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="p-sm flex items-center gap-sm bg-white">
+<div class="bg-surface-variant text-on-surface-variant p-xs border-2 border-inverse-surface w-10 h-10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">water_damage</span>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-body-md font-bold text-on-surface">Humidity Drop &lt; 20%</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Sensor: TH-114 | Oct 25, 09:15</p>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="p-sm flex items-center gap-sm bg-white">
+<div class="bg-surface-variant text-on-surface-variant p-xs border-2 border-inverse-surface w-10 h-10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">sensors_off</span>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-body-md font-bold text-on-surface">Signal Loss</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Sensor: TH-003 | Oct 22, 18:45</p>
+</div>
+</div>
+</div>
+<button class="w-full p-sm text-center font-button text-button text-primary hover:bg-surface-variant transition-colors border-t border-inverse-surface">
+                    VIEW ALL LOGS
+                </button>
+</div>
+<!-- Sensor Distribution (Simplified for mobile) -->
+<div class="bg-surface border-2 border-inverse-surface p-md">
+<h3 class="font-h3 text-h3 text-on-surface mb-sm border-b-2 border-inverse-surface pb-xs">Sensor Uptime</h3>
+<div class="flex flex-col gap-sm">
+<div class="flex justify-between items-center font-body-md text-body-md">
+<span>Active</span>
+<span class="font-bold">94%</span>
+</div>
+<div class="w-full bg-surface-variant h-4 border-2 border-inverse-surface relative overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-primary" style="width: 94%;"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button (Export) -->
+<button class="fixed bottom-[100px] right-gutter bg-inverse-surface text-on-secondary p-md rounded-full shadow-[4px_4px_0px_0px_#006948] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#006948] transition-all z-40 flex items-center justify-center w-14 h-14 border-2 border-inverse-surface md:hidden">
+<span class="material-symbols-outlined">download</span>
+</button>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface dark:bg-inverse-surface fixed bottom-0 w-full z-50 border-t-3 border-inverse-surface flat no shadows">
+<div class="fixed bottom-0 left-0 w-full h-20 grid grid-cols-5 items-stretch">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant h-full hover:bg-surface-variant dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined mb-xs" data-icon="dashboard">dashboard</span>
+<span class="font-label-caps text-label-caps">Status</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant h-full hover:bg-surface-variant dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined mb-xs" data-icon="warning">warning</span>
+<span class="font-label-caps text-label-caps">Alerts</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant h-full hover:bg-surface-variant dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined mb-xs" data-icon="sensors">sensors</span>
+<span class="font-label-caps text-label-caps">Sensors</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-none h-full border-x border-inverse-surface Active: scale-95 duration-75">
+<span class="material-symbols-outlined mb-xs" data-icon="analytics">analytics</span>
+<span class="font-label-caps text-label-caps">Logs</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant h-full hover:bg-surface-variant dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined mb-xs" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Config</span>
+</button>
+</div>
+</nav>
+</body></html>

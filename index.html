@@ -1,195 +1,523 @@
 <!DOCTYPE html>
-<html lang="id">
+<html class="light" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f7f1df">
-  <title>Monitor Suhu & Kenyamanan</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-  <link rel="stylesheet" href="style.css?v=20260510e">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SENSE_CORE - Industrial Node v2.4</title>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#f5fbf5",
+                        "surface-container": "#e9efe9",
+                        "on-tertiary-container": "#fcfcfc",
+                        "inverse-surface": "#2c322e",
+                        "secondary-fixed-dim": "#c0c6db",
+                        "primary-container": "#00855d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e4eae4",
+                        "surface-container-low": "#eff5ef",
+                        "surface-dim": "#d5dcd6",
+                        "inverse-primary": "#68dba9",
+                        "primary-fixed-dim": "#68dba9",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "on-secondary-fixed": "#141b2b",
+                        "surface-bright": "#f5fbf5",
+                        "secondary": "#575e70",
+                        "on-primary-fixed": "#002114",
+                        "on-secondary-container": "#5c6274",
+                        "tertiary-container": "#737575",
+                        "outline-variant": "#bccac0",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#dee4de",
+                        "outline": "#6d7a72",
+                        "secondary-container": "#d9dff5",
+                        "surface-container-highest": "#dee4de",
+                        "on-surface": "#171d19",
+                        "on-surface-variant": "#3d4a42",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#005137",
+                        "primary-fixed": "#85f8c4",
+                        "on-secondary-fixed-variant": "#404758",
+                        "tertiary-fixed": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "inverse-on-surface": "#ecf2ec",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#5a5c5c",
+                        "surface": "#f5fbf5",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#f5fff7",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#dce2f7",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#006948",
+                        "surface-tint": "#006c4a",
+                        "tertiary-fixed-dim": "#c6c6c7",
+                        "on-background": "#171d19"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "unit": "4px",
+                        "margin": "24px",
+                        "xl": "40px",
+                        "md": "16px"
+                    },
+                    fontFamily: {
+                        "body-md": ["Space Grotesk", "sans-serif"],
+                        "h1": ["Space Grotesk", "sans-serif"],
+                        "label-caps": ["Space Grotesk", "sans-serif"],
+                        "h2": ["Space Grotesk", "sans-serif"],
+                        "body-lg": ["Space Grotesk", "sans-serif"],
+                        "h3": ["Space Grotesk", "sans-serif"],
+                        "button": ["Space Grotesk", "sans-serif"]
+                    },
+                    fontSize: {
+                        "body-md": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
+                        "h1": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "700" }],
+                        "h2": ["32px", { lineHeight: "1.2", letterSpacing: "-0.01em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "1.5", fontWeight: "400" }],
+                        "h3": ["24px", { lineHeight: "1.2", fontWeight: "600" }],
+                        "button": ["14px", { lineHeight: "1", fontWeight: "600" }]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .hard-shadow { box-shadow: 4px 4px 0px 0px rgba(17,24,39,1); }
+        .hard-border { border: 2px solid #111827; }
+        .hard-border-b { border-bottom: 2px solid #111827; }
+        .hard-border-r { border-right: 2px solid #111827; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Loading animation */
+        @keyframes pulse-fast {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .loading-pulse { animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
 </head>
-<body class="light-mode">
-  <div class="scene" aria-hidden="true">
-    <div id="ambient-glow" class="orb orb-main"></div>
-    <div class="orb orb-cool"></div>
-    <div class="grain"></div>
-  </div>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row overflow-hidden selection:bg-primary-fixed selection:text-on-primary-fixed">
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <header class="shell header">
-    <section class="hero-copy">
-      <div class="eyebrow">Live IoT telemetry</div>
-      <h1>Thermal Command Center</h1>
-      <p>Monitoring suhu kelas, kelembaban, beban penghuni, dan rekomendasi AC berbasis SNI 03-6572-2001.</p>
-      <div class="quick-row" aria-label="Status koneksi">
-        <span class="pill"><span id="dot" class="status-dot pending"></span><span id="dbStatus">Menghubungkan Supabase</span></span>
-        <span class="pill"><span id="totalRec">0</span> paket data</span>
-        <span class="pill">Update <span id="lastUpdate">-</span></span>
-      </div>
-    </section>
-
-    <aside class="command-card">
-      <span class="clock-label">Waktu lokal</span>
-      <div class="clock" id="clk">--:--:--</div>
-      <div class="ops-stack" aria-label="Ringkasan operasi">
-        <div><span>Mode</span><b id="opMode">-</b></div>
-        <div><span>Penghuni</span><b><span id="peopleNow">0</span> org</b></div>
-        <div><span>Setpoint</span><b><span id="targetNow">24</span>&deg;C</b></div>
-      </div>
-      <div class="command-actions">
-        <button class="ghost-btn" type="button" onclick="toggleHistory()">Riwayat</button>
-        <button id="themeBtn" class="ghost-btn" type="button" onclick="toggleTheme()">Dark mode</button>
-      </div>
-      <button class="primary-btn" id="modeBtn" type="button" onclick="toggleMode()">Buka Panel Kendali</button>
-    </aside>
-  </header>
-
-  <main class="shell dashboard-grid">
-    <section class="panel hero-panel span-6">
-      <div class="panel-head">
-        <span class="label">Suhu aktual</span>
-        <span id="sts" class="badge muted">Menunggu data</span>
-      </div>
-      <div class="temperature-layout">
-        <div>
-          <div class="mega-value"><span id="suhu">0.0</span><small>&deg;C</small></div>
-          <p id="reko" class="reco-text">Sinkronisasi data sensor...</p>
-          <div class="guidance-strip" aria-label="Panduan cepat">
-            <span id="priorityAction">Menunggu rekomendasi</span>
-            <span id="rhSignal">RH belum terbaca</span>
-            <span id="trendSignal">Tren belum tersedia</span>
-          </div>
+    <!-- Mobile TopNav -->
+    <nav class="md:hidden bg-emerald-600 dark:bg-emerald-800 flex justify-between items-center w-full px-6 py-4 docked full-width top-0 border-b-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] z-50 shrink-0">
+        <div class="text-2xl font-black text-white italic font-space-grotesk tracking-tighter">SENSE_CORE</div>
+        <div class="flex gap-4">
+            <span class="material-symbols-outlined text-white cursor-pointer hover:text-emerald-200">notifications</span>
+            <span class="material-symbols-outlined text-white cursor-pointer hover:text-emerald-200">settings</span>
         </div>
-        <div class="thermal-ring" aria-label="Indikator suhu">
-          <svg viewBox="0 0 120 120">
-            <circle class="ring-track" cx="60" cy="60" r="50"></circle>
-            <circle id="suhuRing" class="ring-progress" cx="60" cy="60" r="50"></circle>
-          </svg>
-          <strong><span id="ringVal">0</span>&deg;</strong>
+    </nav>
+
+    <!-- Desktop SideNav -->
+    <nav class="hidden md:flex flex-col h-screen w-64 border-r-2 border-slate-900 bg-white dark:bg-slate-900 py-6 z-40 shrink-0 sticky top-0">
+        <div class="px-6 mb-8 flex flex-col gap-1">
+            <div class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">SENSE_CORE</div>
+            <div class="font-space-grotesk font-bold uppercase text-[10px] text-emerald-600 dark:text-emerald-400">INDUSTRIAL NODE v2.4</div>
         </div>
-      </div>
-      <div class="insight-strip">
-        <div><span>Terasa</span><b><span id="hi">--</span>&deg;C</b></div>
-        <div><span>Deviasi</span><b id="dev">0.0</b></div>
-        <div><span>Target AC</span><b><span id="ac">24</span>&deg;C</b></div>
-      </div>
-    </section>
-
-    <section class="panel metric-panel span-3">
-      <span class="label">Kenyamanan</span>
-      <div class="metric-value"><span id="ci">0</span><small>%</small></div>
-      <div class="meter"><i id="ciBar"></i></div>
-      <p id="ciState" class="muted-copy">Indeks komposit dari suhu, heat index, dan deviasi AC.</p>
-    </section>
-
-    <section class="panel metric-panel span-3">
-      <span class="label">Kelembaban</span>
-      <div class="metric-value"><span id="lem">0</span><small>%</small></div>
-      <div class="meter"><i id="rhBar"></i></div>
-      <div class="humidity-mark">RH</div>
-      <p id="rhStateCard" class="muted-copy">Rentang ideal kelas umumnya 40-60% RH.</p>
-    </section>
-
-    <section class="panel admin-panel span-12 pres-hide" style="display:none">
-      <div class="panel-head">
-        <span class="label">Panel kendali</span>
-        <button class="ghost-btn compact" type="button" onclick="exportCSV()">Export CSV</button>
-      </div>
-      <div class="admin-grid">
-        <div class="control-card">
-          <span>Penghuni</span>
-          <div class="stepper">
-            <button type="button" onclick="adjOrg(-1)">-</button>
-            <strong id="orgDisplay">0</strong>
-            <button type="button" onclick="adjOrg(1)">+</button>
-          </div>
-          <div class="mini-msg" id="mOrg"></div>
+        <div class="flex flex-col gap-2 w-full flex-1" id="desktop-nav">
+            <a href="#dashboard" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="dashboard">
+                <span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+            <a href="#inventory" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="inventory">
+                <span class="material-symbols-outlined">grid_view</span> Sensor Grid
+            </a>
+            <a href="#analytics" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="analytics">
+                <span class="material-symbols-outlined">analytics</span> Analytics
+            </a>
+            <a href="#ml" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="ml">
+                <span class="material-symbols-outlined">psychiatry</span> ML Insights
+            </a>
         </div>
-        <div class="control-card">
-          <span>Target AC</span>
-          <div class="stepper">
-            <button type="button" onclick="adjAC(-1)">-</button>
-            <strong><span id="acDisplay">24</span>&deg;</strong>
-            <button type="button" onclick="adjAC(1)">+</button>
-          </div>
-          <div class="mini-msg" id="mAC"></div>
+        <div class="px-6 mt-auto">
+            <button onclick="window.exportCSV()" class="w-full bg-white border-2 border-slate-900 text-slate-900 font-button text-button py-2 hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] transition-all rounded-DEFAULT flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5">
+                <span class="material-symbols-outlined">export_notes</span> EXPORT DATA
+            </button>
         </div>
-        <div class="control-card">
-          <span>Kondisi</span>
-          <div class="segment">
-            <button class="active" type="button" onclick="setKon('AC Menyala', this)">AC On</button>
-            <button type="button" onclick="setKon('AC Mati', this)">AC Off</button>
-            <button type="button" onclick="setKon('Jendela Terbuka', this)">Vent</button>
-          </div>
-          <div class="mini-msg" id="mKon"></div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div id="app-root" class="flex-1 h-screen overflow-y-auto flex flex-col bg-surface-container relative">
+        <div class="flex items-center justify-center h-full w-full">
+            <span class="material-symbols-outlined text-[48px] text-primary loading-pulse">sync</span>
         </div>
-        <div class="control-card push-card">
-          <span>Kirim telemetri</span>
-          <div class="push-row">
-            <input id="iCat" type="text" placeholder="Catatan opsional" onkeypress="if(event.key==='Enter') kirimManual()">
-            <button class="primary-btn compact" type="button" onclick="kirimManual()">Push</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel span-12">
-      <div class="panel-head">
-        <span class="label">Lintasan waktu transien</span>
-        <div class="chart-tools">
-          <span id="chartSummary" class="chart-summary">Menunggu data</span>
-          <div class="tabs">
-            <button class="active" type="button" onclick="setChart('suhu',this)">Suhu</button>
-            <button type="button" onclick="setChart('kelembaban',this)">RH</button>
-            <button type="button" onclick="setChart('heat_index',this)">Heat</button>
-            <button type="button" onclick="setChart('comfort_index',this)">CI</button>
-          </div>
-        </div>
-      </div>
-      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
-    </section>
-
-    <section class="panel span-6">
-      <span class="label">Termodinamika vs penghuni</span>
-      <div class="chart-wrap small"><canvas id="corrChart"></canvas></div>
-    </section>
-
-    <section class="panel span-6">
-      <span class="label">Ringkasan performa</span>
-      <div class="stat-grid">
-        <div><b id="sMax">0</b><span>Max suhu</span></div>
-        <div><b id="sMin">0</b><span>Min suhu</span></div>
-        <div><b id="sAvg">0</b><span>Rata-rata</span></div>
-        <div><b id="deltaT">0</b><span>&Delta;&deg;C/orang</span></div>
-      </div>
-      <div class="health-card">
-        <span class="label">Kesehatan sistem</span>
-        <p id="systemHealth">Menunggu cukup data untuk analisis stabilitas.</p>
-      </div>
-    </section>
-  </main>
-
-  <section id="historyModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-content panel">
-      <div class="panel-head">
-        <span class="label">Riwayat pengukuran</span>
-        <button class="icon-btn" type="button" onclick="toggleHistory()" aria-label="Tutup riwayat">&times;</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Waktu</th><th>Suhu</th><th>RH</th><th>Heat</th><th>Dev</th><th>CI</th><th>Org</th><th>Target</th><th>Status</th></tr>
-          </thead>
-          <tbody id="logTable"><tr><td colspan="9">Belum ada data.</td></tr></tbody>
-        </table>
-      </div>
     </div>
-  </section>
 
-  <script src="app.js?v=20260510e"></script>
+    <!-- Mobile BottomNavBar -->
+    <div class="md:hidden fixed bottom-0 w-full bg-white border-t-2 border-slate-900 shadow-[0px_-4px_0px_0px_rgba(17,24,39,1)] z-50 shrink-0" id="mobile-nav">
+        <div class="flex justify-around items-center py-2">
+            <a href="#dashboard" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="dashboard">
+                <span class="material-symbols-outlined" data-weight="fill">dashboard</span>
+                <span class="font-label-caps text-[10px] mt-1 uppercase">Dashboard</span>
+            </a>
+            <a href="#inventory" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="inventory">
+                <span class="material-symbols-outlined">grid_view</span>
+                <span class="font-label-caps text-[10px] mt-1 uppercase">Grid</span>
+            </a>
+            <a href="#analytics" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="analytics">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-label-caps text-[10px] mt-1 uppercase">Analytics</span>
+            </a>
+            <a href="#ml" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="ml">
+                <span class="material-symbols-outlined">psychiatry</span>
+                <span class="font-label-caps text-[10px] mt-1 uppercase">ML XAI</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <template id="tmpl-dashboard">
+        <main class="flex-1 p-4 md:p-gutter lg:p-margin pb-24 md:pb-margin relative">
+            <header class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-slate-900 pb-4">
+                <div>
+                    <h1 class="font-h1 text-h1 text-on-surface uppercase leading-none tracking-tighter">NODE_TELEMETRY</h1>
+                    <p class="font-body-lg text-body-lg text-secondary mt-2">Real-time status overview across active sensor clusters.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="window.fetchData(true)" class="bg-white text-on-surface border-2 border-slate-900 px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">refresh</span> SYNC
+                    </button>
+                    <button id="db-status-btn" class="bg-slate-900 text-white px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px] text-emerald-400" id="db-status-icon">wifi</span> <span id="db-status-text">ONLINE</span>
+                    </button>
+                </div>
+            </header>
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter auto-rows-min">
+                <!-- KPI 1 -->
+                <div class="col-span-1 md:col-span-4 bg-primary-container border-2 border-slate-900 p-lg hard-shadow flex flex-col justify-between min-h-[160px]">
+                    <div class="flex justify-between items-start">
+                        <span class="font-label-caps text-label-caps text-primary-fixed uppercase tracking-widest">CORE TEMP</span>
+                        <span class="material-symbols-outlined text-primary-fixed">thermostat</span>
+                    </div>
+                    <div>
+                        <div class="font-h1 text-h1 text-white leading-none" id="kpi-temp">--°C</div>
+                        <div class="font-body-md text-body-md text-primary-fixed mt-1 flex items-center gap-1" id="kpi-temp-sub">
+                            <span class="material-symbols-outlined text-[16px]">sync</span> Fetching...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- KPI 2 -->
+                <div class="col-span-1 md:col-span-4 bg-white border-2 border-slate-900 p-lg hard-shadow flex flex-col justify-between min-h-[160px]">
+                    <div class="flex justify-between items-start">
+                        <span class="font-label-caps text-label-caps text-slate-500 uppercase tracking-widest">AMBIENT HUMIDITY</span>
+                        <span class="material-symbols-outlined text-slate-500">water_drop</span>
+                    </div>
+                    <div>
+                        <div class="font-h1 text-h1 text-slate-900 leading-none" id="kpi-rh">--%</div>
+                        <div class="font-body-md text-body-md text-emerald-600 mt-1 flex items-center gap-1 font-bold" id="kpi-rh-sub">
+                            <span class="material-symbols-outlined text-[16px]">sync</span> Fetching...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- KPI 3 -->
+                <div class="col-span-1 md:col-span-4 bg-slate-900 border-2 border-slate-900 p-lg hard-shadow flex flex-col justify-between min-h-[160px]">
+                    <div class="flex justify-between items-start">
+                        <span class="font-label-caps text-label-caps text-slate-400 uppercase tracking-widest">COMFORT INDEX</span>
+                        <span class="material-symbols-outlined text-emerald-400">psychiatry</span>
+                    </div>
+                    <div>
+                        <div class="font-h1 text-h1 text-white leading-none" id="kpi-ci">--%</div>
+                        <div class="font-body-md text-body-md text-slate-400 mt-1 flex items-center gap-1" id="kpi-ci-sub">
+                            <span class="material-symbols-outlined text-[16px] text-emerald-400">sync</span> Fetching...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Telemetry Graph -->
+                <div class="col-span-1 md:col-span-8 bg-white border-2 border-slate-900 hard-shadow flex flex-col min-h-[400px]">
+                    <div class="bg-primary border-b-2 border-slate-900 p-4 flex justify-between items-center">
+                        <h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">LIVE TELEMETRY (TEMP & RH)</h2>
+                        <div class="flex gap-2">
+                            <span class="bg-slate-900 text-white font-label-caps text-label-caps px-2 py-1 uppercase">LIVE</span>
+                        </div>
+                    </div>
+                    <div class="p-lg flex-1 relative bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:4rem_4rem]">
+                        <canvas id="dashboardChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <!-- Anomalies -->
+                <div class="col-span-1 md:col-span-4 bg-white border-2 border-slate-900 hard-shadow flex flex-col min-h-[400px]">
+                    <div class="bg-slate-900 border-b-2 border-slate-900 p-4">
+                        <h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">LATEST ANOMALIES</h2>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-4">
+                        <ul class="flex flex-col" id="anomalies-list">
+                            <li class="py-3 flex items-start gap-3 text-secondary text-sm">No recent anomalies detected.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </template>
+
+    <template id="tmpl-inventory">
+        <main class="flex-1 overflow-y-auto p-4 md:p-xl pb-24 bg-background">
+            <div class="max-w-[1400px] mx-auto w-full flex flex-col gap-margin">
+                <section class="bg-primary text-on-primary border-2 border-on-surface shadow-[6px_6px_0px_0px_#171d19] p-xl flex flex-col gap-sm">
+                    <h1 class="font-h1 text-h1 uppercase tracking-tight">Sensor Inventory</h1>
+                    <p class="font-body-lg text-body-lg text-primary-fixed max-w-2xl">Real-time telemetry and status overview for all active nodes.</p>
+                </section>
+                <section class="bg-surface-container-lowest border-2 border-on-surface shadow-[4px_4px_0px_0px_#171d19] p-lg flex flex-col md:flex-row gap-gutter items-center justify-between">
+                    <div class="flex flex-1 w-full relative">
+                        <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                        <input class="w-full bg-surface-container-lowest border-2 border-on-surface text-on-surface font-body-md text-body-md py-sm pl-[40px] pr-md focus:bg-surface-container focus:outline-none placeholder:text-outline transition-colors" placeholder="Search Node ID..." type="text"/>
+                    </div>
+                    <div class="flex gap-gutter w-full md:w-auto">
+                        <button class="flex items-center gap-sm bg-surface-container-lowest text-on-surface border-2 border-on-surface font-button text-button px-lg py-sm shadow-[3px_3px_0px_0px_#171d19] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all uppercase tracking-wide">
+                            <span class="material-symbols-outlined text-[20px]">filter_list</span> Filter
+                        </button>
+                    </div>
+                </section>
+                <section class="bg-surface-container-lowest border-2 border-on-surface shadow-[6px_6px_0px_0px_#171d19] overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[800px]">
+                        <thead>
+                            <tr class="bg-primary text-on-primary border-b-2 border-on-surface">
+                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Node ID</th>
+                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Location</th>
+                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Readings</th>
+                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Latest Sync</th>
+                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-body-md text-body-md text-on-surface bg-surface-container-lowest" id="inventory-tbody">
+                            <!-- Rows will be injected here -->
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </main>
+    </template>
+
+    <template id="tmpl-analytics">
+        <main class="flex-1 p-gutter md:p-margin lg:p-xl pb-24 overflow-y-auto">
+            <header class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                <div>
+                    <h2 class="font-h1 text-h1 text-on-background mb-2">Historical Analytics</h2>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant">System-wide performance trends over the last 100 samples.</p>
+                </div>
+            </header>
+            
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-lg">
+                <div class="bg-primary-container text-on-primary border-2 border-on-background p-lg shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] rounded-DEFAULT">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Avg Temp</span>
+                        <span class="material-symbols-outlined text-on-primary">thermostat</span>
+                    </div>
+                    <div class="font-h1 text-h1 mb-1" id="an-avg-temp">--°C</div>
+                </div>
+                
+                <div class="bg-primary-container text-on-primary border-2 border-on-background p-lg shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] rounded-DEFAULT">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Avg Humidity</span>
+                        <span class="material-symbols-outlined text-on-primary">humidity_percentage</span>
+                    </div>
+                    <div class="font-h1 text-h1 mb-1" id="an-avg-rh">--%</div>
+                </div>
+                
+                <div class="bg-primary-container text-on-primary border-2 border-on-background p-lg shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] rounded-DEFAULT">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Avg Comfort Index</span>
+                        <span class="material-symbols-outlined text-on-primary">psychiatry</span>
+                    </div>
+                    <div class="font-h1 text-h1 mb-1" id="an-avg-ci">--%</div>
+                </div>
+            </section>
+            
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+                <div class="lg:col-span-2 bg-surface-container-lowest border-2 border-on-background rounded-DEFAULT flex flex-col">
+                    <div class="bg-primary border-b-2 border-on-background p-4 flex justify-between items-center rounded-t-DEFAULT">
+                        <h3 class="font-h3 text-h3 text-on-primary m-0">Temperature & Humidity Correlation</h3>
+                    </div>
+                    <div class="p-lg flex-1 min-h-[400px] relative">
+                        <canvas id="correlationChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-gutter">
+                    <div class="bg-surface-container-lowest border-2 border-on-background rounded-DEFAULT flex-1 flex flex-col">
+                        <div class="bg-inverse-surface border-b-2 border-on-background p-4 flex justify-between items-center rounded-t-DEFAULT">
+                            <h3 class="font-h3 text-h3 text-on-primary m-0 text-base">Comfort Distribution</h3>
+                            <span class="material-symbols-outlined text-on-primary text-sm">bar_chart</span>
+                        </div>
+                        <div class="p-md flex-1 min-h-[250px] relative">
+                            <canvas id="distributionChart" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </template>
+
+    <template id="tmpl-ml">
+        <main class="flex-1 p-gutter md:p-margin lg:p-xl pb-24 overflow-y-auto bg-background">
+            <header class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-slate-900 pb-4">
+                <div>
+                    <h1 class="font-h1 text-h1 text-on-surface uppercase leading-none tracking-tighter">ML_EXPLAINABLE_AI</h1>
+                    <p class="font-body-lg text-body-lg text-secondary mt-2">Machine Learning regression models & SHAP (SHapley Additive exPlanations) for Room Temperature.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="window.retrainML()" class="bg-white text-on-surface border-2 border-slate-900 px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center gap-2" id="btn-retrain">
+                        <span class="material-symbols-outlined text-[18px]">build</span> RETRAIN MODEL
+                    </button>
+                </div>
+            </header>
+
+            <!-- Metrics Cards Grid -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-lg">
+                <div class="bg-emerald-600 text-white border-2 border-slate-900 p-lg hard-shadow rounded-DEFAULT">
+                    <span class="font-label-caps text-label-caps text-emerald-200 uppercase tracking-wider block mb-2">Best Model</span>
+                    <div class="font-h3 text-h3 text-white leading-none font-bold" id="ml-best-model">--</div>
+                    <span class="text-xs text-emerald-200 mt-1 block">Selected by performance</span>
+                </div>
+                <div class="bg-white border-2 border-slate-900 p-lg hard-shadow rounded-DEFAULT">
+                    <span class="font-label-caps text-label-caps text-slate-500 uppercase tracking-wider block mb-2">R² Score (Accuracy)</span>
+                    <div class="font-h3 text-h3 text-slate-900 leading-none font-bold" id="ml-r2-score">--%</div>
+                    <span class="text-xs text-emerald-600 font-bold mt-1 block">Goodness of Fit</span>
+                </div>
+                <div class="bg-white border-2 border-slate-900 p-lg hard-shadow rounded-DEFAULT">
+                    <span class="font-label-caps text-label-caps text-slate-500 uppercase tracking-wider block mb-2">Mean Absolute Error (MAE)</span>
+                    <div class="font-h3 text-h3 text-slate-900 leading-none font-bold" id="ml-mae">--°C</div>
+                    <span class="text-xs text-slate-500 mt-1 block">Avg absolute deviation</span>
+                </div>
+                <div class="bg-slate-900 text-white border-2 border-slate-900 p-lg hard-shadow rounded-DEFAULT">
+                    <span class="font-label-caps text-label-caps text-slate-400 uppercase tracking-wider block mb-2">RMSE (Root MSE)</span>
+                    <div class="font-h3 text-h3 text-emerald-400 leading-none font-bold" id="ml-rmse">--°C</div>
+                    <span class="text-xs text-slate-400 mt-1 block font-bold">Standard deviation of residuals</span>
+                </div>
+            </section>
+
+            <!-- Main Layout Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                <!-- Left Panel: Global Feature Impact -->
+                <div class="lg:col-span-6 flex flex-col gap-gutter">
+                    <!-- Global Feature Importance Bar Chart -->
+                    <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
+                        <div class="bg-emerald-600 border-b-2 border-slate-900 p-4">
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">GLOBAL FEATURE IMPORTANCE</h3>
+                        </div>
+                        <div class="p-lg">
+                            <p class="text-sm text-secondary mb-4">Relative importance of each feature in predicting room temperature. Higher value means more influence.</p>
+                            <div class="flex flex-col gap-3" id="ml-importance-bars">
+                                <!-- Bars will be dynamically injected -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Global Beeswarm Explanation Plot -->
+                    <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
+                        <div class="bg-slate-900 border-b-2 border-slate-900 p-4">
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">SHAP SUMMARY PLOT (BEESWARM)</h3>
+                        </div>
+                        <div class="p-lg text-center bg-slate-50">
+                            <p class="text-sm text-secondary mb-4 text-left">Shows feature values and their positive/negative impact direction on temperature prediction.</p>
+                            <img src="ml_plots/shap_summary.png" alt="SHAP Summary Plot" class="max-w-full mx-auto border-2 border-slate-900 shadow-sm" onerror="this.src='https://placehold.co/600x400?text=No+Summary+Plot+Available'"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Local/Explainable Predictions -->
+                <div class="lg:col-span-6 flex flex-col gap-gutter">
+                    <!-- Latest Sample Local Explanation -->
+                    <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
+                        <div class="bg-slate-900 border-b-2 border-slate-900 p-4">
+                            <h3 class="font-h3 text-h3 text-white m-0 uppercase tracking-tight">LATEST TELEMETRY EXPLANATION</h3>
+                        </div>
+                        <div class="p-lg">
+                            <div class="flex justify-between items-center mb-6 p-4 bg-emerald-50 border-2 border-slate-900">
+                                <div>
+                                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-widest block">Actual Temp</span>
+                                    <div class="text-3xl font-black text-slate-900" id="ml-actual-temp">--°C</div>
+                                </div>
+                                <div class="text-slate-400 text-2xl font-bold">➔</div>
+                                <div>
+                                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-widest block">Predicted Temp</span>
+                                    <div class="text-3xl font-black text-emerald-600" id="ml-pred-temp">--°C</div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-bold text-slate-900 uppercase text-sm mb-3">SHAP Waterfall Analysis (How prediction was formed)</h4>
+                            <p class="text-sm text-secondary mb-4">Base Room Temperature is <strong id="ml-base-temp">--°C</strong>. Individual telemetry features pushed it up or pulled it down to reach the prediction:</p>
+                            
+                            <div class="flex flex-col gap-2 mb-6" id="ml-waterfall-list">
+                                <!-- Injected single values -->
+                            </div>
+
+                            <!-- Waterfall Plot Image -->
+                            <div class="text-center bg-slate-50 p-2 border-2 border-slate-900">
+                                <img src="ml_plots/shap_waterfall_latest.png" alt="SHAP Waterfall Plot" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/600x400?text=No+Waterfall+Plot+Available'"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Under the Hood: Feature Dependence -->
+                    <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
+                        <div class="bg-emerald-600 border-b-2 border-slate-900 p-4">
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">FEATURE CORRELATIONS (SHAP DEPENDENCE)</h3>
+                        </div>
+                        <div class="p-lg">
+                            <p class="text-sm text-secondary mb-4">Plots showing the exact relationship between a feature's values and its corresponding SHAP value (impact score).</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="border-2 border-slate-900 p-2 text-center bg-slate-50">
+                                    <span class="text-xs font-bold block mb-1">Kelembaban Dependence</span>
+                                    <img src="ml_plots/shap_dependence_kelembaban.png" alt="Kelembaban Dependence" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=No+Data'"/>
+                                </div>
+                                <div class="border-2 border-slate-900 p-2 text-center bg-slate-50">
+                                    <span class="text-xs font-bold block mb-1">Day of Week Dependence</span>
+                                    <img src="ml_plots/shap_dependence_day_of_week.png" alt="Day of Week Dependence" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=No+Data'"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Models Comparison Table -->
+            <section class="mt-lg bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT overflow-x-auto">
+                <div class="bg-slate-900 p-4 border-b-2 border-slate-900">
+                    <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">REGRESSION MODELS COMPARISON</h3>
+                </div>
+                <table class="w-full text-left border-collapse min-w-[600px]">
+                    <thead>
+                        <tr class="bg-emerald-50 text-slate-900 border-b-2 border-slate-900">
+                            <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Model Name</th>
+                            <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Mean Absolute Error (MAE)</th>
+                            <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Root Mean Squared Error (RMSE)</th>
+                            <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">R² Score (Accuracy)</th>
+                            <th class="p-md font-label-caps text-label-caps uppercase tracking-wider text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-body-md text-body-md text-on-surface" id="ml-models-tbody">
+                        <!-- Injected rows -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </template>
+
+    <script src="app.js"></script>
 </body>
 </html>

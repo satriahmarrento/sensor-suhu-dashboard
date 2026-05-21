@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sensor Inventory</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#575e70",
+                    "inverse-surface": "#2c322e",
+                    "surface-variant": "#dee4de",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "tertiary-container": "#737575",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "surface-dim": "#d5dcd6",
+                    "primary": "#006948",
+                    "primary-fixed-dim": "#68dba9",
+                    "outline-variant": "#bccac0",
+                    "on-secondary-fixed-variant": "#404758",
+                    "inverse-on-surface": "#ecf2ec",
+                    "on-surface": "#171d19",
+                    "surface-container-high": "#e4eae4",
+                    "surface": "#f5fbf5",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#e2e2e2",
+                    "primary-container": "#00855d",
+                    "on-primary": "#ffffff",
+                    "outline": "#6d7a72",
+                    "tertiary": "#5a5c5c",
+                    "secondary-fixed-dim": "#c0c6db",
+                    "surface-container": "#e9efe9",
+                    "on-primary-fixed": "#002114",
+                    "secondary-fixed": "#dce2f7",
+                    "on-primary-fixed-variant": "#005137",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed": "#141b2b",
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "on-error-container": "#93000a",
+                    "on-background": "#171d19",
+                    "primary-fixed": "#85f8c4",
+                    "on-tertiary-container": "#fcfcfc",
+                    "on-primary-container": "#f5fff7",
+                    "surface-container-highest": "#dee4de",
+                    "surface-container-low": "#eff5ef",
+                    "on-error": "#ffffff",
+                    "background": "#f5fbf5",
+                    "secondary-container": "#d9dff5",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#006c4a",
+                    "on-secondary-container": "#5c6274",
+                    "on-surface-variant": "#3d4a42",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#f5fbf5",
+                    "inverse-primary": "#68dba9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "margin": "24px",
+                    "xs": "4px",
+                    "xl": "40px",
+                    "md": "16px",
+                    "unit": "4px",
+                    "sm": "8px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "h2": ["Space Grotesk"],
+                    "body-md": ["Space Grotesk"],
+                    "h1": ["Space Grotesk"],
+                    "h3": ["Space Grotesk"],
+                    "button": ["Space Grotesk"],
+                    "body-lg": ["Space Grotesk"],
+                    "label-caps": ["Space Grotesk"]
+            },
+            "fontSize": {
+                    "h2": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h1": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "h3": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "button": ["14px", {"lineHeight": "1", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md pb-[80px]">
+<!-- TopAppBar -->
+<header class="bg-primary dark:bg-primary-container text-on-primary dark:text-on-primary-container font-h3 text-h3 uppercase tracking-tight docked full-width top-0 border-b-2 border-inverse-surface flex justify-between items-center w-full px-gutter h-16 z-50 sticky">
+<div class="flex items-center gap-gutter text-on-primary/80 hover:bg-primary-container dark:hover:bg-primary Active: translate-y-0.5 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu</span>
+</div>
+<div class="font-h3 text-h3 font-bold text-on-primary dark:text-on-primary-container">SENSOR OPS</div>
+<div class="flex items-center text-on-primary/80 hover:bg-primary-container dark:hover:bg-primary Active: translate-y-0.5 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</div>
+</header>
+<!-- Sticky Action Bar -->
+<div class="sticky top-16 z-40 bg-background border-b-3 border-inverse-surface p-gutter flex flex-col gap-sm shadow-[0px_4px_0px_0px_rgba(44,50,46,0.05)]">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full border-2 border-inverse-surface bg-surface-container-lowest pl-10 pr-3 py-3 font-body-md text-on-surface focus:outline-none focus:bg-primary-container/10 focus:ring-0 transition-colors placeholder:text-on-surface-variant" placeholder="Search Node ID or Location..." type="text"/>
+</div>
+<div class="flex gap-sm w-full">
+<button class="flex-1 border-2 border-inverse-surface bg-surface-container-lowest py-3 px-4 font-button text-button text-on-surface flex items-center justify-center gap-xs hover:shadow-[4px_4px_0px_0px_#2c322e] active:translate-y-[2px] active:translate-x-[2px] active:shadow-[2px_2px_0px_0px_#2c322e] transition-all">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+                Filter
+            </button>
+<button class="flex-1 border-2 border-inverse-surface bg-inverse-surface py-3 px-4 font-button text-button text-inverse-on-surface flex items-center justify-center gap-xs hover:shadow-[4px_4px_0px_0px_#006948] active:translate-y-[2px] active:translate-x-[2px] active:shadow-[2px_2px_0px_0px_#006948] transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Provision
+            </button>
+</div>
+</div>
+<!-- Main Content Canvas -->
+<main class="flex-1 p-gutter flex flex-col gap-gutter">
+<!-- Node Card: Active -->
+<div class="border-3 border-inverse-surface bg-surface-container-lowest flex flex-col relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-2 bg-primary"></div>
+<div class="flex justify-between items-center p-md border-b-2 border-inverse-surface pl-lg bg-surface">
+<span class="font-h3 text-h3 text-on-surface uppercase tracking-tight">ND-77X2</span>
+<div class="bg-primary text-on-primary font-label-caps text-label-caps px-2 py-1 flex items-center gap-1 shadow-[2px_2px_0px_0px_#2c322e] border border-inverse-surface">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    ACTIVE
+                </div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-sm p-sm px-md border-b border-inverse-surface text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-body-md text-body-md">Sector 4, Pump Station Alpha</span>
+</div>
+<div class="flex gap-sm p-md bg-surface-container-low flex-wrap">
+<span class="bg-inverse-surface text-inverse-on-surface font-label-caps text-label-caps px-2 py-1">FLOW RATE</span>
+<span class="bg-surface-variant text-on-surface font-label-caps text-label-caps px-2 py-1">PRESSURE</span>
+<span class="bg-surface-variant text-on-surface font-label-caps text-label-caps px-2 py-1">TEMP</span>
+</div>
+</div>
+</div>
+<!-- Node Card: Fault -->
+<div class="border-3 border-inverse-surface bg-surface-container-lowest flex flex-col relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-2 bg-error"></div>
+<div class="flex justify-between items-center p-md border-b-2 border-inverse-surface pl-lg bg-error-container">
+<span class="font-h3 text-h3 text-on-surface uppercase tracking-tight">ND-41B9</span>
+<div class="bg-error text-on-error font-label-caps text-label-caps px-2 py-1 flex items-center gap-1 shadow-[2px_2px_0px_0px_#2c322e] border border-inverse-surface">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+                    FAULT
+                </div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-sm p-sm px-md border-b border-inverse-surface text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-body-md text-body-md">Sub-Level 2, Cooling Tower C</span>
+</div>
+<div class="flex gap-sm p-md bg-surface-container-low flex-wrap">
+<span class="bg-inverse-surface text-inverse-on-surface font-label-caps text-label-caps px-2 py-1">VIBRATION</span>
+<span class="bg-surface-variant text-on-surface font-label-caps text-label-caps px-2 py-1">ACOUSTIC</span>
+</div>
+</div>
+</div>
+<!-- Node Card: Standby -->
+<div class="border-3 border-inverse-surface bg-surface-container-lowest flex flex-col relative overflow-hidden opacity-80">
+<div class="absolute left-0 top-0 bottom-0 w-2 bg-secondary"></div>
+<div class="flex justify-between items-center p-md border-b-2 border-inverse-surface pl-lg bg-surface">
+<span class="font-h3 text-h3 text-on-surface uppercase tracking-tight text-on-surface-variant">ND-11Z5</span>
+<div class="bg-surface-variant text-on-surface font-label-caps text-label-caps px-2 py-1 flex items-center gap-1 shadow-[2px_2px_0px_0px_#2c322e] border border-inverse-surface">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">pause_circle</span>
+                    STANDBY
+                </div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-sm p-sm px-md border-b border-inverse-surface text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-body-md text-body-md">Perimeter Fence, North Gate</span>
+</div>
+<div class="flex gap-sm p-md bg-surface-container-low flex-wrap">
+<span class="bg-inverse-surface text-inverse-on-surface font-label-caps text-label-caps px-2 py-1">MOTION</span>
+<span class="bg-surface-variant text-on-surface font-label-caps text-label-caps px-2 py-1">OPTICAL</span>
+</div>
+</div>
+</div>
+<!-- Node Card: Active -->
+<div class="border-3 border-inverse-surface bg-surface-container-lowest flex flex-col relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-2 bg-primary"></div>
+<div class="flex justify-between items-center p-md border-b-2 border-inverse-surface pl-lg bg-surface">
+<span class="font-h3 text-h3 text-on-surface uppercase tracking-tight">ND-88Y1</span>
+<div class="bg-primary text-on-primary font-label-caps text-label-caps px-2 py-1 flex items-center gap-1 shadow-[2px_2px_0px_0px_#2c322e] border border-inverse-surface">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    ACTIVE
+                </div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-sm p-sm px-md border-b border-inverse-surface text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-body-md text-body-md">Sector 7, Generator Hall</span>
+</div>
+<div class="flex gap-sm p-md bg-surface-container-low flex-wrap">
+<span class="bg-inverse-surface text-inverse-on-surface font-label-caps text-label-caps px-2 py-1">POWER DRAW</span>
+<span class="bg-surface-variant text-on-surface font-label-caps text-label-caps px-2 py-1">TEMP</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface dark:bg-inverse-surface text-primary dark:text-primary-fixed-dim font-label-caps text-label-caps fixed bottom-0 w-full z-50 border-t-3 border-inverse-surface fixed bottom-0 left-0 w-full h-20 grid grid-cols-5 items-stretch">
+<!-- Tab 1: Status (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant h-full hover:bg-surface-variant dark:hover:bg-on-surface-variant Active: scale-95 duration-75 transition-all" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">dashboard</span>
+<span>Status</span>
+</a>
+<!-- Tab 2: Alerts (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant h-full hover:bg-surface-variant dark:hover:bg-on-surface-variant Active: scale-95 duration-75 transition-all" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">warning</span>
+<span>Alerts</span>
+</a>
+<!-- Tab 3: Sensors (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-none h-full border-x border-inverse-surface hover:bg-surface-variant dark:hover:bg-on-surface-variant Active: scale-95 duration-75 transition-all shadow-[inset_0px_4px_0px_0px_#2c322e]" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" style="font-variation-settings: 'FILL' 1;">sensors</span>
+<span>Sensors</span>
+</a>
+<!-- Tab 4: Logs (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant h-full hover:bg-surface-variant dark:hover:bg-on-surface-variant Active: scale-95 duration-75 transition-all" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">analytics</span>
+<span>Logs</span>
+</a>
+<!-- Tab 5: Config (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant h-full hover:bg-surface-variant dark:hover:bg-on-surface-variant Active: scale-95 duration-75 transition-all" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">settings</span>
+<span>Config</span>
+</a>
+</nav>
+</body></html>

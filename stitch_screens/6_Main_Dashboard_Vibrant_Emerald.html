@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SENSE_CORE - Industrial Node v2.4</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#f5fbf5",
+                    "surface-container": "#e9efe9",
+                    "on-tertiary-container": "#fcfcfc",
+                    "inverse-surface": "#2c322e",
+                    "secondary-fixed-dim": "#c0c6db",
+                    "primary-container": "#00855d",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#e4eae4",
+                    "surface-container-low": "#eff5ef",
+                    "surface-dim": "#d5dcd6",
+                    "inverse-primary": "#68dba9",
+                    "primary-fixed-dim": "#68dba9",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "on-secondary-fixed": "#141b2b",
+                    "surface-bright": "#f5fbf5",
+                    "secondary": "#575e70",
+                    "on-primary-fixed": "#002114",
+                    "on-secondary-container": "#5c6274",
+                    "tertiary-container": "#737575",
+                    "outline-variant": "#bccac0",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "surface-variant": "#dee4de",
+                    "outline": "#6d7a72",
+                    "secondary-container": "#d9dff5",
+                    "surface-container-highest": "#dee4de",
+                    "on-surface": "#171d19",
+                    "on-surface-variant": "#3d4a42",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#005137",
+                    "primary-fixed": "#85f8c4",
+                    "on-secondary-fixed-variant": "#404758",
+                    "tertiary-fixed": "#e2e2e2",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "inverse-on-surface": "#ecf2ec",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#5a5c5c",
+                    "surface": "#f5fbf5",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#f5fff7",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#dce2f7",
+                    "on-tertiary": "#ffffff",
+                    "primary": "#006948",
+                    "surface-tint": "#006c4a",
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "on-background": "#171d19"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "lg": "24px",
+                    "gutter": "16px",
+                    "sm": "8px",
+                    "unit": "4px",
+                    "margin": "24px",
+                    "xl": "40px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Space Grotesk"
+                    ],
+                    "h1": [
+                            "Space Grotesk"
+                    ],
+                    "label-caps": [
+                            "Space Grotesk"
+                    ],
+                    "h2": [
+                            "Space Grotesk"
+                    ],
+                    "body-lg": [
+                            "Space Grotesk"
+                    ],
+                    "h3": [
+                            "Space Grotesk"
+                    ],
+                    "button": [
+                            "Space Grotesk"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "h1": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "1",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "h2": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "h3": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "button": [
+                            "14px",
+                            {
+                                    "lineHeight": "1",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .hard-shadow { box-shadow: 4px 4px 0px 0px rgba(17,24,39,1); }
+        .hard-border { border: 2px solid #111827; }
+        .hard-border-b { border-bottom: 2px solid #111827; }
+        .hard-border-r { border-right: 2px solid #111827; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row overflow-hidden">
+<!-- Mobile TopNav (Visible only on mobile) -->
+<nav class="md:hidden bg-emerald-600 dark:bg-emerald-800 flex justify-between items-center w-full px-6 py-4 docked full-width top-0 border-b-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] z-50">
+<div class="text-2xl font-black text-white italic font-space-grotesk font-bold uppercase tracking-tighter">SENSE_CORE</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-white" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-white" data-icon="settings">settings</span>
+</div>
+</nav>
+<!-- Desktop SideNav -->
+<nav class="hidden md:flex flex-col h-screen w-64 border-r-2 border-slate-900 bg-white dark:bg-slate-900 py-6 z-40 shrink-0">
+<div class="px-6 mb-8">
+<div class="text-xl font-black text-slate-900 dark:text-white font-space-grotesk font-bold uppercase text-sm mb-1">SENSE_CORE</div>
+<div class="text-label-caps font-label-caps text-secondary uppercase">INDUSTRIAL NODE v2.4</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<!-- Active Tab -->
+<a class="bg-emerald-600 text-white shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] border-2 border-slate-900 flex items-center gap-3 px-4 py-3 mx-2 my-1 font-space-grotesk font-bold uppercase text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<!-- Inactive Tabs -->
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+                Sensor Grid
+            </a>
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Analytics
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 h-screen overflow-y-auto p-4 md:p-gutter lg:p-margin pb-24 md:pb-margin relative bg-surface-container">
+<!-- Header Section -->
+<header class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-slate-900 pb-4">
+<div>
+<h1 class="font-h1 text-h1 text-on-surface uppercase leading-none tracking-tighter">NODE_TELEMETRY</h1>
+<p class="font-body-lg text-body-lg text-secondary mt-2">Real-time status overview across all active sensor clusters.</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-white text-on-surface border-2 border-slate-900 px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">refresh</span> SYNC
+                </button>
+<button class="bg-slate-900 text-white px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span> EXPORT LOG
+                </button>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter auto-rows-min">
+<!-- Vibrant KPI Cards Row -->
+<div class="col-span-1 md:col-span-4 bg-primary-container border-2 border-slate-900 p-lg hard-shadow flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps text-primary-fixed uppercase tracking-widest">CORE TEMP</span>
+<span class="material-symbols-outlined text-primary-fixed">thermostat</span>
+</div>
+<div>
+<div class="font-h1 text-h1 text-white leading-none">42.8°C</div>
+<div class="font-body-md text-body-md text-primary-fixed mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span> +1.2°C from baseline
+                    </div>
+</div>
+</div>
+<div class="col-span-1 md:col-span-4 bg-white border-2 border-slate-900 p-lg hard-shadow flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps text-slate-500 uppercase tracking-widest">AMBIENT HUMIDITY</span>
+<span class="material-symbols-outlined text-slate-500">water_drop</span>
+</div>
+<div>
+<div class="font-h1 text-h1 text-slate-900 leading-none">34%</div>
+<div class="font-body-md text-body-md text-emerald-600 mt-1 flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Optimal Range
+                    </div>
+</div>
+</div>
+<div class="col-span-1 md:col-span-4 bg-slate-900 border-2 border-slate-900 p-lg hard-shadow flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps text-slate-400 uppercase tracking-widest">NETWORK STATUS</span>
+<span class="material-symbols-outlined text-emerald-400">wifi</span>
+</div>
+<div>
+<div class="font-h1 text-h1 text-white leading-none">99.9%</div>
+<div class="font-body-md text-body-md text-slate-400 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-emerald-400">cell_tower</span> 4 Nodes Connected
+                    </div>
+</div>
+</div>
+<!-- Large Telemetry Graph Section -->
+<div class="col-span-1 md:col-span-8 bg-white border-2 border-slate-900 hard-shadow flex flex-col min-h-[400px]">
+<div class="bg-primary border-b-2 border-slate-900 p-4 flex justify-between items-center">
+<h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">24H TELEMETRY TREND</h2>
+<div class="flex gap-2">
+<span class="bg-slate-900 text-white font-label-caps text-label-caps px-2 py-1 uppercase">LIVE</span>
+</div>
+</div>
+<div class="p-lg flex-1 relative bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:4rem_4rem]">
+<!-- Simulated Graph Area (Placeholder for actual chart integration) -->
+<div class="absolute inset-x-lg inset-y-lg flex items-end">
+<div class="w-full h-full relative border-l-2 border-b-2 border-slate-900">
+<!-- Y-Axis Labels -->
+<div class="absolute -left-8 bottom-0 font-label-caps text-label-caps text-secondary">0</div>
+<div class="absolute -left-8 top-1/2 font-label-caps text-label-caps text-secondary">50</div>
+<div class="absolute -left-8 top-0 font-label-caps text-label-caps text-secondary">100</div>
+<!-- X-Axis Labels -->
+<div class="absolute -bottom-6 left-0 font-label-caps text-label-caps text-secondary">00:00</div>
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-label-caps text-label-caps text-secondary">12:00</div>
+<div class="absolute -bottom-6 right-0 font-label-caps text-label-caps text-secondary">24:00</div>
+<!-- Abstract Graph Lines -->
+<svg class="w-full h-full absolute inset-0 preserve-3d" preserveaspectratio="none" viewbox="0 0 100 100">
+<path class="vector-effect-non-scaling-stroke" d="M0,80 L10,75 L20,85 L30,60 L40,65 L50,40 L60,45 L70,20 L80,30 L90,10 L100,15" fill="none" stroke="#00855d" stroke-width="2"></path>
+<path class="vector-effect-non-scaling-stroke" d="M0,90 L15,88 L30,92 L45,85 L60,87 L75,80 L90,82 L100,75" fill="none" stroke="#111827" stroke-dasharray="2 2" stroke-width="1"></path>
+</svg>
+</div>
+</div>
+</div>
+</div>
+<!-- Anomalies List -->
+<div class="col-span-1 md:col-span-4 bg-white border-2 border-slate-900 hard-shadow flex flex-col min-h-[400px]">
+<div class="bg-slate-900 border-b-2 border-slate-900 p-4">
+<h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">DETECTED ANOMALIES</h2>
+</div>
+<div class="flex-1 overflow-y-auto p-4">
+<ul class="flex flex-col">
+<!-- Alert Item 1 -->
+<li class="border-b-2 border-slate-900 py-3 flex items-start gap-3 last:border-b-0">
+<div class="bg-error text-white p-1 shrink-0 mt-1">
+<span class="material-symbols-outlined text-[16px] block">warning</span>
+</div>
+<div class="flex-1">
+<div class="font-button text-button text-slate-900 uppercase">Pressure Spike - Node 04</div>
+<div class="font-body-md text-body-md text-secondary text-sm">Exceeded safe threshold by 15%</div>
+</div>
+<span class="font-label-caps text-label-caps text-secondary shrink-0">10m ago</span>
+</li>
+<!-- Alert Item 2 -->
+<li class="border-b-2 border-slate-900 py-3 flex items-start gap-3 last:border-b-0">
+<div class="bg-amber-500 text-slate-900 p-1 shrink-0 mt-1">
+<span class="material-symbols-outlined text-[16px] block">electric_bolt</span>
+</div>
+<div class="flex-1">
+<div class="font-button text-button text-slate-900 uppercase">Power Fluctuation</div>
+<div class="font-body-md text-body-md text-secondary text-sm">Grid B experienced minor dip</div>
+</div>
+<span class="font-label-caps text-label-caps text-secondary shrink-0">1h ago</span>
+</li>
+<!-- Alert Item 3 -->
+<li class="border-b-2 border-slate-900 py-3 flex items-start gap-3 last:border-b-0">
+<div class="bg-slate-200 text-slate-900 p-1 shrink-0 mt-1">
+<span class="material-symbols-outlined text-[16px] block">info</span>
+</div>
+<div class="flex-1">
+<div class="font-button text-button text-slate-900 uppercase">Routine Calibration Due</div>
+<div class="font-body-md text-body-md text-secondary text-sm">Sensor array C requires sync</div>
+</div>
+<span class="font-label-caps text-label-caps text-secondary shrink-0">4h ago</span>
+</li>
+</ul>
+</div>
+<div class="p-4 border-t-2 border-slate-900 bg-slate-50">
+<button class="w-full bg-white text-slate-900 border-2 border-slate-900 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all">VIEW ALL LOGS</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile BottomNavBar (Visible only on mobile) -->
+<div class="md:hidden fixed bottom-0 w-full bg-white border-t-2 border-slate-900 shadow-[0px_-4px_0px_0px_rgba(17,24,39,1)] z-50">
+<div class="flex justify-around items-center py-2">
+<a class="flex flex-col items-center p-2 text-emerald-600 border-b-4 border-emerald-600" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard" data-weight="fill">dashboard</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Dashboard</span>
+</a>
+<a class="flex flex-col items-center p-2 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Grid</span>
+</a>
+<a class="flex flex-col items-center p-2 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Analytics</span>
+</a>
+</div>
+</div>
+</body></html>

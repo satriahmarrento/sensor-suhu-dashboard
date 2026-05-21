@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Historical Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "background": "#f5fbf5",
+                            "surface-container": "#e9efe9",
+                            "on-tertiary-container": "#fcfcfc",
+                            "inverse-surface": "#2c322e",
+                            "secondary-fixed-dim": "#c0c6db",
+                            "primary-container": "#00855d",
+                            "surface-container-lowest": "#ffffff",
+                            "surface-container-high": "#e4eae4",
+                            "surface-container-low": "#eff5ef",
+                            "surface-dim": "#d5dcd6",
+                            "inverse-primary": "#68dba9",
+                            "primary-fixed-dim": "#68dba9",
+                            "on-tertiary-fixed": "#1a1c1c",
+                            "on-secondary-fixed": "#141b2b",
+                            "surface-bright": "#f5fbf5",
+                            "secondary": "#575e70",
+                            "on-primary-fixed": "#002114",
+                            "on-secondary-container": "#5c6274",
+                            "tertiary-container": "#737575",
+                            "outline-variant": "#bccac0",
+                            "on-error-container": "#93000a",
+                            "on-error": "#ffffff",
+                            "surface-variant": "#dee4de",
+                            "outline": "#6d7a72",
+                            "secondary-container": "#d9dff5",
+                            "surface-container-highest": "#dee4de",
+                            "on-surface": "#171d19",
+                            "on-surface-variant": "#3d4a42",
+                            "error": "#ba1a1a",
+                            "on-primary-fixed-variant": "#005137",
+                            "primary-fixed": "#85f8c4",
+                            "on-secondary-fixed-variant": "#404758",
+                            "tertiary-fixed": "#e2e2e2",
+                            "on-tertiary-fixed-variant": "#454747",
+                            "inverse-on-surface": "#ecf2ec",
+                            "error-container": "#ffdad6",
+                            "tertiary": "#5a5c5c",
+                            "surface": "#f5fbf5",
+                            "on-secondary": "#ffffff",
+                            "on-primary-container": "#f5fff7",
+                            "on-primary": "#ffffff",
+                            "secondary-fixed": "#dce2f7",
+                            "on-tertiary": "#ffffff",
+                            "primary": "#006948",
+                            "surface-tint": "#006c4a",
+                            "tertiary-fixed-dim": "#c6c6c7",
+                            "on-background": "#171d19"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.125rem",
+                            "lg": "0.25rem",
+                            "xl": "0.5rem",
+                            "full": "0.75rem"
+                    },
+                    "spacing": {
+                            "xs": "4px",
+                            "lg": "24px",
+                            "gutter": "16px",
+                            "sm": "8px",
+                            "unit": "4px",
+                            "margin": "24px",
+                            "xl": "40px",
+                            "md": "16px"
+                    },
+                    "fontFamily": {
+                            "body-md": [
+                                    "Space Grotesk"
+                            ],
+                            "h1": [
+                                    "Space Grotesk"
+                            ],
+                            "label-caps": [
+                                    "Space Grotesk"
+                            ],
+                            "h2": [
+                                    "Space Grotesk"
+                            ],
+                            "body-lg": [
+                                    "Space Grotesk"
+                            ],
+                            "h3": [
+                                    "Space Grotesk"
+                            ],
+                            "button": [
+                                    "Space Grotesk"
+                            ]
+                    },
+                    "fontSize": {
+                            "body-md": [
+                                    "16px",
+                                    {
+                                            "lineHeight": "1.5",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "h1": [
+                                    "48px",
+                                    {
+                                            "lineHeight": "1.1",
+                                            "letterSpacing": "-0.02em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "label-caps": [
+                                    "12px",
+                                    {
+                                            "lineHeight": "1",
+                                            "letterSpacing": "0.05em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "h2": [
+                                    "32px",
+                                    {
+                                            "lineHeight": "1.2",
+                                            "letterSpacing": "-0.01em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "body-lg": [
+                                    "18px",
+                                    {
+                                            "lineHeight": "1.5",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "h3": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "1.2",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "button": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "1",
+                                            "fontWeight": "600"
+                                    }
+                            ]
+                    }
+            },
+                },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- TopNavBar (Mobile Only) -->
+<nav class="md:hidden docked full-width top-0 border-b-2 border-slate-900 bg-emerald-600 dark:bg-emerald-800 flex justify-between items-center w-full px-6 py-4 shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] sticky z-50">
+<div class="text-2xl font-black text-white italic">SENSE_CORE</div>
+<div class="flex gap-4">
+<button class="text-emerald-100/80 hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-emerald-100/80 hover:text-white transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</nav>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="hidden md:flex flex-col h-screen w-64 border-r-2 border-slate-900 bg-white dark:bg-slate-900 py-6 sticky top-0 shrink-0">
+<div class="px-6 mb-8">
+<h1 class="text-xl font-black text-slate-900 dark:text-white italic">SENSE_CORE</h1>
+<p class="font-space-grotesk font-bold uppercase text-[10px] text-slate-500 mt-1">INDUSTRIAL NODE v2.4</p>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+                Sensor Grid
+            </a>
+<a class="bg-emerald-600 text-white shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] border-2 border-slate-900 flex items-center gap-3 px-4 py-3 mx-2 my-1 font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Analytics
+            </a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full bg-white border-2 border-slate-900 text-slate-900 font-button text-button py-2 hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] transition-all rounded-DEFAULT flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">export_notes</span>
+                EXPORT DATA
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 p-gutter md:p-margin lg:p-xl overflow-y-auto">
+<!-- Header -->
+<header class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+<div>
+<h2 class="font-h1 text-h1 text-on-background mb-2">Historical Analytics</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">System-wide performance trends and correlations.</p>
+</div>
+<div class="flex gap-2">
+<select class="bg-surface-container-lowest border-2 border-on-background text-on-background font-button text-button py-2 px-4 rounded-DEFAULT focus:ring-0 focus:border-on-background focus:bg-primary-container/5 appearance-none pr-10 relative">
+<option>Last 30 Days</option>
+<option>Last 7 Days</option>
+<option>Last 24 Hours</option>
+</select>
+<!-- Custom dropdown arrow hack for tailwind forms plugin -->
+<div class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 md:relative md:right-auto md:top-auto md:translate-y-0 hidden md:flex items-center justify-center border-2 border-on-background bg-surface-container-lowest h-[40px] w-[40px] rounded-DEFAULT">
+<span class="material-symbols-outlined text-on-background">calendar_month</span>
+</div>
+</div>
+</header>
+<!-- Metrics Bento -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-lg">
+<!-- Metric 1 -->
+<div class="bg-primary-container text-on-primary border-2 border-on-background p-lg shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] rounded-DEFAULT">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Avg Temp</span>
+<span class="material-symbols-outlined text-on-primary">thermostat</span>
+</div>
+<div class="font-h1 text-h1 mb-1">24.8°C</div>
+<div class="flex items-center gap-1 font-button text-button text-primary-fixed">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+                    +1.2% from last period
+                </div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-primary-container text-on-primary border-2 border-on-background p-lg shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] rounded-DEFAULT">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Avg Humidity</span>
+<span class="material-symbols-outlined text-on-primary">humidity_percentage</span>
+</div>
+<div class="font-h1 text-h1 mb-1">42.3%</div>
+<div class="flex items-center gap-1 font-button text-button text-surface-container-highest">
+<span class="material-symbols-outlined text-sm">trending_flat</span>
+                    Stable
+                </div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-primary-container text-on-primary border-2 border-on-background p-lg shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] rounded-DEFAULT">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Alerts Triggered</span>
+<span class="material-symbols-outlined text-on-primary">warning</span>
+</div>
+<div class="font-h1 text-h1 mb-1">14</div>
+<div class="flex items-center gap-1 font-button text-button text-error-container">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+                    +3 from last period
+                </div>
+</div>
+</section>
+<!-- Main Chart Area -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Large Correlation Chart -->
+<div class="lg:col-span-2 bg-surface-container-lowest border-2 border-on-background rounded-DEFAULT flex flex-col">
+<div class="bg-primary border-b-2 border-on-background p-4 flex justify-between items-center rounded-t-DEFAULT">
+<h3 class="font-h3 text-h3 text-on-primary m-0">Temperature &amp; Humidity Correlation</h3>
+<button class="text-on-primary hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="p-lg flex-1 min-h-[400px] relative">
+<!-- Faux Chart Grid -->
+<div class="absolute inset-0 p-lg flex flex-col justify-between pointer-events-none opacity-20">
+<div class="w-full border-t border-on-background border-dashed"></div>
+<div class="w-full border-t border-on-background border-dashed"></div>
+<div class="w-full border-t border-on-background border-dashed"></div>
+<div class="w-full border-t border-on-background border-dashed"></div>
+<div class="w-full border-t border-on-background"></div>
+</div>
+<!-- Faux Chart Lines (SVG) -->
+<svg class="w-full h-full relative z-10" preserveaspectratio="none" viewbox="0 0 100 100">
+<!-- Temp Line -->
+<path class="vector-effect-non-scaling-stroke" d="M0,80 Q10,70 20,60 T40,50 T60,30 T80,40 T100,20" fill="none" stroke="#006948" stroke-width="2"></path>
+<!-- Humidity Line -->
+<path class="vector-effect-non-scaling-stroke" d="M0,40 Q15,50 30,45 T50,60 T70,55 T85,70 T100,65" fill="none" stroke="#68dba9" stroke-dasharray="2,2" stroke-width="2"></path>
+</svg>
+<!-- Chart Legend -->
+<div class="absolute top-4 right-4 bg-surface-container-lowest border-2 border-on-background p-2 flex gap-4 text-xs font-label-caps rounded-DEFAULT shadow-[2px_2px_0px_0px_rgba(17,24,39,1)]">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-primary rounded-sm"></div>
+<span>Temperature</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 border-2 border-primary-fixed border-dashed rounded-sm"></div>
+<span>Humidity</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Charts Stack -->
+<div class="flex flex-col gap-gutter">
+<!-- Humidity Distribution Bar Chart -->
+<div class="bg-surface-container-lowest border-2 border-on-background rounded-DEFAULT flex-1 flex flex-col">
+<div class="bg-inverse-surface border-b-2 border-on-background p-4 flex justify-between items-center rounded-t-DEFAULT">
+<h3 class="font-h3 text-h3 text-on-primary m-0 text-base">Humidity Distribution</h3>
+<span class="material-symbols-outlined text-on-primary text-sm">bar_chart</span>
+</div>
+<div class="p-md flex-1 flex items-end justify-between gap-1 h-[200px] relative">
+<!-- Faux Bars -->
+<div class="w-full bg-primary-container border border-on-background h-[20%] hover:bg-primary transition-colors cursor-pointer"></div>
+<div class="w-full bg-primary-container border border-on-background h-[40%] hover:bg-primary transition-colors cursor-pointer"></div>
+<div class="w-full bg-primary-container border border-on-background h-[80%] hover:bg-primary transition-colors cursor-pointer relative shadow-[2px_2px_0px_0px_rgba(17,24,39,1)] z-10 -translate-y-1 bg-primary"></div>
+<div class="w-full bg-primary-container border border-on-background h-[60%] hover:bg-primary transition-colors cursor-pointer"></div>
+<div class="w-full bg-primary-container border border-on-background h-[30%] hover:bg-primary transition-colors cursor-pointer"></div>
+<div class="w-full bg-primary-container border border-on-background h-[15%] hover:bg-primary transition-colors cursor-pointer"></div>
+</div>
+</div>
+<!-- Recent Anomalies List -->
+<div class="bg-surface-container-lowest border-2 border-on-background rounded-DEFAULT flex-1">
+<div class="p-4 border-b-2 border-on-background bg-surface-container">
+<h3 class="font-h3 text-h3 text-on-background m-0 text-base">Recent Anomalies</h3>
+</div>
+<ul class="flex flex-col">
+<li class="p-3 border-b border-on-background flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error">warning</span>
+<div>
+<div class="font-button text-button text-on-background">Temp Spike Node-04</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">10 mins ago</div>
+</div>
+</div>
+<span class="font-body-md text-sm text-error font-bold">29.1°C</span>
+</li>
+<li class="p-3 border-b border-on-background flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">info</span>
+<div>
+<div class="font-button text-button text-on-background">Signal Drop Node-12</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">1 hr ago</div>
+</div>
+</div>
+<span class="font-body-md text-sm text-secondary font-bold">Offline</span>
+</li>
+<li class="p-3 flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error">warning</span>
+<div>
+<div class="font-button text-button text-on-background">Humid Drop Node-02</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">3 hrs ago</div>
+</div>
+</div>
+<span class="font-body-md text-sm text-error font-bold">12.0%</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+</body></html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sensor Inventory - SENSE_CORE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "background": "#f5fbf5",
+                "surface-container": "#e9efe9",
+                "on-tertiary-container": "#fcfcfc",
+                "inverse-surface": "#2c322e",
+                "secondary-fixed-dim": "#c0c6db",
+                "primary-container": "#00855d",
+                "surface-container-lowest": "#ffffff",
+                "surface-container-high": "#e4eae4",
+                "surface-container-low": "#eff5ef",
+                "surface-dim": "#d5dcd6",
+                "inverse-primary": "#68dba9",
+                "primary-fixed-dim": "#68dba9",
+                "on-tertiary-fixed": "#1a1c1c",
+                "on-secondary-fixed": "#141b2b",
+                "surface-bright": "#f5fbf5",
+                "secondary": "#575e70",
+                "on-primary-fixed": "#002114",
+                "on-secondary-container": "#5c6274",
+                "tertiary-container": "#737575",
+                "outline-variant": "#bccac0",
+                "on-error-container": "#93000a",
+                "on-error": "#ffffff",
+                "surface-variant": "#dee4de",
+                "outline": "#6d7a72",
+                "secondary-container": "#d9dff5",
+                "surface-container-highest": "#dee4de",
+                "on-surface": "#171d19",
+                "on-surface-variant": "#3d4a42",
+                "error": "#ba1a1a",
+                "on-primary-fixed-variant": "#005137",
+                "primary-fixed": "#85f8c4",
+                "on-secondary-fixed-variant": "#404758",
+                "tertiary-fixed": "#e2e2e2",
+                "on-tertiary-fixed-variant": "#454747",
+                "inverse-on-surface": "#ecf2ec",
+                "error-container": "#ffdad6",
+                "tertiary": "#5a5c5c",
+                "surface": "#f5fbf5",
+                "on-secondary": "#ffffff",
+                "on-primary-container": "#f5fff7",
+                "on-primary": "#ffffff",
+                "secondary-fixed": "#dce2f7",
+                "on-tertiary": "#ffffff",
+                "primary": "#006948",
+                "surface-tint": "#006c4a",
+                "tertiary-fixed-dim": "#c6c6c7",
+                "on-background": "#171d19"
+              },
+              borderRadius: {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+              },
+              spacing: {
+                "xs": "4px",
+                "lg": "24px",
+                "gutter": "16px",
+                "sm": "8px",
+                "unit": "4px",
+                "margin": "24px",
+                "xl": "40px",
+                "md": "16px"
+              },
+              fontFamily: {
+                "body-md": ["Space Grotesk", "sans-serif"],
+                "h1": ["Space Grotesk", "sans-serif"],
+                "label-caps": ["Space Grotesk", "sans-serif"],
+                "h2": ["Space Grotesk", "sans-serif"],
+                "body-lg": ["Space Grotesk", "sans-serif"],
+                "h3": ["Space Grotesk", "sans-serif"],
+                "button": ["Space Grotesk", "sans-serif"]
+              },
+              fontSize: {
+                "body-md": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
+                "h1": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+                "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "700" }],
+                "h2": ["32px", { lineHeight: "1.2", letterSpacing: "-0.01em", fontWeight: "700" }],
+                "body-lg": ["18px", { lineHeight: "1.5", fontWeight: "400" }],
+                "h3": ["24px", { lineHeight: "1.2", fontWeight: "600" }],
+                "button": ["14px", { lineHeight: "1", fontWeight: "600" }]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md h-screen flex overflow-hidden selection:bg-primary-fixed selection:text-on-primary-fixed">
+<nav class="bg-white dark:bg-slate-900 h-screen w-64 border-r-2 border-slate-900 flex flex-col h-full py-6 flex-shrink-0 z-20">
+<div class="px-6 mb-8 flex flex-col gap-1">
+<div class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">SENSE_CORE</div>
+<div class="font-space-grotesk font-bold uppercase text-sm text-emerald-600 dark:text-emerald-400">INDUSTRIAL NODE v2.4</div>
+</div>
+<div class="flex flex-col gap-2 w-full">
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all active:scale-95 duration-75" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-space-grotesk font-bold uppercase text-sm">Dashboard</span>
+</a>
+<a class="bg-emerald-600 text-white shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] border-2 border-slate-900 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:border-2 hover:border-slate-900 transition-all active:scale-95 duration-75" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-space-grotesk font-bold uppercase text-sm">Sensor Grid</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all active:scale-95 duration-75" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-space-grotesk font-bold uppercase text-sm">Analytics</span>
+</a>
+</div>
+</nav>
+<div class="flex flex-col flex-1 h-full overflow-hidden">
+<header class="bg-emerald-600 dark:bg-emerald-800 text-white font-space-grotesk font-bold uppercase tracking-tighter docked full-width top-0 border-b-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] flex justify-between items-center w-full px-6 py-4 z-10 flex-shrink-0">
+<div class="text-2xl font-black text-white italic">SENSE_CORE</div>
+<div class="flex items-center gap-4">
+<button class="text-emerald-100/80 hover:text-white transition-colors hover:bg-emerald-500 dark:hover:bg-emerald-700 transition-all active:translate-y-0.5 active:translate-x-0.5 active:shadow-none p-2 flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-emerald-100/80 hover:text-white transition-colors hover:bg-emerald-500 dark:hover:bg-emerald-700 transition-all active:translate-y-0.5 active:translate-x-0.5 active:shadow-none p-2 flex items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-xl bg-background">
+<div class="max-w-[1400px] mx-auto w-full flex flex-col gap-margin">
+<section class="bg-primary text-on-primary border-2 border-on-surface shadow-[6px_6px_0px_0px_#171d19] p-xl flex flex-col gap-sm">
+<h1 class="font-h1 text-h1 uppercase tracking-tight">Sensor Inventory</h1>
+<p class="font-body-lg text-body-lg text-primary-fixed max-w-2xl">Real-time telemetry and status overview for all active nodes in the designated industrial sector.</p>
+</section>
+<section class="bg-surface-container-lowest border-2 border-on-surface shadow-[4px_4px_0px_0px_#171d19] p-lg flex flex-col md:flex-row gap-gutter items-center justify-between">
+<div class="flex flex-1 w-full relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-lowest border-2 border-on-surface text-on-surface font-body-md text-body-md py-sm pl-[40px] pr-md focus:bg-surface-container focus:outline-none placeholder:text-outline transition-colors" placeholder="Search Node ID or Location..." type="text"/>
+</div>
+<div class="flex gap-gutter w-full md:w-auto">
+<button class="flex items-center gap-sm bg-surface-container-lowest text-on-surface border-2 border-on-surface font-button text-button px-lg py-sm shadow-[3px_3px_0px_0px_#171d19] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all uppercase tracking-wide">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+                            Filter Nodes
+                        </button>
+<button class="flex items-center gap-sm bg-on-surface text-on-secondary border-2 border-on-surface font-button text-button px-lg py-sm shadow-[3px_3px_0px_0px_#171d19] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all uppercase tracking-wide whitespace-nowrap">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                            Provision Node
+                        </button>
+</div>
+</section>
+<section class="bg-surface-container-lowest border-2 border-on-surface shadow-[6px_6px_0px_0px_#171d19] overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-primary text-on-primary border-b-2 border-on-surface">
+<th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Node ID</th>
+<th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Location</th>
+<th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Telemetry Type</th>
+<th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Latest Read</th>
+<th class="p-md font-label-caps text-label-caps uppercase tracking-wider text-right">Status</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface bg-surface-container-lowest">
+<tr class="border-b-[1px] border-on-surface hover:bg-surface-container-low transition-colors group">
+<td class="p-md font-bold tracking-tight">ND-X89-A</td>
+<td class="p-md text-on-surface-variant flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">factory</span> Sector 4, Line B</td>
+<td class="p-md">Vibration &amp; Thermal</td>
+<td class="p-md font-mono text-sm text-outline">10:42:05 UTC</td>
+<td class="p-md text-right">
+<span class="inline-flex items-center gap-xs bg-primary-fixed text-on-primary-fixed-variant font-label-caps text-label-caps px-sm py-[6px] uppercase tracking-widest font-bold">
+<span class="w-[6px] h-[6px] bg-primary rounded-full"></span> Active
+                                    </span>
+</td>
+</tr>
+<tr class="border-b-[1px] border-on-surface hover:bg-surface-container-low transition-colors group">
+<td class="p-md font-bold tracking-tight">ND-X89-B</td>
+<td class="p-md text-on-surface-variant flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">factory</span> Sector 4, Line B</td>
+<td class="p-md">Fluid Pressure</td>
+<td class="p-md font-mono text-sm text-outline">10:41:59 UTC</td>
+<td class="p-md text-right">
+<span class="inline-flex items-center gap-xs bg-error text-on-error font-label-caps text-label-caps px-sm py-[6px] uppercase tracking-widest font-bold">
+<span class="w-[6px] h-[6px] bg-white rounded-full animate-pulse"></span> Fault
+                                    </span>
+</td>
+</tr>
+<tr class="border-b-[1px] border-on-surface hover:bg-surface-container-low transition-colors group bg-surface-container-high/30">
+<td class="p-md font-bold tracking-tight">ND-Y12-C</td>
+<td class="p-md text-on-surface-variant flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">warehouse</span> Storage Bay Alpha</td>
+<td class="p-md">Ambient Temp</td>
+<td class="p-md font-mono text-sm text-outline">09:15:00 UTC</td>
+<td class="p-md text-right">
+<span class="inline-flex items-center gap-xs bg-secondary-container text-on-secondary-container font-label-caps text-label-caps px-sm py-[6px] uppercase tracking-widest font-bold border-[1px] border-on-surface">
+                                        Standby
+                                    </span>
+</td>
+</tr>
+<tr class="border-b-[1px] border-on-surface hover:bg-surface-container-low transition-colors group">
+<td class="p-md font-bold tracking-tight">ND-Z44-A</td>
+<td class="p-md text-on-surface-variant flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">precision_manufacturing</span> Assembly Arm 02</td>
+<td class="p-md">Torque &amp; Strain</td>
+<td class="p-md font-mono text-sm text-outline">10:42:12 UTC</td>
+<td class="p-md text-right">
+<span class="inline-flex items-center gap-xs bg-primary-fixed text-on-primary-fixed-variant font-label-caps text-label-caps px-sm py-[6px] uppercase tracking-widest font-bold">
+<span class="w-[6px] h-[6px] bg-primary rounded-full"></span> Active
+                                    </span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="p-md font-bold tracking-tight">ND-Z44-B</td>
+<td class="p-md text-on-surface-variant flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">precision_manufacturing</span> Assembly Arm 02</td>
+<td class="p-md">Power Draw (kW)</td>
+<td class="p-md font-mono text-sm text-outline">10:42:11 UTC</td>
+<td class="p-md text-right">
+<span class="inline-flex items-center gap-xs bg-primary-fixed text-on-primary-fixed-variant font-label-caps text-label-caps px-sm py-[6px] uppercase tracking-widest font-bold">
+<span class="w-[6px] h-[6px] bg-primary rounded-full"></span> Active
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<div class="flex justify-between items-center mt-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Showing 5 of 124 Nodes</span>
+<div class="flex gap-xs">
+<button class="w-[32px] h-[32px] flex items-center justify-center bg-surface-container-lowest border-2 border-on-surface shadow-[2px_2px_0px_0px_#171d19] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none text-on-surface disabled:opacity-50 disabled:shadow-none" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-[32px] h-[32px] flex items-center justify-center bg-surface-container-lowest border-2 border-on-surface shadow-[2px_2px_0px_0px_#171d19] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none text-on-surface">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
