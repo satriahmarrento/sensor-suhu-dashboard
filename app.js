@@ -520,7 +520,12 @@ async function retrainML() {
     
     try {
         const res = await fetch('/api/retrain', { method: 'POST' });
-        const json = await res.json();
+        let json;
+        try {
+            json = await res.json();
+        } catch (parseErr) {
+            throw new Error(`Server returned status ${res.status}: ${res.statusText}`);
+        }
         if (json.success) {
             alert('Model retraining complete! Reloading results...');
             await renderML();
