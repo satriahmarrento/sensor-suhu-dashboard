@@ -491,18 +491,34 @@ async function renderML() {
             }).join('');
         }
 
+        // Hide retrain button if not on localhost
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const retrainBtn = el('btn-retrain');
+        if (retrainBtn) {
+            retrainBtn.style.display = isLocalhost ? '' : 'none';
+        }
+
     } catch (e) {
         console.error(e);
         const container = el('app-root');
         if (container && state.currentView === 'ml') {
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const actionButtonOrInstructions = isLocalhost ? `
+                <button onclick="window.retrainML()" class="bg-emerald-600 text-white border-2 border-slate-900 px-6 py-3 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all inline-flex items-center gap-2" id="btn-retrain">
+                    <span class="material-symbols-outlined">build</span> Run ML Pipeline & Retrain
+                </button>
+            ` : `
+                <div class="p-4 bg-slate-50 border-2 border-dashed border-slate-300 rounded-DEFAULT text-slate-600 max-w-md mx-auto mt-4">
+                    <p class="font-bold mb-1">To enable ML Dashboard features:</p>
+                    <p class="text-sm">Run retraining locally: <code>python ml/run_pipeline.py</code>, then commit and push the updated files to GitHub.</p>
+                </div>
+            `;
             container.innerHTML = `
                 <div class="p-8 text-center bg-white border-2 border-slate-900 m-6 hard-shadow">
                     <span class="material-symbols-outlined text-[64px] text-red-600 mb-4 animate-bounce">warning</span>
                     <h2 class="text-2xl font-black uppercase text-slate-900 mb-2">No ML Pipeline Results Found</h2>
-                    <p class="text-secondary mb-6 max-w-md mx-auto">The ML pipeline results file (ml-results.json) could not be loaded. You must run the ML pipeline training script first.</p>
-                    <button onclick="window.retrainML()" class="bg-emerald-600 text-white border-2 border-slate-900 px-6 py-3 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all inline-flex items-center gap-2" id="btn-retrain">
-                        <span class="material-symbols-outlined">build</span> Run ML Pipeline & Retrain
-                    </button>
+                    <p class="text-secondary mb-4 max-w-md mx-auto">The ML pipeline results file (ml-results.json) could not be loaded.</p>
+                    ${actionButtonOrInstructions}
                 </div>
             `;
         }
