@@ -148,6 +148,9 @@
             <a href="#ml" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="ml">
                 <span class="material-symbols-outlined">psychiatry</span> Wawasan ML
             </a>
+            <a href="#admin" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="admin">
+                <span class="material-symbols-outlined">settings</span> Panel Admin
+            </a>
         </div>
         <div class="px-6 mt-auto">
             <button onclick="window.exportCSV()" class="w-full bg-white border-2 border-slate-900 text-slate-900 font-button text-button py-2 hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] transition-all rounded-DEFAULT flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5">
@@ -181,6 +184,10 @@
             <a href="#ml" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="ml">
                 <span class="material-symbols-outlined">psychiatry</span>
                 <span class="font-label-caps text-[10px] mt-1 uppercase">ML XAI</span>
+            </a>
+            <a href="#admin" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="admin">
+                <span class="material-symbols-outlined">settings</span>
+                <span class="font-label-caps text-[10px] mt-1 uppercase">Admin</span>
             </a>
         </div>
     </div>
@@ -437,6 +444,37 @@
                             <img src="ml_plots/shap_summary.png" alt="Plot Ringkasan SHAP" class="max-w-full mx-auto border-2 border-slate-900 shadow-sm" onerror="this.src='https://placehold.co/600x400?text=Plot+Ringkasan+Tidak+Tersedia'"/>
                         </div>
                     </div>
+
+                    <!-- Under the Hood: Feature Dependence -->
+                    <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
+                        <div class="bg-emerald-600 border-b-2 border-slate-900 p-4">
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">KORELASI FITUR (DEPENDENSI SHAP)</h3>
+                        </div>
+                        <div class="p-lg">
+                            <p class="text-sm text-secondary mb-4">Plot yang menunjukkan hubungan tepat antara nilai fitur dan nilai SHAP yang sesuai (skor dampak).</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="border-2 border-slate-900 p-2 text-center bg-slate-50">
+                                    <span class="text-xs font-bold block mb-1">Dependensi Kelembaban</span>
+                                    <img src="ml_plots/shap_dependence_kelembaban.png" alt="Dependensi Kelembaban" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=Tidak+Ada+Data'"/>
+                                </div>
+                                <div class="border-2 border-slate-900 p-2 text-center bg-slate-50">
+                                    <span class="text-xs font-bold block mb-1">Dependensi Hari dalam Seminggu</span>
+                                    <img src="ml_plots/shap_dependence_day_of_week.png" alt="Dependensi Hari dalam Seminggu" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=Tidak+Ada+Data'"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Global Model Comparison Plot -->
+                    <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
+                        <div class="bg-emerald-600 border-b-2 border-slate-900 p-4">
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">PERBANDINGAN AKURASI MODEL</h3>
+                        </div>
+                        <div class="p-lg text-center bg-slate-50">
+                            <p class="text-sm text-secondary mb-4 text-left">Grafik perbandingan skor R² (Akurasi) antara model regresi yang dilatih.</p>
+                            <img src="ml_plots/model_comparison.png" alt="Perbandingan Akurasi Model" class="max-w-full mx-auto border-2 border-slate-900 shadow-sm" onerror="this.src='https://placehold.co/600x400?text=Plot+Perbandingan+Tidak+Tersedia'"/>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Right Panel: Local/Explainable Predictions -->
@@ -473,22 +511,34 @@
                         </div>
                     </div>
 
-                    <!-- Under the Hood: Feature Dependence -->
+                    <!-- Prediction vs Actual Plot -->
                     <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
-                        <div class="bg-emerald-600 border-b-2 border-slate-900 p-4">
-                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">KORELASI FITUR (DEPENDENSI SHAP)</h3>
+                        <div class="bg-slate-900 border-b-2 border-slate-900 p-4">
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">EVALUASI PREDIKSI: AKTUAL VS PREDIKSI</h3>
                         </div>
-                        <div class="p-lg">
-                            <p class="text-sm text-secondary mb-4">Plot yang menunjukkan hubungan tepat antara nilai fitur dan nilai SHAP yang sesuai (skor dampak).</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="border-2 border-slate-900 p-2 text-center bg-slate-50">
-                                    <span class="text-xs font-bold block mb-1">Dependensi Kelembaban</span>
-                                    <img src="ml_plots/shap_dependence_kelembaban.png" alt="Dependensi Kelembaban" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=Tidak+Ada+Data'"/>
-                                </div>
-                                <div class="border-2 border-slate-900 p-2 text-center bg-slate-50">
-                                    <span class="text-xs font-bold block mb-1">Dependensi Hari dalam Seminggu</span>
-                                    <img src="ml_plots/shap_dependence_day_of_week.png" alt="Dependensi Hari dalam Seminggu" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=Tidak+Ada+Data'"/>
-                                </div>
+                        <div class="p-lg text-center bg-slate-50">
+                            <p class="text-sm text-secondary mb-4 text-left">Grafik garis yang menunjukkan kecocokan nilai prediksi model terhadap data aktual suhu ruangan.</p>
+                            <img src="ml_plots/prediction_vs_actual.png" alt="Evaluasi Prediksi" class="max-w-full mx-auto border-2 border-slate-900 shadow-sm" onerror="this.src='https://placehold.co/600x400?text=Plot+Evaluasi+Tidak+Tersedia'"/>
+                        </div>
+                    </div>
+
+                    <!-- AI Interpretation Guide -->
+                    <div class="bg-emerald-50 border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
+                        <div class="bg-slate-900 border-b-2 border-slate-900 p-4">
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">PANDUAN INTERPRETASI AI</h3>
+                        </div>
+                        <div class="p-lg flex flex-col gap-4 text-slate-800">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900 uppercase">1. Global Feature Importance</h4>
+                                <p class="text-xs text-secondary mt-1">Mengukur seberapa besar pengaruh variabel (seperti kelembaban atau setting AC) secara keseluruhan pada suhu ruangan di seluruh data historis.</p>
+                            </div>
+                            <div class="border-t border-slate-300 pt-3">
+                                <h4 class="font-bold text-sm text-slate-900 uppercase">2. SHAP Summary (Beeswarm)</h4>
+                                <p class="text-xs text-secondary mt-1">Titik biru mewakili nilai fitur rendah, merah mewakili nilai tinggi. Posisi horizontal menunjukkan apakah nilai tersebut mendorong prediksi suhu naik (kanan) atau turun (kiri).</p>
+                            </div>
+                            <div class="border-t border-slate-300 pt-3">
+                                <h4 class="font-bold text-sm text-slate-900 uppercase">3. Penjelasan Air Terjun (Local Explanation)</h4>
+                                <p class="text-xs text-secondary mt-1">Menunjukkan proses perhitungan langkah-demi-langkah dari nilai dasar (base value) hingga nilai prediksi saat ini berdasarkan telemetri terbaru.</p>
                             </div>
                         </div>
                     </div>
@@ -515,6 +565,90 @@
                     </tbody>
                 </table>
             </section>
+        </main>
+    </template>
+
+    <template id="tmpl-admin">
+        <main class="flex-1 p-gutter md:p-margin lg:p-xl pb-24 overflow-y-auto bg-background">
+            <header class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-slate-900 pb-4">
+                <div>
+                    <h1 class="font-h1 text-h1 text-on-surface uppercase leading-none tracking-tighter">PANEL_ADMIN</h1>
+                    <p class="font-body-lg text-body-lg text-secondary mt-2">Kelola konfigurasi ruangan dan lakukan pengiriman telemetri manual.</p>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                <!-- Room Configuration Form -->
+                <div class="lg:col-span-6 bg-white border-2 border-slate-900 hard-shadow flex flex-col rounded-DEFAULT">
+                    <div class="bg-primary border-b-2 border-slate-900 p-4">
+                        <h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">KONFIGURASI RUANGAN</h2>
+                    </div>
+                    <div class="p-lg flex-1">
+                        <form id="configForm" onsubmit="window.saveAdminConfig(event)" class="flex flex-col gap-4">
+                            <div>
+                                <label for="admin-jumlah-orang" class="font-label-caps text-label-caps text-slate-700 uppercase tracking-wider mb-2 block">Jumlah Orang</label>
+                                <input type="number" id="admin-jumlah-orang" min="0" required class="w-full bg-white border-2 border-slate-900 text-slate-900 p-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" />
+                            </div>
+                            
+                            <div>
+                                <label for="admin-setting-ac" class="font-label-caps text-label-caps text-slate-700 uppercase tracking-wider mb-2 block">Setting AC (°C)</label>
+                                <input type="number" id="admin-setting-ac" min="16" max="30" required class="w-full bg-white border-2 border-slate-900 text-slate-900 p-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" />
+                            </div>
+
+                            <div>
+                                <label for="admin-kondisi" class="font-label-caps text-label-caps text-slate-700 uppercase tracking-wider mb-2 block">Kondisi</label>
+                                <select id="admin-kondisi" required class="w-full bg-white border-2 border-slate-900 text-slate-900 p-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <option value="AC Menyala">AC Menyala</option>
+                                    <option value="AC Mati">AC Mati</option>
+                                    <option value="Normal">Normal</option>
+                                    <option value="Ramai">Ramai</option>
+                                    <option value="Kosong">Kosong</option>
+                                    <option value="Hujan">Hujan</option>
+                                    <option value="Panas Terik">Panas Terik</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="admin-catatan" class="font-label-caps text-label-caps text-slate-700 uppercase tracking-wider mb-2 block">Catatan</label>
+                                <textarea id="admin-catatan" rows="3" class="w-full bg-white border-2 border-slate-900 text-slate-900 p-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+                            </div>
+
+                            <button type="submit" id="btn-save-config" class="bg-primary text-white border-2 border-slate-900 px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center justify-center gap-2 mt-2">
+                                <span class="material-symbols-outlined">save</span> Simpan Konfigurasi
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Manual Telemetry Entry Form -->
+                <div class="lg:col-span-6 bg-white border-2 border-slate-900 hard-shadow flex flex-col rounded-DEFAULT">
+                    <div class="bg-slate-900 border-b-2 border-slate-900 p-4">
+                        <h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">KIRIM TELEMETRI MANUAL</h2>
+                    </div>
+                    <div class="p-lg flex-1">
+                        <form id="telemetryForm" onsubmit="window.submitManualTelemetry(event)" class="flex flex-col gap-4">
+                            <div>
+                                <label for="admin-suhu" class="font-label-caps text-label-caps text-slate-700 uppercase tracking-wider mb-2 block">Suhu Ruangan (°C)</label>
+                                <input type="number" id="admin-suhu" step="0.1" min="10" max="50" required class="w-full bg-white border-2 border-slate-900 text-slate-900 p-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" />
+                            </div>
+
+                            <div>
+                                <label for="admin-kelembaban" class="font-label-caps text-label-caps text-slate-700 uppercase tracking-wider mb-2 block">Kelembaban (%)</label>
+                                <input type="number" id="admin-kelembaban" step="0.1" min="0" max="100" required class="w-full bg-white border-2 border-slate-900 text-slate-900 p-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" />
+                            </div>
+
+                            <div class="p-4 bg-slate-50 border-2 border-dashed border-slate-300 rounded-DEFAULT text-slate-600 text-sm">
+                                <p class="font-bold mb-1">Catatan Pengiriman:</p>
+                                <p>Pengiriman manual akan menggunakan konfigurasi ruangan yang aktif di atas (Jumlah Orang, Setting AC, Kondisi, dan Catatan) untuk menghitung deviasi, heat index, dan status kenyamanan secara otomatis.</p>
+                            </div>
+
+                            <button type="submit" id="btn-submit-telemetry" class="bg-slate-900 text-white border-2 border-slate-900 px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center justify-center gap-2 mt-2">
+                                <span class="material-symbols-outlined">send</span> Kirim Telemetri
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </main>
     </template>
 

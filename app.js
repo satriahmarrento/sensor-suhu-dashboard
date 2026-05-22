@@ -1,7 +1,14 @@
 const state = {
     data: [],
     currentView: null,
-    charts: {}
+    charts: {},
+    config: {
+        id: 1,
+        jumlah_orang: 0,
+        setting_ac: 24,
+        kondisi: 'AC Menyala',
+        catatan: '-'
+    }
 };
 
 const ROUTES = {
@@ -10,7 +17,8 @@ const ROUTES = {
     '#dashboard': 'dashboard',
     '#inventory': 'inventory',
     '#analytics': 'analytics',
-    '#ml': 'ml'
+    '#ml': 'ml',
+    '#admin': 'admin'
 };
 
 const el = (id) => document.getElementById(id);
@@ -19,9 +27,13 @@ const el = (id) => document.getElementById(id);
 async function init() {
     window.addEventListener('hashchange', handleRoute);
     handleRoute();
+    await fetchAdminConfig();
     await fetchData();
     // Refresh data every 10 seconds
-    setInterval(() => fetchData(), 10000);
+    setInterval(() => {
+        fetchData();
+        fetchAdminConfig();
+    }, 10000);
 }
 
 // --- Routing ---
@@ -119,6 +131,7 @@ function renderCurrentView() {
     else if (state.currentView === 'inventory') renderInventory();
     else if (state.currentView === 'analytics') renderAnalytics();
     else if (state.currentView === 'ml') renderML();
+    else if (state.currentView === 'admin') renderAdmin();
 }
 
 function renderDashboard() {
@@ -561,6 +574,170 @@ async function retrainML() {
 
 window.renderML = renderML;
 window.retrainML = retrainML;
+
+async function fetchAdminConfig() {
+    try {
+        const res = await fetch('/api/admin_config');
+        const json = await res.json();
+        if (json.data) {
+            state.config = json.data;
+            if (state.currentView === 'admin') {
+                updateAdminInputs();
+            }
+        }
+    } catch (e) {
+        console.error('Gagal memuat konfigurasi admin:', e);
+    }
+}
+
+function renderAdmin() {
+    updateAdminInputs();
+}
+
+function updateAdminInputs() {
+    const orgEl = el('admin-jumlah-orang');
+    const acEl = el('admin-setting-ac');
+    const kondisiEl = el('admin-kondisi');
+    const catatanEl = el('admin-catatan');
+
+    if (orgEl) orgEl.value = state.config.jumlah_orang ?? 0;
+    if (acEl) acEl.value = state.config.setting_ac ?? 24;
+    if (kondisiEl) kondisiEl.value = state.config.kondisi ?? 'AC Menyala';
+    if (catatanEl) catatanEl.value = state.config.catatan ?? '-';
+}
+
+function calculateHeatIndex(T, RH) {
+    const TF = T * 1.8 + 32;
+    let hi = 0.5 * (TF + 61.0 + ((TF - 68.0) * 1.2) + (RH * 0.094));
+    
+    if (hi >= 80) {
+        hi = -42.379 + 2.04901523 * TF + 10.14333127 * RH 
+             - 0.22475541 * TF * RH - 6.83783e-3 * TF * TF 
+             - 5.481717e-2 * RH * RH + 1.22874e-3 * TF * TF * RH 
+             - 1.99e-6 * TF * TF * RH * RH;
+             
+        if (RH < 13 && TF >= 80 && TF <= 112) {
+            hi -= ((13 - RH) / 4) * Math.sqrt((17 - Math.abs(TF - 95)) / 17);
+        } else if (RH > 85 && TF >= 80 && TF <= 87) {
+            hi += ((RH - 85) / 10) * ((87 - TF) / 5);
+        }
+    }
+    return (hi - 32) / 1.8;
+}
+
+window.saveAdminConfig = async function(event) {
+    event.preventDefault();
+    const btn = el('btn-save-config');
+    let originalHtml = '';
+    if (btn) {
+        originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> MENYIMPAN...`;
+    }
+
+    const payload = {
+        id: 1,
+        jumlah_orang: parseInt(el('admin-jumlah-orang').value) || 0,
+        setting_ac: parseInt(el('admin-setting-ac').value) || 24,
+        kondisi: el('admin-kondisi').value,
+        catatan: el('admin-catatan').value || '-'
+    };
+
+    try {
+        const res = await fetch('/api/admin_config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (res.ok) {
+            state.config = payload;
+            alert('Konfigurasi ruangan berhasil disimpan!');
+        } else {
+            throw new Error(json.error || 'Simpan gagal');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Kesalahan saat menyimpan konfigurasi: ' + e.message);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+};
+
+window.submitManualTelemetry = async function(event) {
+    event.preventDefault();
+    const btn = el('btn-submit-telemetry');
+    let originalHtml = '';
+    if (btn) {
+        originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> MENGIRIM...`;
+    }
+
+    const suhu = parseFloat(el('admin-suhu').value);
+    const kelembaban = parseFloat(el('admin-kelembaban').value);
+    
+    const setting_ac = state.config.setting_ac ?? 24;
+    const deviasi = suhu - setting_ac;
+    
+    const comfort_index = Math.max(0, Math.min(100, 88 - Math.abs(deviasi) * 12 - Math.max(0, kelembaban - 60) * 0.9));
+    
+    let status = 'NYAMAN';
+    if (suhu < 20) status = 'DINGIN';
+    else if (suhu <= 26) status = 'NYAMAN';
+    else if (suhu <= 32) status = 'HANGAT';
+    else status = 'PANAS';
+
+    const heat_index = calculateHeatIndex(suhu, kelembaban);
+    
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const tanggal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    const waktu = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+    const payload = {
+        tanggal,
+        waktu,
+        suhu,
+        kelembaban,
+        heat_index,
+        deviasi,
+        comfort_index,
+        jumlah_orang: state.config.jumlah_orang ?? 0,
+        setting_ac,
+        kondisi: state.config.kondisi ?? 'AC Menyala',
+        catatan: (state.config.catatan ?? '-') + ' (manual)',
+        status
+    };
+
+    try {
+        const res = await fetch('/api/sensor_data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (res.ok) {
+            alert('Data telemetri berhasil dikirim!');
+            el('admin-suhu').value = '';
+            el('admin-kelembaban').value = '';
+            await fetchData();
+        } else {
+            throw new Error(json.error || 'Pengiriman gagal');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Kesalahan saat mengirim telemetri: ' + e.message);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+};
 
 // Bootstrap
 init();
