@@ -133,25 +133,25 @@
     <nav class="hidden md:flex flex-col h-screen w-64 border-r-2 border-slate-900 bg-white dark:bg-slate-900 py-6 z-40 shrink-0 sticky top-0">
         <div class="px-6 mb-8 flex flex-col gap-1">
             <div class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">SENSE_CORE</div>
-            <div class="font-space-grotesk font-bold uppercase text-[10px] text-emerald-600 dark:text-emerald-400">INDUSTRIAL NODE v2.4</div>
+            <div class="font-space-grotesk font-bold uppercase text-[10px] text-emerald-600 dark:text-emerald-400">NODE INDUSTRI v2.4</div>
         </div>
         <div class="flex flex-col gap-2 w-full flex-1" id="desktop-nav">
             <a href="#dashboard" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="dashboard">
-                <span class="material-symbols-outlined">dashboard</span> Dashboard
+                <span class="material-symbols-outlined">dashboard</span> Dasbor
             </a>
             <a href="#inventory" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="inventory">
-                <span class="material-symbols-outlined">grid_view</span> Sensor Grid
+                <span class="material-symbols-outlined">grid_view</span> Grid Sensor
             </a>
             <a href="#analytics" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="analytics">
-                <span class="material-symbols-outlined">analytics</span> Analytics
+                <span class="material-symbols-outlined">analytics</span> Analisis
             </a>
             <a href="#ml" class="nav-link text-slate-600 dark:text-slate-400 flex items-center gap-3 px-4 py-3 mx-2 my-1 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-2 hover:border-slate-900 transition-all font-space-grotesk font-bold uppercase text-sm rounded-DEFAULT active:scale-95 duration-75" data-view="ml">
-                <span class="material-symbols-outlined">psychiatry</span> ML Insights
+                <span class="material-symbols-outlined">psychiatry</span> Wawasan ML
             </a>
         </div>
         <div class="px-6 mt-auto">
             <button onclick="window.exportCSV()" class="w-full bg-white border-2 border-slate-900 text-slate-900 font-button text-button py-2 hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] transition-all rounded-DEFAULT flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5">
-                <span class="material-symbols-outlined">export_notes</span> EXPORT DATA
+                <span class="material-symbols-outlined">export_notes</span> EKSPOR DATA
             </button>
         </div>
     </nav>
@@ -164,11 +164,11 @@
     </div>
 
     <!-- Mobile BottomNavBar -->
-    <div class="md:hidden fixed bottom-0 w-full bg-white border-t-2 border-slate-900 shadow-[0px_-4px_0px_0px_rgba(17,24,39,1)] z-50 shrink-0" id="mobile-nav">
+    <div class="md:hidden fixed bottom-0 w-full bg-white border-t-2 border-slate-900 shadow-[4px_-4px_0px_0px_rgba(17,24,39,1)] z-50 shrink-0" id="mobile-nav">
         <div class="flex justify-around items-center py-2">
             <a href="#dashboard" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="dashboard">
                 <span class="material-symbols-outlined" data-weight="fill">dashboard</span>
-                <span class="font-label-caps text-[10px] mt-1 uppercase">Dashboard</span>
+                <span class="font-label-caps text-[10px] mt-1 uppercase">Dasbor</span>
             </a>
             <a href="#inventory" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="inventory">
                 <span class="material-symbols-outlined">grid_view</span>
@@ -176,7 +176,7 @@
             </a>
             <a href="#analytics" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="analytics">
                 <span class="material-symbols-outlined">analytics</span>
-                <span class="font-label-caps text-[10px] mt-1 uppercase">Analytics</span>
+                <span class="font-label-caps text-[10px] mt-1 uppercase">Analisis</span>
             </a>
             <a href="#ml" class="nav-link flex flex-col items-center p-2 text-slate-500 border-b-4 border-transparent hover:text-emerald-600" data-view="ml">
                 <span class="material-symbols-outlined">psychiatry</span>
@@ -190,15 +190,15 @@
         <main class="flex-1 p-4 md:p-gutter lg:p-margin pb-24 md:pb-margin relative">
             <header class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-slate-900 pb-4">
                 <div>
-                    <h1 class="font-h1 text-h1 text-on-surface uppercase leading-none tracking-tighter">NODE_TELEMETRY</h1>
-                    <p class="font-body-lg text-body-lg text-secondary mt-2">Real-time status overview across active sensor clusters.</p>
+                    <h1 class="font-h1 text-h1 text-on-surface uppercase leading-none tracking-tighter">TELEMETRI_NODE</h1>
+                    <p class="font-body-lg text-body-lg text-secondary mt-2">Ikhtisar status waktu-nyata di seluruh kluster sensor aktif.</p>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="window.fetchData(true)" class="bg-white text-on-surface border-2 border-slate-900 px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">refresh</span> SYNC
+                        <span class="material-symbols-outlined text-[18px]">refresh</span> SINKRONISASI
                     </button>
                     <button id="db-status-btn" class="bg-slate-900 text-white px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[18px] text-emerald-400" id="db-status-icon">wifi</span> <span id="db-status-text">ONLINE</span>
+                        <span class="material-symbols-outlined text-[18px] text-emerald-400" id="db-status-icon">wifi</span> <span id="db-status-text">TERKONEKSI</span>
                     </button>
                 </div>
             </header>
@@ -207,13 +207,13 @@
                 <!-- KPI 1 -->
                 <div class="col-span-1 md:col-span-4 bg-primary-container border-2 border-slate-900 p-lg hard-shadow flex flex-col justify-between min-h-[160px]">
                     <div class="flex justify-between items-start">
-                        <span class="font-label-caps text-label-caps text-primary-fixed uppercase tracking-widest">CORE TEMP</span>
+                        <span class="font-label-caps text-label-caps text-primary-fixed uppercase tracking-widest">SUHU INTI</span>
                         <span class="material-symbols-outlined text-primary-fixed">thermostat</span>
                     </div>
                     <div>
                         <div class="font-h1 text-h1 text-white leading-none" id="kpi-temp">--°C</div>
                         <div class="font-body-md text-body-md text-primary-fixed mt-1 flex items-center gap-1" id="kpi-temp-sub">
-                            <span class="material-symbols-outlined text-[16px]">sync</span> Fetching...
+                            <span class="material-symbols-outlined text-[16px]">sync</span> Mengambil data...
                         </div>
                     </div>
                 </div>
@@ -221,13 +221,13 @@
                 <!-- KPI 2 -->
                 <div class="col-span-1 md:col-span-4 bg-white border-2 border-slate-900 p-lg hard-shadow flex flex-col justify-between min-h-[160px]">
                     <div class="flex justify-between items-start">
-                        <span class="font-label-caps text-label-caps text-slate-500 uppercase tracking-widest">AMBIENT HUMIDITY</span>
+                        <span class="font-label-caps text-label-caps text-slate-500 uppercase tracking-widest">KELEMBABAN LINGKUNGAN</span>
                         <span class="material-symbols-outlined text-slate-500">water_drop</span>
                     </div>
                     <div>
                         <div class="font-h1 text-h1 text-slate-900 leading-none" id="kpi-rh">--%</div>
                         <div class="font-body-md text-body-md text-emerald-600 mt-1 flex items-center gap-1 font-bold" id="kpi-rh-sub">
-                            <span class="material-symbols-outlined text-[16px]">sync</span> Fetching...
+                            <span class="material-symbols-outlined text-[16px]">sync</span> Mengambil data...
                         </div>
                     </div>
                 </div>
@@ -235,13 +235,13 @@
                 <!-- KPI 3 -->
                 <div class="col-span-1 md:col-span-4 bg-slate-900 border-2 border-slate-900 p-lg hard-shadow flex flex-col justify-between min-h-[160px]">
                     <div class="flex justify-between items-start">
-                        <span class="font-label-caps text-label-caps text-slate-400 uppercase tracking-widest">COMFORT INDEX</span>
+                        <span class="font-label-caps text-label-caps text-slate-400 uppercase tracking-widest">INDEKS KENYAMANAN</span>
                         <span class="material-symbols-outlined text-emerald-400">psychiatry</span>
                     </div>
                     <div>
                         <div class="font-h1 text-h1 text-white leading-none" id="kpi-ci">--%</div>
                         <div class="font-body-md text-body-md text-slate-400 mt-1 flex items-center gap-1" id="kpi-ci-sub">
-                            <span class="material-symbols-outlined text-[16px] text-emerald-400">sync</span> Fetching...
+                            <span class="material-symbols-outlined text-[16px] text-emerald-400">sync</span> Mengambil data...
                         </div>
                     </div>
                 </div>
@@ -249,9 +249,9 @@
                 <!-- Telemetry Graph -->
                 <div class="col-span-1 md:col-span-8 bg-white border-2 border-slate-900 hard-shadow flex flex-col min-h-[400px]">
                     <div class="bg-primary border-b-2 border-slate-900 p-4 flex justify-between items-center">
-                        <h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">LIVE TELEMETRY (TEMP & RH)</h2>
+                        <h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">TELEMETRI LANGSUNG (SUHU & KELEMBABAN)</h2>
                         <div class="flex gap-2">
-                            <span class="bg-slate-900 text-white font-label-caps text-label-caps px-2 py-1 uppercase">LIVE</span>
+                            <span class="bg-slate-900 text-white font-label-caps text-label-caps px-2 py-1 uppercase">LANGSUNG</span>
                         </div>
                     </div>
                     <div class="p-lg flex-1 relative bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:4rem_4rem]">
@@ -262,11 +262,11 @@
                 <!-- Anomalies -->
                 <div class="col-span-1 md:col-span-4 bg-white border-2 border-slate-900 hard-shadow flex flex-col min-h-[400px]">
                     <div class="bg-slate-900 border-b-2 border-slate-900 p-4">
-                        <h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">LATEST ANOMALIES</h2>
+                        <h2 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">ANOMALI TERBARU</h2>
                     </div>
                     <div class="flex-1 overflow-y-auto p-4">
                         <ul class="flex flex-col" id="anomalies-list">
-                            <li class="py-3 flex items-start gap-3 text-secondary text-sm">No recent anomalies detected.</li>
+                            <li class="py-3 flex items-start gap-3 text-secondary text-sm">Tidak ada anomali terbaru yang terdeteksi.</li>
                         </ul>
                     </div>
                 </div>
@@ -278,13 +278,13 @@
         <main class="flex-1 overflow-y-auto p-4 md:p-xl pb-24 bg-background">
             <div class="max-w-[1400px] mx-auto w-full flex flex-col gap-margin">
                 <section class="bg-primary text-on-primary border-2 border-on-surface shadow-[6px_6px_0px_0px_#171d19] p-xl flex flex-col gap-sm">
-                    <h1 class="font-h1 text-h1 uppercase tracking-tight">Sensor Inventory</h1>
-                    <p class="font-body-lg text-body-lg text-primary-fixed max-w-2xl">Real-time telemetry and status overview for all active nodes.</p>
+                    <h1 class="font-h1 text-h1 uppercase tracking-tight">Inventaris Sensor</h1>
+                    <p class="font-body-lg text-body-lg text-primary-fixed max-w-2xl">Telemetri waktu-nyata dan ikhtisar status untuk semua node aktif.</p>
                 </section>
                 <section class="bg-surface-container-lowest border-2 border-on-surface shadow-[4px_4px_0px_0px_#171d19] p-lg flex flex-col md:flex-row gap-gutter items-center justify-between">
                     <div class="flex flex-1 w-full relative">
                         <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                        <input class="w-full bg-surface-container-lowest border-2 border-on-surface text-on-surface font-body-md text-body-md py-sm pl-[40px] pr-md focus:bg-surface-container focus:outline-none placeholder:text-outline transition-colors" placeholder="Search Node ID..." type="text"/>
+                        <input class="w-full bg-surface-container-lowest border-2 border-on-surface text-on-surface font-body-md text-body-md py-sm pl-[40px] pr-md focus:bg-surface-container focus:outline-none placeholder:text-outline transition-colors" placeholder="Cari ID Node..." type="text"/>
                     </div>
                     <div class="flex gap-gutter w-full md:w-auto">
                         <button class="flex items-center gap-sm bg-surface-container-lowest text-on-surface border-2 border-on-surface font-button text-button px-lg py-sm shadow-[3px_3px_0px_0px_#171d19] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all uppercase tracking-wide">
@@ -296,10 +296,10 @@
                     <table class="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                             <tr class="bg-primary text-on-primary border-b-2 border-on-surface">
-                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Node ID</th>
-                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Location</th>
-                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Readings</th>
-                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Latest Sync</th>
+                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">ID Node</th>
+                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Lokasi</th>
+                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Pembacaan</th>
+                                <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Sinkronisasi Terakhir</th>
                                 <th class="p-md font-label-caps text-label-caps uppercase tracking-wider text-right">Status</th>
                             </tr>
                         </thead>
@@ -316,15 +316,15 @@
         <main class="flex-1 p-gutter md:p-margin lg:p-xl pb-24 overflow-y-auto">
             <header class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                 <div>
-                    <h2 class="font-h1 text-h1 text-on-background mb-2">Historical Analytics</h2>
-                    <p class="font-body-lg text-body-lg text-on-surface-variant">System-wide performance trends over the last 100 samples.</p>
+                    <h2 class="font-h1 text-h1 text-on-background mb-2">Analisis Historis</h2>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant">Tren performa sistem selama 100 sampel terakhir.</p>
                 </div>
             </header>
             
             <section class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-lg">
                 <div class="bg-primary-container text-on-primary border-2 border-on-background p-lg shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] rounded-DEFAULT">
                     <div class="flex justify-between items-start mb-4">
-                        <span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Avg Temp</span>
+                        <span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Suhu Rata-rata</span>
                         <span class="material-symbols-outlined text-on-primary">thermostat</span>
                     </div>
                     <div class="font-h1 text-h1 mb-1" id="an-avg-temp">--°C</div>
@@ -332,7 +332,7 @@
                 
                 <div class="bg-primary-container text-on-primary border-2 border-on-background p-lg shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] rounded-DEFAULT">
                     <div class="flex justify-between items-start mb-4">
-                        <span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Avg Humidity</span>
+                        <span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Kelembaban Rata-rata</span>
                         <span class="material-symbols-outlined text-on-primary">humidity_percentage</span>
                     </div>
                     <div class="font-h1 text-h1 mb-1" id="an-avg-rh">--%</div>
@@ -340,7 +340,7 @@
                 
                 <div class="bg-primary-container text-on-primary border-2 border-on-background p-lg shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] rounded-DEFAULT">
                     <div class="flex justify-between items-start mb-4">
-                        <span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Avg Comfort Index</span>
+                        <span class="font-label-caps text-label-caps uppercase tracking-wider text-on-primary-container/80">Indeks Kenyamanan Rata-rata</span>
                         <span class="material-symbols-outlined text-on-primary">psychiatry</span>
                     </div>
                     <div class="font-h1 text-h1 mb-1" id="an-avg-ci">--%</div>
@@ -350,7 +350,7 @@
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
                 <div class="lg:col-span-2 bg-surface-container-lowest border-2 border-on-background rounded-DEFAULT flex flex-col">
                     <div class="bg-primary border-b-2 border-on-background p-4 flex justify-between items-center rounded-t-DEFAULT">
-                        <h3 class="font-h3 text-h3 text-on-primary m-0">Temperature & Humidity Correlation</h3>
+                        <h3 class="font-h3 text-h3 text-on-primary m-0">Korelasi Suhu & Kelembaban</h3>
                     </div>
                     <div class="p-lg flex-1 min-h-[400px] relative">
                         <canvas id="correlationChart" class="w-full h-full"></canvas>
@@ -360,7 +360,7 @@
                 <div class="flex flex-col gap-gutter">
                     <div class="bg-surface-container-lowest border-2 border-on-background rounded-DEFAULT flex-1 flex flex-col">
                         <div class="bg-inverse-surface border-b-2 border-on-background p-4 flex justify-between items-center rounded-t-DEFAULT">
-                            <h3 class="font-h3 text-h3 text-on-primary m-0 text-base">Comfort Distribution</h3>
+                            <h3 class="font-h3 text-h3 text-on-primary m-0 text-base">Distribusi Kenyamanan</h3>
                             <span class="material-symbols-outlined text-on-primary text-sm">bar_chart</span>
                         </div>
                         <div class="p-md flex-1 min-h-[250px] relative">
@@ -376,12 +376,12 @@
         <main class="flex-1 p-gutter md:p-margin lg:p-xl pb-24 overflow-y-auto bg-background">
             <header class="mb-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b-2 border-slate-900 pb-4">
                 <div>
-                    <h1 class="font-h1 text-h1 text-on-surface uppercase leading-none tracking-tighter">ML_EXPLAINABLE_AI</h1>
-                    <p class="font-body-lg text-body-lg text-secondary mt-2">Machine Learning regression models & SHAP (SHapley Additive exPlanations) for Room Temperature.</p>
+                    <h1 class="font-h1 text-h1 text-on-surface uppercase leading-none tracking-tighter">AI_DAPAT_DIJELASKAN_ML</h1>
+                    <p class="font-body-lg text-body-lg text-secondary mt-2">Model regresi Machine Learning & SHAP (SHapley Additive exPlanations) untuk Suhu Ruangan.</p>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="window.retrainML()" class="bg-white text-on-surface border-2 border-slate-900 px-4 py-2 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all flex items-center gap-2" id="btn-retrain">
-                        <span class="material-symbols-outlined text-[18px]">build</span> RETRAIN MODEL
+                        <span class="material-symbols-outlined text-[18px]">build</span> LATIH ULANG MODEL
                     </button>
                 </div>
             </header>
@@ -389,24 +389,24 @@
             <!-- Metrics Cards Grid -->
             <section class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-lg">
                 <div class="bg-emerald-600 text-white border-2 border-slate-900 p-lg hard-shadow rounded-DEFAULT">
-                    <span class="font-label-caps text-label-caps text-emerald-200 uppercase tracking-wider block mb-2">Best Model</span>
+                    <span class="font-label-caps text-label-caps text-emerald-200 uppercase tracking-wider block mb-2">Model Terbaik</span>
                     <div class="font-h3 text-h3 text-white leading-none font-bold" id="ml-best-model">--</div>
-                    <span class="text-xs text-emerald-200 mt-1 block">Selected by performance</span>
+                    <span class="text-xs text-emerald-200 mt-1 block">Dipilih berdasarkan performa</span>
                 </div>
                 <div class="bg-white border-2 border-slate-900 p-lg hard-shadow rounded-DEFAULT">
-                    <span class="font-label-caps text-label-caps text-slate-500 uppercase tracking-wider block mb-2">R² Score (Accuracy)</span>
+                    <span class="font-label-caps text-label-caps text-slate-500 uppercase tracking-wider block mb-2">Skor R² (Akurasi)</span>
                     <div class="font-h3 text-h3 text-slate-900 leading-none font-bold" id="ml-r2-score">--%</div>
-                    <span class="text-xs text-emerald-600 font-bold mt-1 block">Goodness of Fit</span>
+                    <span class="text-xs text-emerald-600 font-bold mt-1 block">Kesesuaian Model (Goodness of Fit)</span>
                 </div>
                 <div class="bg-white border-2 border-slate-900 p-lg hard-shadow rounded-DEFAULT">
                     <span class="font-label-caps text-label-caps text-slate-500 uppercase tracking-wider block mb-2">Mean Absolute Error (MAE)</span>
                     <div class="font-h3 text-h3 text-slate-900 leading-none font-bold" id="ml-mae">--°C</div>
-                    <span class="text-xs text-slate-500 mt-1 block">Avg absolute deviation</span>
+                    <span class="text-xs text-slate-500 mt-1 block">Deviasi absolut rata-rata</span>
                 </div>
                 <div class="bg-slate-900 text-white border-2 border-slate-900 p-lg hard-shadow rounded-DEFAULT">
                     <span class="font-label-caps text-label-caps text-slate-400 uppercase tracking-wider block mb-2">RMSE (Root MSE)</span>
                     <div class="font-h3 text-h3 text-emerald-400 leading-none font-bold" id="ml-rmse">--°C</div>
-                    <span class="text-xs text-slate-400 mt-1 block font-bold">Standard deviation of residuals</span>
+                    <span class="text-xs text-slate-400 mt-1 block font-bold">Deviasi standar dari residu</span>
                 </div>
             </section>
 
@@ -417,10 +417,10 @@
                     <!-- Global Feature Importance Bar Chart -->
                     <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
                         <div class="bg-emerald-600 border-b-2 border-slate-900 p-4">
-                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">GLOBAL FEATURE IMPORTANCE</h3>
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">PENTINGNYA FITUR GLOBAL</h3>
                         </div>
                         <div class="p-lg">
-                            <p class="text-sm text-secondary mb-4">Relative importance of each feature in predicting room temperature. Higher value means more influence.</p>
+                            <p class="text-sm text-secondary mb-4">Pentingnya relatif setiap fitur dalam memprediksi suhu ruangan. Nilai yang lebih tinggi berarti pengaruh yang lebih besar.</p>
                             <div class="flex flex-col gap-3" id="ml-importance-bars">
                                 <!-- Bars will be dynamically injected -->
                             </div>
@@ -430,11 +430,11 @@
                     <!-- Global Beeswarm Explanation Plot -->
                     <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
                         <div class="bg-slate-900 border-b-2 border-slate-900 p-4">
-                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">SHAP SUMMARY PLOT (BEESWARM)</h3>
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">PLOT RINGKASAN SHAP (BEESWARM)</h3>
                         </div>
                         <div class="p-lg text-center bg-slate-50">
-                            <p class="text-sm text-secondary mb-4 text-left">Shows feature values and their positive/negative impact direction on temperature prediction.</p>
-                            <img src="ml_plots/shap_summary.png" alt="SHAP Summary Plot" class="max-w-full mx-auto border-2 border-slate-900 shadow-sm" onerror="this.src='https://placehold.co/600x400?text=No+Summary+Plot+Available'"/>
+                            <p class="text-sm text-secondary mb-4 text-left">Menunjukkan nilai fitur dan arah dampak positif/negatifnya pada prediksi suhu.</p>
+                            <img src="ml_plots/shap_summary.png" alt="Plot Ringkasan SHAP" class="max-w-full mx-auto border-2 border-slate-900 shadow-sm" onerror="this.src='https://placehold.co/600x400?text=Plot+Ringkasan+Tidak+Tersedia'"/>
                         </div>
                     </div>
                 </div>
@@ -444,23 +444,23 @@
                     <!-- Latest Sample Local Explanation -->
                     <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
                         <div class="bg-slate-900 border-b-2 border-slate-900 p-4">
-                            <h3 class="font-h3 text-h3 text-white m-0 uppercase tracking-tight">LATEST TELEMETRY EXPLANATION</h3>
+                            <h3 class="font-h3 text-h3 text-white m-0 uppercase tracking-tight">PENJELASAN TELEMETRI TERBARU</h3>
                         </div>
                         <div class="p-lg">
                             <div class="flex justify-between items-center mb-6 p-4 bg-emerald-50 border-2 border-slate-900">
                                 <div>
-                                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-widest block">Actual Temp</span>
+                                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-widest block">Suhu Aktual</span>
                                     <div class="text-3xl font-black text-slate-900" id="ml-actual-temp">--°C</div>
                                 </div>
                                 <div class="text-slate-400 text-2xl font-bold">➔</div>
                                 <div>
-                                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-widest block">Predicted Temp</span>
+                                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-widest block">Suhu Prediksi</span>
                                     <div class="text-3xl font-black text-emerald-600" id="ml-pred-temp">--°C</div>
                                 </div>
                             </div>
                             
-                            <h4 class="font-bold text-slate-900 uppercase text-sm mb-3">SHAP Waterfall Analysis (How prediction was formed)</h4>
-                            <p class="text-sm text-secondary mb-4">Base Room Temperature is <strong id="ml-base-temp">--°C</strong>. Individual telemetry features pushed it up or pulled it down to reach the prediction:</p>
+                            <h4 class="font-bold text-slate-900 uppercase text-sm mb-3">Analisis Air Terjun SHAP (Bagaimana prediksi terbentuk)</h4>
+                            <p class="text-sm text-secondary mb-4">Suhu Ruangan Dasar adalah <strong id="ml-base-temp">--°C</strong>. Fitur telemetri individu mendorongnya naik atau menariknya turun untuk mencapai prediksi:</p>
                             
                             <div class="flex flex-col gap-2 mb-6" id="ml-waterfall-list">
                                 <!-- Injected single values -->
@@ -468,7 +468,7 @@
 
                             <!-- Waterfall Plot Image -->
                             <div class="text-center bg-slate-50 p-2 border-2 border-slate-900">
-                                <img src="ml_plots/shap_waterfall_latest.png" alt="SHAP Waterfall Plot" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/600x400?text=No+Waterfall+Plot+Available'"/>
+                                <img src="ml_plots/shap_waterfall_latest.png" alt="Plot Air Terjun SHAP" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/600x400?text=Plot+Air+Terjun+Tidak+Tersedia'"/>
                             </div>
                         </div>
                     </div>
@@ -476,18 +476,18 @@
                     <!-- Under the Hood: Feature Dependence -->
                     <div class="bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT flex flex-col">
                         <div class="bg-emerald-600 border-b-2 border-slate-900 p-4">
-                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">FEATURE CORRELATIONS (SHAP DEPENDENCE)</h3>
+                            <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">KORELASI FITUR (DEPENDENSI SHAP)</h3>
                         </div>
                         <div class="p-lg">
-                            <p class="text-sm text-secondary mb-4">Plots showing the exact relationship between a feature's values and its corresponding SHAP value (impact score).</p>
+                            <p class="text-sm text-secondary mb-4">Plot yang menunjukkan hubungan tepat antara nilai fitur dan nilai SHAP yang sesuai (skor dampak).</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="border-2 border-slate-900 p-2 text-center bg-slate-50">
-                                    <span class="text-xs font-bold block mb-1">Kelembaban Dependence</span>
-                                    <img src="ml_plots/shap_dependence_kelembaban.png" alt="Kelembaban Dependence" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=No+Data'"/>
+                                    <span class="text-xs font-bold block mb-1">Dependensi Kelembaban</span>
+                                    <img src="ml_plots/shap_dependence_kelembaban.png" alt="Dependensi Kelembaban" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=Tidak+Ada+Data'"/>
                                 </div>
                                 <div class="border-2 border-slate-900 p-2 text-center bg-slate-50">
-                                    <span class="text-xs font-bold block mb-1">Day of Week Dependence</span>
-                                    <img src="ml_plots/shap_dependence_day_of_week.png" alt="Day of Week Dependence" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=No+Data'"/>
+                                    <span class="text-xs font-bold block mb-1">Dependensi Hari dalam Seminggu</span>
+                                    <img src="ml_plots/shap_dependence_day_of_week.png" alt="Dependensi Hari dalam Seminggu" class="max-w-full mx-auto" onerror="this.src='https://placehold.co/300x200?text=Tidak+Ada+Data'"/>
                                 </div>
                             </div>
                         </div>
@@ -498,15 +498,15 @@
             <!-- Models Comparison Table -->
             <section class="mt-lg bg-white border-2 border-slate-900 hard-shadow rounded-DEFAULT overflow-x-auto">
                 <div class="bg-slate-900 p-4 border-b-2 border-slate-900">
-                    <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">REGRESSION MODELS COMPARISON</h3>
+                    <h3 class="font-h3 text-h3 text-white uppercase tracking-tight m-0">PERBANDINGAN MODEL REGRESI</h3>
                 </div>
                 <table class="w-full text-left border-collapse min-w-[600px]">
                     <thead>
                         <tr class="bg-emerald-50 text-slate-900 border-b-2 border-slate-900">
-                            <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Model Name</th>
+                            <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Nama Model</th>
                             <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Mean Absolute Error (MAE)</th>
                             <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Root Mean Squared Error (RMSE)</th>
-                            <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">R² Score (Accuracy)</th>
+                            <th class="p-md font-label-caps text-label-caps uppercase tracking-wider">Skor R² (Akurasi)</th>
                             <th class="p-md font-label-caps text-label-caps uppercase tracking-wider text-right">Status</th>
                         </tr>
                     </thead>

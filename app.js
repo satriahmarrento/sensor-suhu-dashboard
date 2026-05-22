@@ -81,13 +81,13 @@ async function fetchData(manualSync = false) {
         const json = await res.json();
         if (json.data && Array.isArray(json.data)) {
             state.data = json.data;
-            updateConnectionStatus('ok', 'ONLINE');
+            updateConnectionStatus('ok', 'TERKONEKSI');
         } else {
             throw new Error('Invalid data format');
         }
     } catch (e) {
         console.error(e);
-        updateConnectionStatus('error', 'OFFLINE');
+        updateConnectionStatus('error', 'TERPUTUS');
     }
     
     if (manualSync) {
@@ -131,14 +131,14 @@ function renderDashboard() {
         el('kpi-temp').textContent = `${Number(latest.suhu).toFixed(1)}°C`;
         const diff = (Number(latest.suhu) - 24).toFixed(1); // Assuming 24 is baseline
         const trend = diff >= 0 ? 'arrow_upward' : 'arrow_downward';
-        el('kpi-temp-sub').innerHTML = `<span class="material-symbols-outlined text-[16px]">${trend}</span> ${diff > 0 ? '+' : ''}${diff}°C from baseline`;
+        el('kpi-temp-sub').innerHTML = `<span class="material-symbols-outlined text-[16px]">${trend}</span> ${diff > 0 ? '+' : ''}${diff}°C dari baseline`;
     }
     
     if (el('kpi-rh')) {
         el('kpi-rh').textContent = `${Number(latest.kelembaban).toFixed(0)}%`;
         const isOptimal = latest.kelembaban >= 40 && latest.kelembaban <= 60;
         el('kpi-rh-sub').innerHTML = isOptimal ? 
-            `<span class="material-symbols-outlined text-[16px]">check_circle</span> Optimal Range` : 
+            `<span class="material-symbols-outlined text-[16px]">check_circle</span> Rentang Optimal` : 
             `<span class="material-symbols-outlined text-[16px] text-amber-500">warning</span> Suboptimal`;
         el('kpi-rh-sub').className = isOptimal ? "font-body-md text-body-md text-emerald-600 mt-1 flex items-center gap-1 font-bold" : "font-body-md text-body-md text-amber-600 mt-1 flex items-center gap-1 font-bold";
     }
@@ -147,7 +147,7 @@ function renderDashboard() {
         const ci = Number(latest.comfort_index || 0).toFixed(0);
         el('kpi-ci').textContent = `${ci}%`;
         const color = ci >= 70 ? 'text-emerald-400' : ci >= 40 ? 'text-amber-400' : 'text-error';
-        const label = ci >= 70 ? 'Optimal Comfort' : ci >= 40 ? 'Marginal' : 'Critical';
+        const label = ci >= 70 ? 'Kenyamanan Optimal' : ci >= 40 ? 'Marginal' : 'Kritis';
         el('kpi-ci-sub').innerHTML = `<span class="material-symbols-outlined text-[16px] ${color}">psychiatry</span> <span class="${color}">${label}</span>`;
     }
     
@@ -165,14 +165,14 @@ function renderDashboard() {
                         <span class="material-symbols-outlined text-[16px] block">warning</span>
                     </div>
                     <div class="flex-1">
-                        <div class="font-button text-button text-slate-900 uppercase">Suboptimal Comfort - Primary Node</div>
-                        <div class="font-body-md text-body-md text-secondary text-sm">CI dropped to ${Number(a.comfort_index).toFixed(0)}% (Temp: ${Number(a.suhu).toFixed(1)}°C)</div>
+                        <div class="font-button text-button text-slate-900 uppercase">Kenyamanan Suboptimal - Node Utama</div>
+                        <div class="font-body-md text-body-md text-secondary text-sm">CI turun ke ${Number(a.comfort_index).toFixed(0)}% (Suhu: ${Number(a.suhu).toFixed(1)}°C)</div>
                     </div>
                     <span class="font-label-caps text-label-caps text-secondary shrink-0">${a.waktu}</span>
                 </li>
             `).join('');
         } else {
-            list.innerHTML = `<li class="py-3 flex items-start gap-3 text-secondary text-sm">No recent anomalies detected.</li>`;
+            list.innerHTML = `<li class="py-3 flex items-start gap-3 text-secondary text-sm">Tidak ada anomali terbaru yang terdeteksi.</li>`;
         }
     }
     
@@ -191,7 +191,7 @@ function renderDashboard() {
                 labels: slice.map(d => d.waktu),
                 datasets: [
                     {
-                        label: 'Temperature (°C)',
+                        label: 'Suhu (°C)',
                         data: slice.map(d => Number(d.suhu)),
                         borderColor: '#00855d',
                         backgroundColor: '#00855d22',
@@ -200,7 +200,7 @@ function renderDashboard() {
                         yAxisID: 'y'
                     },
                     {
-                        label: 'Humidity (%)',
+                        label: 'Kelembaban (%)',
                         data: slice.map(d => Number(d.kelembaban)),
                         borderColor: '#111827',
                         borderWidth: 1,
@@ -248,12 +248,12 @@ function renderInventory() {
     const ci = Number(latest.comfort_index || 0);
     const statusBg = ci >= 70 ? 'bg-primary-fixed text-on-primary-fixed-variant' : ci >= 40 ? 'bg-amber-200 text-amber-900' : 'bg-error text-on-error';
     const statusDot = ci >= 70 ? '<span class="w-[6px] h-[6px] bg-primary rounded-full"></span>' : ci < 40 ? '<span class="w-[6px] h-[6px] bg-white rounded-full animate-pulse"></span>' : '';
-    const statusText = ci >= 70 ? 'Active' : ci >= 40 ? 'Warning' : 'Fault';
+    const statusText = ci >= 70 ? 'Aktif' : ci >= 40 ? 'Peringatan' : 'Gangguan';
     
     let html = `
         <tr class="border-b-[1px] border-on-surface hover:bg-surface-container-low transition-colors group">
             <td class="p-md font-bold tracking-tight">ND-MAIN-01</td>
-            <td class="p-md text-on-surface-variant flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">factory</span> Server Room</td>
+            <td class="p-md text-on-surface-variant flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">factory</span> Ruang Server</td>
             <td class="p-md">T: ${Number(latest.suhu).toFixed(1)}°C | H: ${Number(latest.kelembaban).toFixed(0)}%</td>
             <td class="p-md font-mono text-sm text-outline">${latest.tanggal} ${latest.waktu}</td>
             <td class="p-md text-right">
@@ -266,14 +266,14 @@ function renderInventory() {
     
     // Mock Nodes
     const mockNodes = [
-        { id: 'ND-AUX-02', loc: 'Storage Bay', type: 'Ambient Temp', status: 'Standby', classes: 'bg-secondary-container text-on-secondary-container border-[1px] border-on-surface' },
-        { id: 'ND-AUX-03', loc: 'Lobby', type: 'Thermal', status: 'Active', classes: 'bg-primary-fixed text-on-primary-fixed-variant', dot: true },
-        { id: 'ND-EXT-04', loc: 'Outdoor Unit', type: 'Environment', status: 'Active', classes: 'bg-primary-fixed text-on-primary-fixed-variant', dot: true },
+        { id: 'ND-AUX-02', loc: 'Area Penyimpanan', type: 'Suhu Sekitar', status: 'Siaga', classes: 'bg-secondary-container text-on-secondary-container border-[1px] border-on-surface' },
+        { id: 'ND-AUX-03', loc: 'Lobi', type: 'Termal', status: 'Aktif', classes: 'bg-primary-fixed text-on-primary-fixed-variant', dot: true },
+        { id: 'ND-EXT-04', loc: 'Unit Luar Ruangan', type: 'Lingkungan', status: 'Aktif', classes: 'bg-primary-fixed text-on-primary-fixed-variant', dot: true },
     ];
     
     mockNodes.forEach(m => {
         html += `
-            <tr class="border-b-[1px] border-on-surface hover:bg-surface-container-low transition-colors group ${m.status === 'Standby' ? 'bg-surface-container-high/30' : ''}">
+            <tr class="border-b-[1px] border-on-surface hover:bg-surface-container-low transition-colors group ${m.status === 'Siaga' ? 'bg-surface-container-high/30' : ''}">
                 <td class="p-md font-bold tracking-tight">${m.id}</td>
                 <td class="p-md text-on-surface-variant flex items-center gap-sm"><span class="material-symbols-outlined text-[18px]">domain</span> ${m.loc}</td>
                 <td class="p-md">${m.type}</td>
@@ -315,7 +315,7 @@ function renderAnalytics() {
                 labels: slice.map(d => d.waktu),
                 datasets: [
                     {
-                        label: 'Temperature',
+                        label: 'Suhu',
                         data: slice.map(d => Number(d.suhu)),
                         borderColor: '#006948',
                         borderWidth: 2,
@@ -323,7 +323,7 @@ function renderAnalytics() {
                         yAxisID: 'y'
                     },
                     {
-                        label: 'Humidity',
+                        label: 'Kelembaban',
                         data: slice.map(d => Number(d.kelembaban)),
                         borderColor: '#68dba9',
                         borderWidth: 2,
@@ -348,10 +348,10 @@ function renderAnalytics() {
     // Distribution Chart (Comfort Index Bins)
     const distCanvas = el('distributionChart');
     if (distCanvas && !state.charts.dist) {
-        const bins = { '0-40 (Critical)': 0, '41-70 (Marginal)': 0, '71-100 (Optimal)': 0 };
+        const bins = { '0-40 (Kritis)': 0, '41-70 (Marginal)': 0, '71-100 (Optimal)': 0 };
         slice.forEach(d => {
             const ci = Number(d.comfort_index);
-            if (ci <= 40) bins['0-40 (Critical)']++;
+            if (ci <= 40) bins['0-40 (Kritis)']++;
             else if (ci <= 70) bins['41-70 (Marginal)']++;
             else bins['71-100 (Optimal)']++;
         });
@@ -361,7 +361,7 @@ function renderAnalytics() {
             data: {
                 labels: Object.keys(bins),
                 datasets: [{
-                    label: 'Count',
+                    label: 'Jumlah',
                     data: Object.values(bins),
                     backgroundColor: ['#ba1a1a', '#f5b84b', '#00855d'],
                     borderColor: '#111827',
@@ -380,7 +380,7 @@ function renderAnalytics() {
 }
 
 window.exportCSV = function() {
-    if (!state.data.length) return alert("No data to export");
+    if (!state.data.length) return alert("Tidak ada data untuk diekspor");
     const headers = ["Tanggal", "Waktu", "Suhu", "Kelembaban", "Comfort Index", "Status"];
     const rows = state.data.map(d => [d.tanggal, d.waktu, d.suhu, d.kelembaban, d.comfort_index, d.status].join(','));
     const csv = [headers.join(','), ...rows].join('\n');
@@ -447,7 +447,7 @@ async function renderML() {
                     const color = isPositive ? 'text-rose-600 font-bold' : 'text-blue-600 font-bold';
                     const bg = isPositive ? 'bg-rose-50 border-rose-300' : 'bg-blue-50 border-blue-300';
                     const icon = isPositive ? 'arrow_upward' : 'arrow_downward';
-                    const directionText = isPositive ? 'pushed temp UP' : 'pulled temp DOWN';
+                    const directionText = isPositive ? 'mendorong suhu NAIK' : 'menarik suhu TURUN';
                     
                     return `
                         <div class="flex items-center justify-between p-3 border-2 border-slate-900 ${bg} rounded-DEFAULT">
@@ -455,7 +455,7 @@ async function renderML() {
                                 <span class="material-symbols-outlined text-[18px] font-bold ${color}">${icon}</span>
                                 <div>
                                     <span class="font-bold text-slate-800 uppercase font-space-grotesk">${s.feat}</span>
-                                    <span class="text-xs text-slate-500 block">Current value: ${s.raw}</span>
+                                    <span class="text-xs text-slate-500 block">Nilai saat ini: ${s.raw}</span>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -474,7 +474,7 @@ async function renderML() {
             tbody.innerHTML = Object.entries(ml.all_models_results).map(([modelName, metrics]) => {
                 const isBest = modelName === ml.model_name;
                 const statusBg = isBest ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700';
-                const statusText = isBest ? 'Selected' : 'Alternative';
+                const statusText = isBest ? 'Terpilih' : 'Alternatif';
                 return `
                     <tr class="border-b-2 border-slate-900 hover:bg-slate-50 transition-colors ${isBest ? 'font-bold bg-emerald-50/30' : ''}">
                         <td class="p-md text-slate-900 font-space-grotesk uppercase">${modelName}</td>
@@ -505,19 +505,19 @@ async function renderML() {
             const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const actionButtonOrInstructions = isLocalhost ? `
                 <button onclick="window.retrainML()" class="bg-emerald-600 text-white border-2 border-slate-900 px-6 py-3 font-button text-button uppercase hover:shadow-[4px_4px_0px_0px_rgba(17,24,39,1)] active:translate-y-0.5 active:translate-x-0.5 transition-all inline-flex items-center gap-2" id="btn-retrain">
-                    <span class="material-symbols-outlined">build</span> Run ML Pipeline & Retrain
+                    <span class="material-symbols-outlined">build</span> Jalankan ML Pipeline & Latih Ulang
                 </button>
             ` : `
                 <div class="p-4 bg-slate-50 border-2 border-dashed border-slate-300 rounded-DEFAULT text-slate-600 max-w-md mx-auto mt-4">
-                    <p class="font-bold mb-1">To enable ML Dashboard features:</p>
-                    <p class="text-sm">Run retraining locally: <code>python ml/run_pipeline.py</code>, then commit and push the updated files to GitHub.</p>
+                    <p class="font-bold mb-1">Untuk mengaktifkan fitur Dasbor ML:</p>
+                    <p class="text-sm">Jalankan pelatihan ulang secara lokal: <code>python ml/run_pipeline.py</code>, lalu commit dan push file yang diperbarui ke GitHub.</p>
                 </div>
             `;
             container.innerHTML = `
                 <div class="p-8 text-center bg-white border-2 border-slate-900 m-6 hard-shadow">
                     <span class="material-symbols-outlined text-[64px] text-red-600 mb-4 animate-bounce">warning</span>
-                    <h2 class="text-2xl font-black uppercase text-slate-900 mb-2">No ML Pipeline Results Found</h2>
-                    <p class="text-secondary mb-4 max-w-md mx-auto">The ML pipeline results file (ml-results.json) could not be loaded.</p>
+                    <h2 class="text-2xl font-black uppercase text-slate-900 mb-2">Hasil ML Pipeline Tidak Ditemukan</h2>
+                    <p class="text-secondary mb-4 max-w-md mx-auto">File hasil pipeline ML (ml-results.json) tidak dapat dimuat.</p>
                     ${actionButtonOrInstructions}
                 </div>
             `;
@@ -531,7 +531,7 @@ async function retrainML() {
     if (btn) {
         originalHtml = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> RETRAINING...`;
+        btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> MELATIH ULANG...`;
     }
     
     try {
@@ -540,21 +540,21 @@ async function retrainML() {
         try {
             json = await res.json();
         } catch (parseErr) {
-            throw new Error(`Server returned status ${res.status}: ${res.statusText}`);
+            throw new Error(`Server mengembalikan status ${res.status}: ${res.statusText}`);
         }
         if (json.success) {
-            alert('Model retraining complete! Reloading results...');
+            alert('Pelatihan ulang model selesai! Memuat ulang hasil...');
             await renderML();
         } else {
-            throw new Error(json.error || 'Retraining failed');
+            throw new Error(json.error || 'Pelatihan ulang gagal');
         }
     } catch (e) {
         console.error(e);
-        alert('Error retraining model: ' + e.message);
+        alert('Kesalahan saat melatih ulang model: ' + e.message);
     } finally {
         if (btn) {
             btn.disabled = false;
-            btn.innerHTML = originalHtml || `<span class="material-symbols-outlined text-[18px]">build</span> RETRAIN MODEL`;
+            btn.innerHTML = originalHtml || `<span class="material-symbols-outlined text-[18px]">build</span> LATIH ULANG MODEL`;
         }
     }
 }
